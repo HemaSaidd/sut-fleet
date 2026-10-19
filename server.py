@@ -287,9 +287,13 @@ class FleetSafetyHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(body)
             return
 
-        # Clean URL rewrite: /report -> /report.html
+        # Clean URL rewrites
         if parsed.path == "/report":
             self.path = "/report.html"
+            if parsed.query:
+                self.path += "?" + parsed.query
+        elif parsed.path == "/admin":
+            self.path = "/admin.html"
             if parsed.query:
                 self.path += "?" + parsed.query
 

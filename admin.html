@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>غرفة العمليات المركزية | جامعة السويدي للتكنولوجيا (SUT)</title>
+  <meta name="description" content="غرفة العمليات المركزية لمنظومة سلامة أسطول حافلات جامعة السويدي للتكنولوجيا - متابعة حية وطباعة الاستيكرات">
+  
+  <!-- Google Fonts: Cairo & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Admin specific tweaks */
+    .admin-locked {
+      filter: blur(8px);
+      pointer-events: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body class="theme-dark">
+
+  <!-- Top Global Header / Navigation -->
+  <header class="global-navbar" id="mainHeader">
+    <div class="nav-brand">
+      <div class="brand-shield sut-brand">
+        <span class="sut-badge-text">SUT</span>
+      </div>
+      <div class="brand-info">
+        <h1>Elsewedy <span class="accent-text">Operations Center</span></h1>
+        <p class="brand-sub">جامعة السويدي للتكنولوجيا • إدارة النقل والخدمات اللوجستية</p>
+      </div>
+    </div>
+
+    <!-- Active View Switcher Tabs -->
+    <div class="nav-view-switcher" id="viewSwitcher" role="tablist">
+      <button class="switcher-btn active" id="tabDashboardView" onclick="switchAdminView('operations-center')">
+        <span class="icon">🖥️</span>
+        <span>غرفة العمليات المركزية</span>
+        <span class="badge-counter pulse-glow" id="activeIncidentsBadge">0</span>
+      </button>
+      <button class="switcher-btn" id="tabStickerView" onclick="switchAdminView('sticker-generator')">
+        <span class="icon">🏷️</span>
+        <span>طباعة استيكرات الباصات (QR)</span>
+      </button>
+      <a href="index.html" target="_blank" class="switcher-btn" style="text-decoration:none">
+        <span class="icon">📱</span>
+        <span>معاينة صفحة الطالب ↗</span>
+      </a>
+    </div>
+
+    <!-- Quick Audio & Status Controls -->
+    <div class="nav-actions">
+      <button class="action-icon-btn hidden" id="adminLogoutBtn" onclick="handleAdminLogout()" title="تسجيل خروج مسؤول الحركة">
+        <span>🔒 خروج</span>
+      </button>
+      <button class="action-icon-btn" id="soundToggleBtn" onclick="toggleAudioAlerts()" title="تفعيل / كتم صوت التنبيهات">
+        <span id="soundIcon">🔔</span>
+      </button>
+      <div class="live-status-pill" id="serverLiveStatusPill">
+        <span class="status-dot pulsing" id="serverLiveDot"></span>
+        <span class="status-label" id="serverLiveLabel">مباشر SUT</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Live Push Toast Notifications Container -->
+  <div id="liveToastContainer" class="live-toast-container"></div>
+
+  <!-- Main View Container -->
+  <main class="app-main-viewport" id="appMainViewport">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: OPERATIONS COMMAND CENTER         -->
+    <!-- ========================================== -->
+    <section class="view-panel active-panel" id="viewOperationsCenter">
+      <div class="ops-dashboard-layout">
+        
+        <!-- Live KPI Summary Strip -->
+        <div class="ops-kpi-grid">
+          <div class="kpi-card glass-panel">
+            <div class="kpi-icon-wrap bg-blue-subtle">🚌</div>
+            <div class="kpi-data">
+              <span class="kpi-label">إجمالي خطوط SUT العاملة</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number" id="kpiActiveBuses">23</span>
+                <span class="kpi-trend positive">100% تغطية</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card glass-panel">
+            <div class="kpi-icon-wrap bg-red-subtle">🚨</div>
+            <div class="kpi-data">
+              <span class="kpi-label">بلاغات اليوم النشطة</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number" id="kpiTodayIncidents">0</span>
+                <span class="kpi-trend danger" id="kpiCriticalCount">0 حرجة</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card glass-panel">
+            <div class="kpi-icon-wrap bg-green-subtle">⏱️</div>
+            <div class="kpi-data">
+              <span class="kpi-label">متوسط سرعة الاستجابة</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number">4.8</span>
+                <span class="kpi-unit">دقائق</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card glass-panel">
+            <div class="kpi-icon-wrap bg-gold-subtle">🛡️</div>
+            <div class="kpi-data">
+              <span class="kpi-label">مؤشر سلامة أسطول السويدي</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number" id="kpiSafetyScore">95.2%</span>
+                <span class="kpi-trend positive">ممتاز</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Incident Workflow Grid (Stream & Details) -->
+        <div class="ops-main-grid">
+          
+          <!-- Left Column: Live Incident Feed & Filter -->
+          <div class="ops-stream-column glass-panel">
+            <div class="stream-header">
+              <div class="stream-title-row">
+                <h3>🔴 البلاغات الحية لخطوط جامعة السويدي</h3>
+                <span class="badge-pill bg-red-glow" id="streamCountPill">0 بلاغات</span>
+              </div>
+              <p class="stream-desc">بلاغات الطلاب الواردة مباشرة ومحدثة لحظياً</p>
+
+              <!-- Incident Filters -->
+              <div class="stream-filters-bar">
+                <button class="filter-chip active" onclick="filterIncidents('ALL', this)">الكل</button>
+                <button class="filter-chip chip-critical" onclick="filterIncidents('CRITICAL', this)">الحرجة</button>
+                <button class="filter-chip chip-pending" onclick="filterIncidents('PENDING', this)">قيد المتابعة</button>
+                <button class="filter-chip chip-resolved" onclick="filterIncidents('RESOLVED', this)">تم الحل</button>
+              </div>
+
+              <!-- Search Bar -->
+              <div class="stream-search-wrap">
+                <input type="text" id="incidentSearchInput" class="search-input" placeholder="بحث بالخط (مثال: العاشر، السويس، المعادي، الهرم...)" oninput="handleIncidentSearch(this.value)">
+              </div>
+            </div>
+
+            <!-- Incident Cards List -->
+            <div class="incidents-scroll-list" id="incidentsList">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Right Column: Incident Investigation & Action Workspace -->
+          <div class="ops-details-column glass-panel" id="incidentDetailsWorkspace">
+            <div class="empty-state-workspace" id="emptyWorkspaceState">
+              <div class="empty-icon">🛡️</div>
+              <h3>اختر بلاغاً من القائمة لبدء التحقيق واتخاذ الإجراء</h3>
+              <p>ستظهر هنا كامل التفاصيل مع صورة المخالفة وخريطة المسار والإجراءات الرسمية المعتمدة بجامعة السويدي.</p>
+            </div>
+
+            <div class="active-workspace-content hidden" id="activeWorkspaceContent">
+              <!-- Dynamically populated when an incident is clicked -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Lower Section: Contractors & Safety Analytics -->
+        <div class="ops-analytics-section">
+          
+          <!-- Contractors Risk & Performance Table -->
+          <div class="analytics-card glass-panel">
+            <div class="card-head-row">
+              <div>
+                <h3>🏢 أداء شركات النقل المقاولة المعتمدة لجامعة السويدي</h3>
+                <p>مؤشر أمان كل شركة وإجمالي الغرامات المطبقة عليها بناءً على بلاغات الطلاب</p>
+              </div>
+              <button class="btn-secondary-sm" onclick="exportVendorSafetyReport()">
+                <span>📊 تصدير بيان الخصومات</span>
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="ops-table" id="vendorsTable">
+                <thead>
+                  <tr>
+                    <th>شركة النقل</th>
+                    <th>عدد الحافلات</th>
+                    <th>إجمالي البلاغات</th>
+                    <th>مخالفات خطيرة</th>
+                    <th>مؤشر الأمان</th>
+                    <th>الغرامات الموقعة</th>
+                    <th>حالة الاعتماد</th>
+                  </tr>
+                </thead>
+                <tbody id="vendorsTableBody">
+                  <!-- Generated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Top Recurring Violations Breakdown -->
+          <div class="analytics-card glass-panel">
+            <div class="card-head-row">
+              <div>
+                <h3>⚠️ أكثر المخالفات رصداً على خطوط الجامعة</h3>
+                <p>التوزيع النسبي للمخالفات هذا الشهر</p>
+              </div>
+            </div>
+            <div class="violation-breakdown-list" id="violationBreakdownList">
+              <!-- Generated via JS -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: PRINTABLE BUS STICKER GENERATOR   -->
+    <!-- ========================================== -->
+    <section class="view-panel" id="viewStickerGenerator">
+      <div class="sticker-studio-layout">
+        
+        <!-- Controls Column -->
+        <div class="sticker-controls-panel glass-panel">
+          <div class="panel-head">
+            <h3>🏷️ مصمم استيكرات الباركود الرسمية (SUT)</h3>
+            <p>اختر الخط والحافلة لتوليد باركود رسمي معتمد ومقروء 100% بكاميرات الموبايل.</p>
+          </div>
+
+          <!-- Line and Bus Selector -->
+          <div class="control-group">
+            <label class="control-label" for="stickerBusSelect">اختر خط السير والحافلة:</label>
+            <select id="stickerBusSelect" class="custom-select" onchange="updateStickerPreview(this.value)">
+              <!-- Populated dynamically with all 23 SUT lines -->
+            </select>
+          </div>
+
+          <!-- IP & Domain Configuration -->
+          <div class="control-group host-config-box">
+            <label class="control-label" for="customHostInput">
+              🌐 عنوان السيرفر / رابط المنظومة (URL المشفر في الباركود):
+            </label>
+            <input type="text" id="customHostInput" class="custom-input" value="" oninput="handleHostChange(this.value)">
+            <div class="host-presets">
+              <button type="button" class="preset-pill active" onclick="setPresetHost(window.location.origin)">الدومين الحالي (Origin)</button>
+              <button type="button" class="preset-pill" onclick="setPresetHost('http://10.244.47.33:8080')">IP شبكة الجامعة</button>
+            </div>
+            <span class="host-hint">💡 هذا هو الرابط الذي سيفتحه هاتف الطالب عند مسح الباركود؛ يوجّه الطالب لصفحة الإبلاغ فوراً بدون أي وصول للوحة الإدارة.</span>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">حجم الاستيكر:</label>
+            <div class="segmented-control">
+              <button class="segment-btn active" onclick="setStickerSize('A4')">A4 (صدر الكابينة)</button>
+              <button class="segment-btn" onclick="setStickerSize('A5')">A5 (خلف المقاعد)</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="customEmergencyPhone">رقم خط الطوارئ المطبوع:</label>
+            <input type="text" id="customEmergencyPhone" class="custom-input" value="19616 - تحويلة الحركة 4" oninput="updateStickerPhone(this.value)">
+          </div>
+
+          <div class="print-actions-row">
+            <button class="btn-primary-print" onclick="window.print()">
+              <span>🖨️ طباعة الاستيكر الرسمي الحقيقي</span>
+            </button>
+            <button class="btn-test-link" onclick="testQrScanningLink()">
+              <span>🔗 تجربة الرابط بالمتصفح</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Sticker Visual Preview (Print Target) -->
+        <div class="sticker-preview-wrapper">
+          <div class="printable-sticker-sheet size-a4" id="printableSticker">
+            
+            <!-- Sticker Top Header -->
+            <div class="stk-header">
+              <div class="stk-uni-brand">
+                <div class="stk-emblem">⚡</div>
+                <div>
+                  <h2 class="stk-title">جامعة السويدي للتكنولوجيا</h2>
+                  <p class="stk-sub">ELSEWEDY UNIVERSITY OF TECHNOLOGY (SUT)</p>
+                  <span class="stk-dept">إدارة الحركة والخدمات اللوجستية • النقل الطلابي</span>
+                </div>
+              </div>
+              <div class="stk-badge-safety">
+                <span>سلامتك أولاً</span>
+                <strong>SAFETY FIRST</strong>
+              </div>
+            </div>
+
+            <!-- Sticker Center Call to Action -->
+            <div class="stk-cta-banner">
+              <h3>لحمايتك.. أبلغ فوراً عن أي تجاوز أمني أو سلوك مخالف</h3>
+              <p>مسؤول الحركة بالجامعة يتابع حافلتك مباشرة ويتدخل فور إرسال البلاغ</p>
+            </div>
+
+            <!-- Sticker Main Core (QR Code & Bus Identity) -->
+            <div class="stk-body-grid">
+              
+              <!-- QR Code Card -->
+              <div class="stk-qr-card">
+                <div class="qr-svg-holder" id="stickerQrHolder">
+                  <!-- SVG QR inserted via JS -->
+                </div>
+                <div class="stk-qr-instruction">
+                  <span class="cam-icon">📷</span>
+                  <strong>وجّه كاميرا موبايلك للمسح</strong>
+                  <span>(يعمل بدون برامج إضافية)</span>
+                </div>
+                <div class="stk-url-debug" id="stickerEncodedUrl"></div>
+              </div>
+
+              <!-- Bus & Driver Details Card -->
+              <div class="stk-bus-info-card">
+                
+                <div class="stk-info-row primary">
+                  <span class="stk-label">رقم الحافلة:</span>
+                  <span class="stk-value bus-number-lg" id="stkBusNumber">باص 101</span>
+                </div>
+
+                <div class="stk-info-row">
+                  <span class="stk-label">خط السير الرسمي:</span>
+                  <span class="stk-value" id="stkBusLine">خط العاشر من رمضان 1</span>
+                </div>
+
+                <div class="stk-info-row">
+                  <span class="stk-label">الشركة المشغلة:</span>
+                  <span class="stk-value" id="stkVendorName">شركة النيل للنقل والخدمات اللوجستية</span>
+                </div>
+
+                <!-- Examples of Reportable Violations Icons -->
+                <div class="stk-violations-teaser">
+                  <span class="teaser-title">أبلغ فوراً عن:</span>
+                  <div class="teaser-tags">
+                    <span class="t-tag">⚡ السرعة الزائدة</span>
+                    <span class="t-tag">📱 استخدام الموبايل</span>
+                    <span class="t-tag">🚬 التدخين</span>
+                    <span class="t-tag">🛑 الغرز والتجاوز الخطر</span>
+                    <span class="t-tag">❄️ أعطال التكييف</span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Sticker Footer: Direct Emergency & Privacy -->
+            <div class="stk-footer">
+              <div class="stk-footer-col">
+                <span class="f-icon">🔒</span>
+                <span>بلاغك سري ومحمي بالكامل - لا يُكشف للسائق أبداً</span>
+              </div>
+              <div class="stk-footer-col hotline">
+                <span class="f-icon">🚨</span>
+                <span>خط الطوارئ المباشر: <strong id="stkHotlinePhone">19616 - تحويلة الحركة 4</strong></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: Admin PIN Passcode Protection       -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop hidden" id="adminPinModal">
+    <div class="modal-box glass-panel admin-pin-box">
+      <div class="modal-head">
+        <h3>🔒 الدخول المصرح به - إدارة الحركة SUT</h3>
+        <button class="modal-close-btn" onclick="closeAdminPinModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-sub">هذه المنطقة مخصصة لمسؤولي حركة وسلامة أسطول جامعة السويدي للتكنولوجيا فقط.</p>
+        <form onsubmit="handleAdminPinSubmit(event)" class="admin-pin-form">
+          <div class="pin-input-group">
+            <label for="adminPinInput">أدخل رمز المرور السري (Admin PIN):</label>
+            <input type="password" id="adminPinInput" class="custom-input pin-field" placeholder="••••" maxlength="10" required autofocus autocomplete="off">
+            <div id="pinErrorMessage" class="pin-error-text hidden">⚠️ رمز المرور غير صحيح! يرجى مراجعة إدارة الحركة.</div>
+          </div>
+          <div class="pin-actions" style="margin-top: 1.25rem;">
+            <button type="submit" class="btn-primary-send" style="width:100%; justify-content:center;">
+              <span>🔓 دخول غرفة العمليات</span>
+            </button>
+          </div>
+          <span class="pin-hint">💡 الرمز المعتمد لغرفة العمليات هو رقم طوارئ الحركة: <strong>19616</strong></span>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Cloud SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <script src="js/data.js"></script>
+  <script src="js/qr-generator.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

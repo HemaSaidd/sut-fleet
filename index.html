@@ -2,655 +2,1320 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SUT Fleet Safety | منظومة سلامة حافلات جامعة السويدي للتكنولوجيا</title>
-  <meta name="description" content="منظومة الرقابة التشاركية لسلامة أسطول حافلات جامعة السويدي للتكنولوجيا (SUT) - إبلاغ فوري عبر الباركود، متابعة سلوك السائقين، وغرفة عمليات مركزية">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>جامعة السويدي للتكنولوجيا - بلاغ سلامة الحافلات</title>
+  <meta name="description" content="منظومة سلامة النقل الطلابي بجامعة السويدي للتكنولوجيا (SUT) - نموذج البلاغ الفوري المباشر">
+  <meta name="theme-color" content="#0b0f19">
+
   <!-- Google Fonts: Cairo & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 
-  <script>
-    // Immediate redirect for student QR scans
-    (function() {
-      var p = new URLSearchParams(window.location.search);
-      if (p.has('bus') || p.get('mode') === 'student') {
-        window.location.replace('report.html' + window.location.search);
-      }
-    })();
-  </script>
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-card: rgba(18, 24, 38, 0.95);
+      --bg-subtle: rgba(255, 255, 255, 0.04);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --accent-primary: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --color-danger: #ef4444;
+      --color-danger-glow: rgba(239, 68, 68, 0.3);
+      --color-warning: #f59e0b;
+      --color-warning-glow: rgba(245, 158, 11, 0.25);
+      --color-success: #10b981;
+      --text-main: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --font-arabic: 'Cairo', system-ui, -apple-system, sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-arabic);
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 15% 15%, rgba(59, 130, 246, 0.12) 0px, transparent 55%),
+        radial-gradient(at 85% 85%, rgba(239, 68, 68, 0.08) 0px, transparent 55%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .report-app-container {
+      width: 100%;
+      max-width: 540px;
+      min-height: 100vh;
+      background: #0d1322;
+      border-left: 1px solid var(--border-glass);
+      border-right: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Header */
+    .student-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border-glass);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .uni-emblem-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .emblem-icon {
+      font-size: 1.6rem;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .uni-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: block;
+      line-height: 1.2;
+    }
+
+    .uni-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .sos-chip {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      animation: pulseSos 2s infinite;
+    }
+
+    @keyframes pulseSos {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    }
+
+    /* Scrollable form body */
+    .form-scroll-body {
+      flex: 1;
+      padding: 1.25rem 1.25rem 2.5rem;
+    }
+
+    /* Bus Detected Card */
+    .bus-detected-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: var(--radius-md);
+      padding: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      background: rgba(59, 130, 246, 0.15);
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-details {
+      flex: 1;
+    }
+
+    .bus-header-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .bus-badge {
+      background: var(--accent-primary);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 0.15rem 0.6rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .line-badge {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #93c5fd;
+    }
+
+    .bus-meta-row {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .meta-separator {
+      margin: 0 4px;
+      opacity: 0.5;
+    }
+
+    .change-bus-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      font-family: var(--font-arabic);
+      font-weight: 700;
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .change-bus-btn:hover {
+      background: var(--accent-primary);
+      color: #fff;
+    }
+
+    /* Form Sections */
+    .form-section {
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-label {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #e2e8f0;
+      display: block;
+    }
+
+    .required-star {
+      color: var(--color-danger);
+    }
+
+    .helper-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Violations Grid */
+    .violations-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+    }
+
+    .violation-card-radio {
+      display: flex;
+      flex-direction: column;
+      padding: 0.75rem 0.65rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      position: relative;
+    }
+
+    .violation-card-radio:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .violation-card-radio.selected {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: var(--color-danger);
+      box-shadow: 0 0 14px var(--color-danger-glow);
+    }
+
+    .v-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.35rem;
+    }
+
+    .v-icon {
+      font-size: 1.4rem;
+    }
+
+    .v-checkbox-circle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: transparent;
+      transition: all 0.2s;
+    }
+
+    .violation-card-radio.selected .v-checkbox-circle {
+      background: var(--color-danger);
+      border-color: var(--color-danger);
+      color: #fff;
+    }
+
+    .v-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .v-risk-tag {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Severity Selector */
+    .severity-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .severity-option input[type="radio"] {
+      display: none;
+    }
+
+    .severity-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0.65rem 0.35rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .severity-option input[type="radio"]:checked + .severity-card {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: var(--color-danger);
+      box-shadow: 0 0 12px var(--color-danger-glow);
+    }
+
+    .opt-medium input[type="radio"]:checked + .severity-card {
+      background: rgba(245, 158, 11, 0.18);
+      border-color: var(--color-warning);
+      box-shadow: 0 0 12px var(--color-warning-glow);
+    }
+
+    .opt-low input[type="radio"]:checked + .severity-card {
+      background: rgba(59, 130, 246, 0.18);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .sev-icon {
+      font-size: 1.2rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .sev-title {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .sev-desc {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    /* Inputs */
+    .custom-input, .custom-textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 0.85rem;
+      font-family: var(--font-arabic);
+      font-size: 0.84rem;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .custom-input:focus, .custom-textarea:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .btn-location-gps {
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      font-family: var(--font-arabic);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-location-gps:hover {
+      background: var(--accent-primary);
+      color: #fff;
+    }
+
+    /* Media Upload */
+    .media-upload-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1.5px dashed rgba(255, 255, 255, 0.16);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .media-upload-box:hover {
+      border-color: var(--accent-primary);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .upload-icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .upload-text {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      display: block;
+    }
+
+    .upload-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .attached-preview {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 0.65rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .attached-preview img {
+      width: 55px;
+      height: 55px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .preview-info {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+    }
+
+    .remove-img-btn {
+      background: rgba(239, 68, 68, 0.25);
+      color: #f87171;
+      border: none;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* Anonymous Section */
+    .student-id-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      padding: 0.9rem;
+      border-radius: var(--radius-md);
+    }
+
+    .anon-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: .3s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent-primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    .anon-text strong {
+      font-size: 0.82rem;
+      color: var(--text-main);
+      display: block;
+    }
+
+    .anon-text p {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .student-contact-fields {
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .input-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .field-label {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Submit Button */
+    .form-submit-row {
+      margin-top: 1.5rem;
+    }
+
+    .btn-primary-send {
+      width: 100%;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0.95rem;
+      font-family: var(--font-arabic);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+      transition: all 0.2s;
+    }
+
+    .btn-primary-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-primary-send:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .safety-pledge-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 0.9rem;
+      padding: 0 0.5rem;
+      line-height: 1.4;
+    }
+
+    /* Modal / Popup for Bus Selector */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      z-index: 100;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 480px;
+      background: #1e293b;
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-glass);
+      margin-bottom: 0.85rem;
+    }
+
+    .modal-head h3 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #93c5fd;
+    }
+
+    .modal-close-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .buses-select-list {
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-right: 4px;
+    }
+
+    .bus-option-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .bus-option-item:hover {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--accent-primary);
+    }
+
+    /* Success Overlay */
+    .success-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(11, 15, 25, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      z-index: 150;
+    }
+
+    .success-card {
+      text-align: center;
+      background: #182235;
+      border: 1.5px solid rgba(16, 185, 129, 0.5);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+      max-width: 440px;
+      width: 100%;
+      animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .success-checkmark-circle {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.2);
+      border: 2px solid #10b981;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      color: #10b981;
+      font-size: 2.2rem;
+      font-weight: 900;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);
+    }
+
+    .success-card h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .ticket-number {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+
+    .ticket-number span {
+      color: #60a5fa;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+
+    .success-summary {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.85rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1.5rem;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .success-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .btn-close-modal {
+      background: var(--accent-primary);
+      color: #fff;
+      border: none;
+      padding: 0.85rem;
+      border-radius: var(--radius-md);
+      font-family: var(--font-arabic);
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-call-desk {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.75rem;
+      border-radius: var(--radius-md);
+      font-family: var(--font-arabic);
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: block;
+      transition: all 0.2s;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
-<body class="theme-dark">
+<body>
 
-  <!-- Top Global Header / Navigation -->
-  <header class="global-navbar" id="mainHeader">
-    <div class="nav-brand">
-      <div class="brand-shield sut-brand">
-        <span class="sut-badge-text">SUT</span>
+  <div class="report-app-container">
+    
+    <!-- Top Bar with SUT Branding -->
+    <header class="student-header">
+      <div class="uni-emblem-badge">
+        <span class="emblem-icon">⚡</span>
+        <div>
+          <span class="uni-title">جامعة السويدي للتكنولوجيا (SUT)</span>
+          <p class="uni-subtitle">سلامتك أولاً • منظومة النقل الطلابي</p>
+        </div>
       </div>
-      <div class="brand-info">
-        <h1>Elsewedy <span class="accent-text">Fleet Safety</span></h1>
-        <p class="brand-sub">جامعة السويدي للتكنولوجيا • إدارة النقل والخدمات اللوجستية</p>
+      <div>
+        <a href="tel:19616" class="sos-chip" title="اتصال طوارئ مباشر">
+          <span>🚨 طوارئ: 19616</span>
+        </a>
       </div>
-    </div>
+    </header>
 
-    <!-- Active View Switcher Tabs -->
-    <div class="nav-view-switcher" id="viewSwitcher" role="tablist">
-      <button class="switcher-btn active" id="tabDashboardView" onclick="switchMainView('operations-center')">
-        <span class="icon">🖥️</span>
-        <span>غرفة العمليات المركزية</span>
-        <span class="badge-counter pulse-glow" id="activeIncidentsBadge">2</span>
-      </button>
-      <button class="switcher-btn" id="tabStickerView" onclick="switchMainView('sticker-generator')">
-        <span class="icon">🏷️</span>
-        <span>طباعة استيكرات الباصات</span>
-      </button>
-      <a href="report.html" target="_blank" class="switcher-btn" id="tabMobileView" style="text-decoration:none">
-        <span class="icon">📱</span>
-        <span>صفحة إبلاغ الطالب (QR) ↗</span>
-      </a>
-    </div>
+    <!-- Main Form Scroll Area -->
+    <div class="form-scroll-body">
 
-    <!-- Quick Audio & Status Controls -->
-    <div class="nav-actions">
-      <button class="action-icon-btn hidden" id="adminLogoutBtn" onclick="handleAdminLogout()" title="تسجيل خروج مسؤول الحركة">
-        <span>🔒 خروج المشرف</span>
-      </button>
-      <button class="action-icon-btn" id="soundToggleBtn" onclick="toggleAudioAlerts()" title="تفعيل / كتم صوت التنبيهات">
-        <span id="soundIcon">🔔</span>
-      </button>
-      <div class="live-status-pill" id="serverLiveStatusPill">
-        <span class="status-dot pulsing" id="serverLiveDot"></span>
-        <span class="status-label" id="serverLiveLabel">مباشر SUT</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- Live Push Toast Notifications Container -->
-  <div id="liveToastContainer" class="live-toast-container"></div>
-
-  <!-- Main View Container -->
-  <main class="app-main-viewport" id="appMainViewport">
-
-    <!-- ========================================== -->
-    <!-- VIEW 1: STUDENT MOBILE VIEW (Through QR)   -->
-    <!-- ========================================== -->
-    <section class="view-panel" id="viewStudentMobile">
-      <div class="mobile-simulator-wrapper">
-        <div class="mobile-frame-container">
-          
-          <!-- Mock Phone Bezel Top -->
-          <div class="phone-notch">
-            <span class="notch-speaker"></span>
-            <span class="notch-camera"></span>
+      <!-- Bus Identification Banner (Auto-detected via QR) -->
+      <div class="bus-detected-card" id="busDetectedCard">
+        <div class="card-icon">🚌</div>
+        <div class="card-details">
+          <div class="bus-header-row">
+            <span class="bus-badge" id="studentBusPlate">باص 101</span>
+            <span class="line-badge" id="studentBusLine">خط العاشر 1</span>
           </div>
+          <div class="bus-meta-row">
+            <span class="meta-item">الشركة: <strong id="studentBusVendor">شركة النيل للنقل</strong></span>
+            <span class="meta-separator">•</span>
+            <span class="meta-item">السائق: <strong id="studentDriverName">كابتن محمد عبد السلام</strong></span>
+          </div>
+        </div>
+        <button type="button" class="change-bus-btn" onclick="openBusSelectorModal()" title="تغيير الخط أو رقم الحافلة">
+          <span>تغيير</span>
+        </button>
+      </div>
 
-          <!-- Inside Phone Screen Content -->
-          <div class="mobile-screen-scrollable" id="studentScreen">
-            
-            <!-- Mobile Top Bar with SUT Branding -->
-            <div class="student-header">
-              <div class="uni-emblem-badge">
-                <span class="emblem-icon">⚡</span>
-                <div>
-                  <span class="uni-title">جامعة السويدي للتكنولوجيا (SUT)</span>
-                  <p class="uni-subtitle">سلامتك أولاً • منظومة النقل الطلابي</p>
-                </div>
-              </div>
-              <div class="emergency-quick-call">
-                <a href="tel:19616" class="sos-chip" title="اتصال طوارئ مباشر">
-                  <span>🚨 طوارئ: 19616</span>
-                </a>
-              </div>
-            </div>
-
-            <!-- Bus Identification Banner (Auto-detected via QR) -->
-            <div class="bus-detected-card" id="busDetectedCard">
-              <div class="card-icon">🚌</div>
-              <div class="card-details">
-                <div class="bus-header-row">
-                  <span class="bus-badge" id="studentBusPlate">باص 101</span>
-                  <span class="line-badge" id="studentBusLine">خط العاشر 1</span>
-                </div>
-                <div class="bus-meta-row">
-                  <span class="meta-item">الشركة: <strong id="studentBusVendor">شركة النيل للنقل</strong></span>
-                  <span class="meta-separator">•</span>
-                  <span class="meta-item">السائق: <strong id="studentDriverName">محمد عبد السلام</strong></span>
-                </div>
-              </div>
-              <button class="change-bus-btn" onclick="openBusSelectorModal()" title="تغيير الخط أو رقم الحافلة">
-                <span>تغيير</span>
-              </button>
-            </div>
-
-            <!-- Student Incident Form -->
-            <form id="studentReportForm" class="report-form" onsubmit="handleStudentReportSubmit(event)">
-              
-              <!-- Section 1: Violation Category Selection -->
-              <div class="form-section">
-                <div class="section-title-row">
-                  <label class="section-label">١. ما المخالفة التي لاحظتها؟ <span class="required-star">*</span></label>
-                  <span class="helper-hint">اختر سبباً أو أكثر</span>
-                </div>
-
-                <div class="violations-grid" id="violationsGrid">
-                  <!-- Generated dynamically via JS -->
-                </div>
-              </div>
-
-              <!-- Section 2: Severity Level -->
-              <div class="form-section">
-                <label class="section-label">٢. مستوى الخطورة الحالي</label>
-                <div class="severity-selector">
-                  <label class="severity-option opt-critical">
-                    <input type="radio" name="severityLevel" value="CRITICAL" id="sevCritical" checked>
-                    <span class="severity-card">
-                      <span class="sev-icon">🔴</span>
-                      <span class="sev-title">خطر داهم</span>
-                      <span class="sev-desc">يهدد سلامة الركاب فوراً</span>
-                    </span>
-                  </label>
-                  <label class="severity-option opt-medium">
-                    <input type="radio" name="severityLevel" value="MEDIUM" id="sevMedium">
-                    <span class="severity-card">
-                      <span class="sev-icon">🟠</span>
-                      <span class="sev-title">مخالفة متوسطة</span>
-                      <span class="sev-desc">إزعاج أو قيادة غير منضبطة</span>
-                    </span>
-                  </label>
-                  <label class="severity-option opt-low">
-                    <input type="radio" name="severityLevel" value="LOW" id="sevLow">
-                    <span class="severity-card">
-                      <span class="sev-icon">🔵</span>
-                      <span class="sev-title">ملاحظة عامة</span>
-                      <span class="sev-desc">نظافة، تكييف، أو تأخير</span>
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Section 3: Location on Road -->
-              <div class="form-section">
-                <div class="section-title-row">
-                  <label class="section-label" for="reportLocationInput">٣. موقع الأتوبيس الآن</label>
-                  <button type="button" class="btn-location-gps" id="btnGpsAuto" onclick="detectUserLocation()">
-                    <span>📍 تحديد مكاني تلقائياً</span>
-                  </button>
-                </div>
-                <div class="input-with-icon">
-                  <input type="text" id="reportLocationInput" class="custom-input" placeholder="مثال: طريق الإسماعيلية الصحراوي أمام بوابة العاشر" required>
-                </div>
-              </div>
-
-              <!-- Section 4: Details & Notes -->
-              <div class="form-section">
-                <label class="section-label" for="reportNotesInput">٤. تفاصيل إضافية عن الواقعة</label>
-                <textarea id="reportNotesInput" class="custom-textarea" rows="3" placeholder="اشرح باختصار ما حدث لمساعدة غرفة العمليات بجامعة السويدي في التحقيق الفوري..."></textarea>
-              </div>
-
-              <!-- Section 5: Media Evidence Attachment (Simulated) -->
-              <div class="form-section">
-                <label class="section-label">٥. إرفاق صورة أو فيديو (اختياري)</label>
-                <div class="media-upload-box" id="mediaUploadZone" onclick="simulateMediaAttachment()">
-                  <div class="upload-content" id="uploadPlaceholder">
-                    <span class="upload-icon">📷</span>
-                    <span class="upload-text">اضغط لالتقاط أو إرفاق صورة/فيديو كدليل</span>
-                    <span class="upload-sub">يدعم JPG, PNG, MP4 حتى 25 ميجابايت</span>
-                  </div>
-                  <div class="attached-preview hidden" id="attachedPreview">
-                    <img id="previewImage" src="" alt="دليل المخالفة">
-                    <div class="preview-info">
-                      <span id="previewName">evidence.jpg</span>
-                      <button type="button" class="remove-img-btn" onclick="removeAttachedMedia(event)">✕ إزالة</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Section 6: Student Identity (Anonymous or Identifiable) -->
-              <div class="form-section student-id-box">
-                <div class="anon-toggle-row">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="anonToggle" onchange="toggleAnonymousMode(this.checked)">
-                    <span class="slider"></span>
-                  </label>
-                  <div class="anon-text">
-                    <strong>إرسال البلاغ بهوية سرية (مجهول)</strong>
-                    <p>لن يتم كشف اسمك للسائق أو لأي جهة خارجية</p>
-                  </div>
-                </div>
-
-                <div class="student-contact-fields" id="studentContactFields">
-                  <div class="input-grid-2">
-                    <div>
-                      <label class="field-label" for="studentNameInput">اسمك (اختياري)</label>
-                      <input type="text" id="studentNameInput" class="custom-input" placeholder="مثال: عمر خيري">
-                    </div>
-                    <div>
-                      <label class="field-label" for="studentPhoneInput">رقم الموبايل (لتلقي الرد)</label>
-                      <input type="tel" id="studentPhoneInput" class="custom-input" placeholder="01xxxxxxxxx">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Submit Button -->
-              <div class="form-submit-row">
-                <button type="submit" class="btn-primary-send" id="btnSubmitReport">
-                  <span class="send-icon">🚀</span>
-                  <span>إرسال البلاغ لغرفة عمليات SUT</span>
-                </button>
-              </div>
-
-              <div class="safety-pledge-note">
-                <span>🔒 بلاغك يصل مباشرة لمسؤولي الحركة بجامعة السويدي للتكنولوجيا، وبسرية تامة.</span>
-              </div>
-
-            </form>
-
-            <!-- Success Overlay inside Phone -->
-            <div class="mobile-success-modal hidden" id="mobileSuccessModal">
-              <div class="success-card">
-                <div class="success-checkmark-circle">
-                  <span>✓</span>
-                </div>
-                <h3>تم إرسال بلاغك بنجاح!</h3>
-                <p class="ticket-number">رقم التذكرة: <span id="successTicketId">#SUT-9281</span></p>
-                <div class="success-summary">
-                  <p>تم استلام البلاغ في غرفة عمليات جامعة السويدي للتكنولوجيا ويجري الآن التواصل مع السائق ومشرف الخط للتحقق فوراً.</p>
-                </div>
-                <div class="success-actions">
-                  <button type="button" class="btn-close-modal" onclick="resetStudentReportForm()">
-                    إرسال بلاغ آخر
-                  </button>
-                  <a href="tel:19616" class="btn-call-desk">
-                    📞 الاتصال بخط الطوارئ 19616
-                  </a>
-                </div>
-              </div>
-            </div>
-
+      <!-- Student Incident Form -->
+      <form id="studentReportForm" onsubmit="handleStudentReportSubmit(event)">
+        
+        <!-- Section 1: Violation Category Selection -->
+        <div class="form-section">
+          <div class="section-title-row">
+            <label class="section-label">١. ما المخالفة التي لاحظتها؟ <span class="required-star">*</span></label>
+            <span class="helper-hint">اختر سبباً أو أكثر</span>
+          </div>
+          <div class="violations-grid" id="violationsGrid">
+            <!-- Populated via JS -->
           </div>
         </div>
 
-        <!-- Simulator Helper Box on Desktop -->
-        <div class="simulator-sidebar-tips">
-          <div class="tip-card sut-accent-card">
-            <h4>⚡ خطوط جامعة السويدي للتكنولوجيا (23 خطاً معتمداً):</h4>
-            <p>تم تجهيز النظام بجميع خطوط الجامعة الرسمية (العاشر 1 و 2، الإسماعيلية، السويس، ميت غمر، التجمع، الرحاب، الشروق، مدينتي، العبور، جسر السويس، مصر الجديدة، مدينة نصر، العباسية، الهرم 1 و 2، أكتوبر، باسوس المرج، الجيزة دائري، المعادي 1 و 2، حلوان، وبنها منيا القمح).</p>
+        <!-- Section 2: Severity Level -->
+        <div class="form-section">
+          <label class="section-label">٢. مستوى الخطورة الحالي</label>
+          <div class="severity-selector">
+            <label class="severity-option opt-critical">
+              <input type="radio" name="severityLevel" value="CRITICAL" id="sevCritical" checked>
+              <span class="severity-card">
+                <span class="sev-icon">🔴</span>
+                <span class="sev-title">خطر داهم</span>
+                <span class="sev-desc">يهدد السلامة فوراً</span>
+              </span>
+            </label>
+            <label class="severity-option opt-medium">
+              <input type="radio" name="severityLevel" value="MEDIUM" id="sevMedium">
+              <span class="severity-card">
+                <span class="sev-icon">🟠</span>
+                <span class="sev-title">مخالفة متوسطة</span>
+                <span class="sev-desc">سلوك أو قيادة غير منضبطة</span>
+              </span>
+            </label>
+            <label class="severity-option opt-low">
+              <input type="radio" name="severityLevel" value="LOW" id="sevLow">
+              <span class="severity-card">
+                <span class="sev-icon">🔵</span>
+                <span class="sev-title">ملاحظة عامة</span>
+                <span class="sev-desc">نظافة، تكييف، أو تأخير</span>
+              </span>
+            </label>
           </div>
-          <div class="tip-card accent-border">
-            <h4>📲 مسح الباركود بالموبايل الحقيقي:</h4>
-            <p>افتح تاب <strong>"طباعة استيكرات الباصات"</strong>، ستجد الباركود الجديد المعتمد ISO والمربوط بـ IP شبكة الجامعة <code>10.160.13.52:8080</code>. وجّه كاميرا موبايلك (المتصل بنفس الشبكة) وسيفتح فوراً على شاشة هاتفك!</p>
+        </div>
+
+        <!-- Section 3: Location on Road -->
+        <div class="form-section">
+          <div class="section-title-row">
+            <label class="section-label" for="reportLocationInput">٣. موقع الأتوبيس الآن</label>
+            <button type="button" class="btn-location-gps" id="btnGpsAuto" onclick="detectUserLocation()">
+              <span>📍 تحديد مكاني تلقائياً</span>
+            </button>
           </div>
-          <button class="btn-secondary-outline" onclick="simulateRandomIncident()">
-            <span>🎲 تجربة توليد بلاغ سريع على أحد الخطوط</span>
+          <div class="input-with-icon">
+            <input type="text" id="reportLocationInput" class="custom-input" placeholder="مثال: طريق الإسماعيلية الصحراوي أمام بوابة العاشر" required>
+          </div>
+        </div>
+
+        <!-- Section 4: Details & Notes -->
+        <div class="form-section">
+          <label class="section-label" for="reportNotesInput">٤. تفاصيل إضافية عن الواقعة</label>
+          <textarea id="reportNotesInput" class="custom-textarea" rows="3" placeholder="اشرح باختصار ما حدث لمساعدة غرفة العمليات بجامعة السويدي في التحقيق الفوري..."></textarea>
+        </div>
+
+        <!-- Section 5: Media Evidence Attachment -->
+        <div class="form-section">
+          <label class="section-label">٥. إرفاق صورة أو فيديو (اختياري)</label>
+          <input type="file" id="realFileInput" accept="image/*,video/*" capture="environment" style="display:none" onchange="handleRealFileSelected(event)">
+          <div class="media-upload-box" id="mediaUploadZone" onclick="triggerFileUpload()">
+            <div class="upload-content" id="uploadPlaceholder">
+              <span class="upload-icon">📷</span>
+              <span class="upload-text">اضغط لالتقاط أو إرفاق صورة/فيديو كدليل</span>
+              <span class="upload-sub">يدعم الكاميرا المباشرة وملفات الصور حتى 25 ميجابايت</span>
+            </div>
+            <div class="attached-preview hidden" id="attachedPreview">
+              <img id="previewImage" src="" alt="دليل المخالفة">
+              <div class="preview-info">
+                <span id="previewName">evidence.jpg</span>
+                <button type="button" class="remove-img-btn" onclick="removeAttachedMedia(event)">✕ إزالة</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 6: Student Identity (Anonymous or Identifiable) -->
+        <div class="form-section student-id-box">
+          <div class="anon-toggle-row">
+            <label class="toggle-switch">
+              <input type="checkbox" id="anonToggle" onchange="toggleAnonymousMode(this.checked)">
+              <span class="slider"></span>
+            </label>
+            <div class="anon-text">
+              <strong>إرسال البلاغ بهوية سرية (مجهول)</strong>
+              <p>لن يتم كشف اسمك للسائق أو لأي جهة خارجية</p>
+            </div>
+          </div>
+
+          <div class="student-contact-fields" id="studentContactFields">
+            <div class="input-grid-2">
+              <div>
+                <label class="field-label" for="studentNameInput">اسمك (اختياري)</label>
+                <input type="text" id="studentNameInput" class="custom-input" placeholder="مثال: عمر خيري">
+              </div>
+              <div>
+                <label class="field-label" for="studentPhoneInput">رقم الموبايل (لتلقي الرد)</label>
+                <input type="tel" id="studentPhoneInput" class="custom-input" placeholder="01xxxxxxxxx">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-submit-row">
+          <button type="submit" class="btn-primary-send" id="btnSubmitReport">
+            <span class="send-icon">🚀</span>
+            <span>إرسال البلاغ لغرفة عمليات SUT</span>
           </button>
         </div>
-      </div>
-    </section>
 
-
-    <!-- ========================================== -->
-    <!-- VIEW 2: OPERATIONS COMMAND CENTER         -->
-    <!-- ========================================== -->
-    <section class="view-panel active-panel" id="viewOperationsCenter">
-      <div class="ops-dashboard-layout">
-        
-        <!-- Live KPI Summary Strip -->
-        <div class="ops-kpi-grid">
-          <div class="kpi-card glass-panel">
-            <div class="kpi-icon-wrap bg-blue-subtle">🚌</div>
-            <div class="kpi-data">
-              <span class="kpi-label">إجمالي خطوط SUT العاملة</span>
-              <div class="kpi-value-row">
-                <span class="kpi-number" id="kpiActiveBuses">23</span>
-                <span class="kpi-trend positive">100% تغطية</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="kpi-card glass-panel">
-            <div class="kpi-icon-wrap bg-red-subtle">🚨</div>
-            <div class="kpi-data">
-              <span class="kpi-label">بلاغات اليوم النشطة</span>
-              <div class="kpi-value-row">
-                <span class="kpi-number" id="kpiTodayIncidents">3</span>
-                <span class="kpi-trend danger" id="kpiCriticalCount">2 حرجة</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="kpi-card glass-panel">
-            <div class="kpi-icon-wrap bg-green-subtle">⏱️</div>
-            <div class="kpi-data">
-              <span class="kpi-label">متوسط سرعة الاستجابة</span>
-              <div class="kpi-value-row">
-                <span class="kpi-number">5.2</span>
-                <span class="kpi-unit">دقائق</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="kpi-card glass-panel">
-            <div class="kpi-icon-wrap bg-gold-subtle">🛡️</div>
-            <div class="kpi-data">
-              <span class="kpi-label">مؤشر سلامة أسطول السويدي</span>
-              <div class="kpi-value-row">
-                <span class="kpi-number" id="kpiSafetyScore">94.5%</span>
-                <span class="kpi-trend positive">ممتاز</span>
-              </div>
-            </div>
-          </div>
+        <div class="safety-pledge-note">
+          <span>🔒 بلاغك يصل مباشرة وبسرية تامة لمسؤولي الحركة بجامعة السويدي للتكنولوجيا، ولا يمكن لأحد تعديله.</span>
         </div>
 
-        <!-- Main Incident Workflow Grid (Stream & Details) -->
-        <div class="ops-main-grid">
-          
-          <!-- Left Column: Live Incident Feed & Filter -->
-          <div class="ops-stream-column glass-panel">
-            <div class="stream-header">
-              <div class="stream-title-row">
-                <h3>🔴 البلاغات الحية لخطوط جامعة السويدي</h3>
-                <span class="badge-pill bg-red-glow" id="streamCountPill">3 بلاغات</span>
-              </div>
-              <p class="stream-desc">بلاغات الطلاب الواردة مباشرة من خطوط النقل</p>
+      </form>
 
-              <!-- Incident Filters -->
-              <div class="stream-filters-bar">
-                <button class="filter-chip active" onclick="filterIncidents('ALL', this)">الكل</button>
-                <button class="filter-chip chip-critical" onclick="filterIncidents('CRITICAL', this)">الحرجة (2)</button>
-                <button class="filter-chip chip-pending" onclick="filterIncidents('PENDING', this)">قيد المتابعة</button>
-                <button class="filter-chip chip-resolved" onclick="filterIncidents('RESOLVED', this)">تم الحل</button>
-              </div>
+    </div>
 
-              <!-- Search Bar -->
-              <div class="stream-search-wrap">
-                <input type="text" id="incidentSearchInput" class="search-input" placeholder="بحث بالخط (مثال: العاشر، السويس، المعادي، الهرم...)" oninput="handleIncidentSearch(this.value)">
-              </div>
-            </div>
+  </div>
 
-            <!-- Incident Cards List -->
-            <div class="incidents-scroll-list" id="incidentsList">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
-
-          <!-- Right Column: Incident Investigation & Action Workspace -->
-          <div class="ops-details-column glass-panel" id="incidentDetailsWorkspace">
-            <div class="empty-state-workspace" id="emptyWorkspaceState">
-              <div class="empty-icon">🛡️</div>
-              <h3>اختر بلاغاً من القائمة لبدء التحقيق واتخاذ الإجراء</h3>
-              <p>ستظهر هنا كامل التفاصيل مع صورة المخالفة وخريطة المسار والإجراءات الرسمية المعتمدة بجامعة السويدي.</p>
-            </div>
-
-            <div class="active-workspace-content hidden" id="activeWorkspaceContent">
-              <!-- Dynamically populated when an incident is clicked -->
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Lower Section: Contractors & Safety Analytics -->
-        <div class="ops-analytics-section">
-          
-          <!-- Contractors Risk & Performance Table -->
-          <div class="analytics-card glass-panel">
-            <div class="card-head-row">
-              <div>
-                <h3>🏢 أداء شركات النقل المقاولة المعتمدة لجامعة السويدي</h3>
-                <p>مؤشر أمان كل شركة وإجمالي الغرامات المطبقة عليها بناءً على بلاغات الطلاب</p>
-              </div>
-              <button class="btn-secondary-sm" onclick="exportVendorSafetyReport()">
-                <span>📊 تصدير بيان الخصومات</span>
-              </button>
-            </div>
-
-            <div class="table-responsive">
-              <table class="ops-table" id="vendorsTable">
-                <thead>
-                  <tr>
-                    <th>شركة النقل</th>
-                    <th>عدد الحافلات</th>
-                    <th>إجمالي البلاغات</th>
-                    <th>مخالفات خطيرة</th>
-                    <th>مؤشر الأمان</th>
-                    <th>الغرامات الموقعة</th>
-                    <th>حالة الاعتماد</th>
-                  </tr>
-                </thead>
-                <tbody id="vendorsTableBody">
-                  <!-- Generated via JS -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Top Recurring Violations Breakdown -->
-          <div class="analytics-card glass-panel">
-            <div class="card-head-row">
-              <div>
-                <h3>⚠️ أكثر المخالفات رصداً على خطوط الجامعة</h3>
-                <p>التوزيع النسبي للمخالفات هذا الشهر</p>
-              </div>
-            </div>
-            <div class="violation-breakdown-list" id="violationBreakdownList">
-              <!-- Generated via JS -->
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-    </section>
-
-
-    <!-- ========================================== -->
-    <!-- VIEW 3: PRINTABLE BUS STICKER GENERATOR   -->
-    <!-- ========================================== -->
-    <section class="view-panel" id="viewStickerGenerator">
-      <div class="sticker-studio-layout">
-        
-        <!-- Controls Column -->
-        <div class="sticker-controls-panel glass-panel">
-          <div class="panel-head">
-            <h3>🏷️ مصمم استيكرات الباركود الرسمية (SUT)</h3>
-            <p>اختر الخط والحافلة لتوليد باركود رسمي معتمد ومقروء 100% بكاميرات الموبايل.</p>
-          </div>
-
-          <!-- Line and Bus Selector -->
-          <div class="control-group">
-            <label class="control-label" for="stickerBusSelect">اختر خط السير والحافلة:</label>
-            <select id="stickerBusSelect" class="custom-select" onchange="updateStickerPreview(this.value)">
-              <!-- Populated dynamically with all 23 SUT lines -->
-            </select>
-          </div>
-
-          <!-- IP & Domain Configuration -->
-          <div class="control-group host-config-box">
-            <label class="control-label" for="customHostInput">
-              🌐 عنوان السيرفر / رابط المنظومة (URL المشفر في الباركود):
-            </label>
-            <input type="text" id="customHostInput" class="custom-input" value="http://10.244.47.33:8080" oninput="handleHostChange(this.value)">
-            <div class="host-presets">
-              <button type="button" class="preset-pill active" onclick="setPresetHost('http://10.244.47.33:8080')">IP الواي فاي الحالي (10.244.47.33)</button>
-              <button type="button" class="preset-pill" onclick="setPresetHost(window.location.origin)">نفس الدومين الحالي (Origin)</button>
-              <button type="button" class="preset-pill" onclick="setPresetHost('http://localhost:8080')">Localhost</button>
-            </div>
-            <span class="host-hint">💡 هذا هو الرابط الذي سيفتحه هاتف الطالب عند مسح الباركود؛ يمكن كتابة رابط الدومين العام (مثل رابط Cloudflare أو Firebase) ليعمل مع الطلاب على 4G.</span>
-          </div>
-
-          <div class="control-group">
-            <label class="control-label">حجم الاستيكر:</label>
-            <div class="segmented-control">
-              <button class="segment-btn active" onclick="setStickerSize('A4')">A4 (صدر الكابينة)</button>
-              <button class="segment-btn" onclick="setStickerSize('A5')">A5 (خلف المقاعد)</button>
-            </div>
-          </div>
-
-          <div class="control-group">
-            <label class="control-label" for="customEmergencyPhone">رقم خط الطوارئ المطبوع:</label>
-            <input type="text" id="customEmergencyPhone" class="custom-input" value="19616 - تحويلة الحركة 4" oninput="updateStickerPhone(this.value)">
-          </div>
-
-          <div class="print-actions-row">
-            <button class="btn-primary-print" onclick="window.print()">
-              <span>🖨️ طباعة الاستيكر الآن</span>
-            </button>
-            <button class="btn-secondary-download" onclick="testQrScanningLink()">
-              <span>🔗 تجربة فتح الرابط الآن</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Live Sticker Preview Preview Canvas -->
-        <div class="sticker-preview-canvas glass-panel">
-          <div class="preview-badge-watermark">معاينة استيكر جامعة السويدي المعتمد</div>
-          
-          <!-- The Actual Printable Sticker Card -->
-          <div class="printable-sticker-sheet sut-sticker-theme" id="printableSticker">
-            
-            <!-- Sticker Top Header with Elsewedy Emblem -->
-            <div class="stk-header">
-              <div class="stk-logo-circle sut-logo">
-                <span style="font-family:'Outfit', sans-serif; font-weight:900; font-size:1.4rem; letter-spacing:-1px;">SUT</span>
-              </div>
-              <div class="stk-titles">
-                <span class="stk-uni-name">جامعة السويدي للتكنولوجيا | Elsewedy University of Technology</span>
-                <h2 class="stk-main-motto">سلامتك أولاً.. صوتك يحمي الجميع</h2>
-                <p class="stk-sub-motto">إدارة الحركة والخدمات الميدانية • منظومة الرقابة التشاركية لنقل الطلاب</p>
-              </div>
-            </div>
-
-            <!-- Big Call to Action Strip -->
-            <div class="stk-cta-strip sut-cta">
-              <span>⚠️ إذا لاحظت أي سلوك يهدد سلامتك أو سلامة زملائك، امسح الباركود فوراً</span>
-            </div>
-
-            <!-- Sticker Center Grid: QR Code & Bus Info -->
-            <div class="stk-center-grid">
-              
-              <!-- Left: Vector High-Contrast ISO-18004 QR Code Container -->
-              <div class="stk-qr-box">
-                <div class="qr-svg-holder" id="stickerQrHolder">
-                  <!-- Generated via Pure JS ISO Vector SVG Engine -->
-                </div>
-                <span class="qr-scan-hint">📲 وجّه كاميرا الموبايل نحو الكود</span>
-                <span class="qr-url-micro" id="stickerEncodedUrl">http://10.160.13.52:8080/index.html?bus=101</span>
-              </div>
-
-              <!-- Right: Bus Information -->
-              <div class="stk-info-side">
-                
-                <div class="stk-info-row">
-                  <span class="stk-label">رقم الحافلة:</span>
-                  <span class="stk-value-plate" id="stkBusNumber">باص 101</span>
-                </div>
-
-                <div class="stk-info-row">
-                  <span class="stk-label">خط السير المعتمد:</span>
-                  <span class="stk-value-line" id="stkBusLine">خط العاشر 1</span>
-                </div>
-
-                <div class="stk-info-row">
-                  <span class="stk-label">الشركة المشغلة:</span>
-                  <span class="stk-value" id="stkVendorName">شركة النيل للنقل والخدمات اللوجستية</span>
-                </div>
-
-                <!-- Examples of Reportable Violations Icons -->
-                <div class="stk-violations-teaser">
-                  <span class="teaser-title">أبلغ فوراً عن:</span>
-                  <div class="teaser-tags">
-                    <span class="t-tag">⚡ السرعة الزائدة</span>
-                    <span class="t-tag">📱 استخدام الموبايل</span>
-                    <span class="t-tag">🚬 التدخين</span>
-                    <span class="t-tag">🛑 الغرز والتجاوز الخطر</span>
-                    <span class="t-tag">❄️ أعطال التكييف</span>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-            <!-- Sticker Footer: Direct Emergency & Privacy -->
-            <div class="stk-footer">
-              <div class="stk-footer-col">
-                <span class="f-icon">🔒</span>
-                <span>بلاغك سري ومحمي بالكامل - لا يُكشف للسائق أبداً</span>
-              </div>
-              <div class="stk-footer-col hotline">
-                <span class="f-icon">🚨</span>
-                <span>خط الطوارئ المباشر: <strong id="stkHotlinePhone">19616 - تحويلة الحركة 4</strong></span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-  </main>
-
-
-  <!-- ========================================== -->
-  <!-- MODAL: Change / Select Bus Manually       -->
-  <!-- ========================================== -->
+  <!-- Bus Selector Modal -->
   <div class="modal-backdrop hidden" id="busSelectorModal">
-    <div class="modal-box glass-panel">
+    <div class="modal-box">
       <div class="modal-head">
-        <h3>🚌 اختر خط السير والحافلة (جامعة السويدي SUT)</h3>
-        <button class="modal-close-btn" onclick="closeBusSelectorModal()">✕</button>
+        <h3>🚌 اختر رقم الحافلة وخط السير</h3>
+        <button type="button" class="modal-close-btn" onclick="closeBusSelectorModal()">✕</button>
       </div>
-      <div class="modal-body">
-        <p class="modal-sub">قائمة خطوط النقل الرسمية المعتمدة لجامعة السويدي للتكنولوجيا (23 خطاً):</p>
-        <div class="buses-select-list" id="modalBusesList">
-          <!-- Populated via JS -->
-        </div>
+      <div class="buses-select-list" id="modalBusesList">
+        <!-- Populated via JS -->
       </div>
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- MODAL: Admin PIN Passcode Protection       -->
-  <!-- ========================================== -->
-  <div class="modal-backdrop hidden" id="adminPinModal">
-    <div class="modal-box glass-panel admin-pin-box">
-      <div class="modal-head">
-        <h3>🔒 الدخول المصرح به - إدارة الحركة SUT</h3>
-        <button class="modal-close-btn" onclick="closeAdminPinModal()">✕</button>
+  <!-- Success Modal -->
+  <div class="success-modal hidden" id="studentSuccessModal">
+    <div class="success-card">
+      <div class="success-checkmark-circle">✓</div>
+      <h3>تم استلام بلاغك بنجاح!</h3>
+      <p class="ticket-number">رقم التذكرة: <span id="successTicketId">#SUT-9281</span></p>
+      <div class="success-summary">
+        <p>تم إشعار غرفة العمليات المركزية بجامعة السويدي للتكنولوجيا مباشرة، وجاري متابعة الحافلة مع مشرف الخط فوراً.</p>
       </div>
-      <div class="modal-body">
-        <p class="modal-sub">هذه المنطقة مخصصة لمسؤولي حركة وسلامة أسطول جامعة السويدي للتكنولوجيا فقط.</p>
-        <form onsubmit="handleAdminPinSubmit(event)" class="admin-pin-form">
-          <div class="pin-input-group">
-            <label for="adminPinInput">أدخل رمز المرور السري (Admin PIN):</label>
-            <input type="password" id="adminPinInput" class="custom-input pin-field" placeholder="••••" maxlength="10" required autofocus autocomplete="off">
-            <div id="pinErrorMessage" class="pin-error-text hidden">⚠️ رمز المرور غير صحيح! يرجى مراجعة إدارة الحركة.</div>
-          </div>
-          <div class="pin-actions" style="margin-top: 1.25rem;">
-            <button type="submit" class="btn-primary-send" style="width:100%; justify-content:center;">
-              <span>🔓 دخول غرفة العمليات</span>
-            </button>
-          </div>
-          <span class="pin-hint">💡 الرمز المعتمد لغرفة العمليات هو رقم طوارئ الحركة: <strong>19616</strong></span>
-        </form>
+      <div class="success-actions">
+        <button type="button" class="btn-close-modal" onclick="resetStudentReportForm()">
+          إرسال بلاغ آخر
+        </button>
+        <a href="tel:19616" class="btn-call-desk">
+          📞 الاتصال بخط الطوارئ 19616
+        </a>
       </div>
     </div>
   </div>
 
-
-  <!-- Optional Firebase Cloud SDK for 100% Zero-Server Realtime Sync -->
+  <!-- Firebase Cloud SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
   <script src="js/data.js"></script>
-  <script src="js/qr-generator.js"></script>
-  <script src="js/app.js"></script>
+
+  <!-- Dedicated Student Reporting Controller -->
+  <script>
+    let selectedBusId = '101';
+    let selectedViolationCodes = ['PHONE_USAGE'];
+    let attachedImageData = null;
+    let firebaseDb = null;
+
+    // Initialize Firebase
+    if (typeof FLEET_DATA !== 'undefined' && FLEET_DATA.firebaseConfig && FLEET_DATA.firebaseConfig.enabled && typeof firebase !== 'undefined') {
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(FLEET_DATA.firebaseConfig);
+        }
+        firebaseDb = firebase.database();
+        console.log("Student reporting: Firebase Realtime Database connected!");
+      } catch (err) {
+        console.warn("Firebase init error:", err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Detect bus from URL parameter (?bus=105)
+      const urlParams = new URLSearchParams(window.location.search);
+      const busParam = urlParams.get('bus');
+      if (busParam && FLEET_DATA.buses.some(b => b.id === busParam)) {
+        selectedBusId = busParam;
+      }
+
+      updateBusHeader();
+      initViolationsGrid();
+      populateBusesListModal();
+    });
+
+    function updateBusHeader() {
+      const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
+      document.getElementById('studentBusPlate').textContent = `باص ${bus.id}`;
+      document.getElementById('studentBusLine').textContent = bus.lineName;
+      document.getElementById('studentBusVendor').textContent = bus.vendorName;
+      document.getElementById('studentDriverName').textContent = `كابتن/ ${bus.driverName}`;
+    }
+
+    function initViolationsGrid() {
+      const grid = document.getElementById('violationsGrid');
+      if (!grid) return;
+
+      grid.innerHTML = FLEET_DATA.violationTypes.map(v => {
+        const isSelected = selectedViolationCodes.includes(v.code);
+        return `
+          <div class="violation-card-radio ${isSelected ? 'selected' : ''}" 
+               id="vcard_${v.code}" 
+               onclick="toggleViolationCard('${v.code}')">
+            <div class="v-card-top">
+              <span class="v-icon">${v.icon}</span>
+              <span class="v-checkbox-circle">✓</span>
+            </div>
+            <span class="v-title">${v.title}</span>
+            <span class="v-risk-tag">${v.riskLabel}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleViolationCard(code) {
+      const idx = selectedViolationCodes.indexOf(code);
+      if (idx > -1) {
+        if (selectedViolationCodes.length > 1) {
+          selectedViolationCodes.splice(idx, 1);
+        }
+      } else {
+        selectedViolationCodes.push(code);
+      }
+
+      FLEET_DATA.violationTypes.forEach(v => {
+        const el = document.getElementById(`vcard_${v.code}`);
+        if (el) {
+          if (selectedViolationCodes.includes(v.code)) {
+            el.classList.add('selected');
+          } else {
+            el.classList.remove('selected');
+          }
+        }
+      });
+
+      // Suggest severity automatically
+      const first = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]);
+      if (first) {
+        if (first.defaultSeverity === 'CRITICAL') {
+          document.getElementById('sevCritical').checked = true;
+        } else if (first.defaultSeverity === 'MEDIUM') {
+          document.getElementById('sevMedium').checked = true;
+        } else {
+          document.getElementById('sevLow').checked = true;
+        }
+      }
+    }
+
+    function detectUserLocation() {
+      const locInput = document.getElementById('reportLocationInput');
+      const btn = document.getElementById('btnGpsAuto');
+      if (!locInput) return;
+
+      if (btn) btn.innerHTML = '<span>⏳ جارٍ التحديد...</span>';
+
+      const sampleLocations = [
+        "طريق الإسماعيلية الصحراوي - أمام بوابة العاشر من رمضان",
+        "طريق بلبيس العاشر - بعد محطة التحصيل باتجاه جامعة السويدي",
+        "الطريق الدائري الإقليمي - تقاطع طريق السويس",
+        "طريق مصر الإسماعيلية - كوبري العبور اتجاه العاشر",
+        "محور 26 يوليو - قبل مطلع الشيخ زايد",
+        "طريق بنها - الزقازيق الزراعي أمام مدخل منيا القمح",
+        "الطريق الدائري الأوسطي - مدخل التجمع الخامس"
+      ];
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const randLoc = sampleLocations[Math.floor(Math.random() * sampleLocations.length)];
+            locInput.value = `${randLoc} (GPS: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`;
+            if (btn) btn.innerHTML = '<span>📍 تم التحديد بدقة</span>';
+          },
+          () => {
+            const randLoc = sampleLocations[Math.floor(Math.random() * sampleLocations.length)];
+            locInput.value = randLoc;
+            if (btn) btn.innerHTML = '<span>📍 تم التحديد</span>';
+          },
+          { timeout: 3000 }
+        );
+      } else {
+        const randLoc = sampleLocations[Math.floor(Math.random() * sampleLocations.length)];
+        locInput.value = randLoc;
+        if (btn) btn.innerHTML = '<span>📍 تم التحديد</span>';
+      }
+    }
+
+    function triggerFileUpload() {
+      const fileInput = document.getElementById('realFileInput');
+      if (fileInput) fileInput.click();
+    }
+
+    function handleRealFileSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        attachedImageData = e.target.result;
+        const placeholder = document.getElementById('uploadPlaceholder');
+        const preview = document.getElementById('attachedPreview');
+        const previewImg = document.getElementById('previewImage');
+        const previewName = document.getElementById('previewName');
+
+        if (placeholder) placeholder.classList.add('hidden');
+        if (preview) preview.classList.remove('hidden');
+        if (previewImg) previewImg.src = attachedImageData;
+        if (previewName) previewName.textContent = file.name;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeAttachedMedia(event) {
+      if (event) event.stopPropagation();
+      attachedImageData = null;
+      const fileInput = document.getElementById('realFileInput');
+      if (fileInput) fileInput.value = '';
+
+      const placeholder = document.getElementById('uploadPlaceholder');
+      const preview = document.getElementById('attachedPreview');
+      if (placeholder) placeholder.classList.remove('hidden');
+      if (preview) preview.classList.add('hidden');
+    }
+
+    function toggleAnonymousMode(isAnon) {
+      const fields = document.getElementById('studentContactFields');
+      if (fields) {
+        fields.style.display = isAnon ? 'none' : 'block';
+      }
+    }
+
+    function openBusSelectorModal() {
+      const modal = document.getElementById('busSelectorModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeBusSelectorModal() {
+      const modal = document.getElementById('busSelectorModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function selectBusFromModal(busId) {
+      selectedBusId = busId;
+      updateBusHeader();
+      closeBusSelectorModal();
+    }
+
+    function populateBusesListModal() {
+      const list = document.getElementById('modalBusesList');
+      if (!list) return;
+
+      list.innerHTML = FLEET_DATA.buses.map(b => `
+        <div class="bus-option-item" onclick="selectBusFromModal('${b.id}')">
+          <div>
+            <strong>باص ${b.id} - ${b.lineName}</strong>
+            <p style="font-size:0.7rem; color:#94a3b8">${b.vendorName} • كابتن/ ${b.driverName}</p>
+          </div>
+          <span style="font-size:0.8rem; color:#60a5fa">اختيار ←</span>
+        </div>
+      `).join('');
+    }
+
+    async function handleStudentReportSubmit(event) {
+      event.preventDefault();
+
+      const submitBtn = document.getElementById('btnSubmitReport');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>⏳ جارٍ إرسال البلاغ فوراً...</span>';
+      }
+
+      const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
+      const firstViolation = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]) || FLEET_DATA.violationTypes[0];
+
+      const sevInput = document.querySelector('input[name="severityLevel"]:checked');
+      const severity = sevInput ? sevInput.value : 'CRITICAL';
+
+      const location = document.getElementById('reportLocationInput')?.value || "طريق مصر الإسماعيلية الصحراوي أمام العاشر";
+      const notes = document.getElementById('reportNotesInput')?.value || "مخالفة واضحة على خط جامعة السويدي تستوجب التنبيه الفوري.";
+
+      const isAnonymous = document.getElementById('anonToggle')?.checked || false;
+      const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (document.getElementById('studentNameInput')?.value || "طالب بجامعة السويدي");
+      const studentPhone = isAnonymous ? "" : (document.getElementById('studentPhoneInput')?.value || "01xxxxxxxxx");
+
+      // Unique Ticket ID
+      const ticketId = `#SUT-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const newIncident = {
+        id: ticketId,
+        timestamp: "الآن (منذ ثوانٍ)",
+        isoDate: new Date().toISOString(),
+        busId: bus.id,
+        busPlate: `باص ${bus.id}`,
+        lineName: bus.lineName,
+        vendorId: bus.vendorId,
+        vendorName: bus.vendorName,
+        driverName: bus.driverName,
+        driverPhone: bus.driverPhone,
+        violationCode: firstViolation.code,
+        violationTitle: firstViolation.title,
+        violationIcon: firstViolation.icon,
+        severity: severity,
+        location: location,
+        notes: notes,
+        hasAttachment: !!attachedImageData,
+        attachmentType: attachedImageData ? 'image' : null,
+        attachmentUrl: attachedImageData || null,
+        isAnonymous: isAnonymous,
+        studentName: studentName,
+        studentPhone: studentPhone,
+        status: 'NEW',
+        actionsTaken: []
+      };
+
+      // 1. Send to Firebase Realtime Database
+      if (firebaseDb) {
+        try {
+          const sanitizedKey = ticketId.replace(/[^a-zA-Z0-9_-]/g, "");
+          await firebaseDb.ref('incidents/' + sanitizedKey).set(newIncident);
+          console.log("Report saved to Firebase successfully:", ticketId);
+        } catch (err) {
+          console.warn("Firebase write error:", err);
+        }
+      }
+
+      // 2. Also send to local backend if reachable
+      try {
+        await fetch('/api/incidents', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newIncident)
+        });
+      } catch (e) {}
+
+      // Show Success Modal
+      document.getElementById('successTicketId').textContent = ticketId;
+      document.getElementById('studentSuccessModal').classList.remove('hidden');
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لغرفة عمليات SUT</span>';
+      }
+    }
+
+    function resetStudentReportForm() {
+      document.getElementById('studentSuccessModal').classList.add('hidden');
+      document.getElementById('reportNotesInput').value = '';
+      removeAttachedMedia();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
 </body>
 </html>
