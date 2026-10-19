@@ -39,22 +39,51 @@ document.addEventListener('DOMContentLoaded', () => {
     initRealtimeStream();
   }
 
-  // Check URL parameters (e.g. ?bus=106&view=student-mobile)
+  // Check URL parameters (e.g. ?bus=106&mode=student)
   const urlParams = new URLSearchParams(window.location.search);
   const busParam = urlParams.get('bus');
-  if (busParam && FLEET_DATA.buses.some(b => b.id === busParam)) {
-    selectBus(busParam);
-  }
+  const modeParam = urlParams.get('mode');
   const viewParam = urlParams.get('view');
-  if (viewParam) {
-    switchMainView(viewParam);
+
+  const isStudent = (modeParam === 'student') || (busParam && !viewParam);
+
+  if (isStudent) {
+    document.body.classList.add('student-mode');
+    if (busParam && FLEET_DATA.buses.some(b => b.id === busParam)) {
+      selectBus(busParam);
+    }
+    switchMainView('student-mobile');
+  } else {
+    // Admin Flow
+    const isAdminAuth = sessionStorage.getItem('sut_admin_authorized') === 'true';
+    if (isAdminAuth) {
+      document.getElementById('adminLogoutBtn')?.classList.remove('hidden');
+      switchMainView(viewParam || 'operations-center');
+    } else {
+      switchMainView('student-mobile');
+      if (viewParam === 'operations-center' || viewParam === 'sticker-generator') {
+        AppState.pendingAdminView = viewParam;
+        openAdminPinModal();
+      }
+    }
   }
 });
 
 // ==========================================
-// VIEW SWITCHING
+// VIEW SWITCHING & SECURITY ACCESS
 // ==========================================
 function switchMainView(viewId) {
+  // Protect admin views with PIN if not authorized
+  if (viewId === 'operations-center' || viewId === 'sticker-generator') {
+    const isAuth = sessionStorage.getItem('sut_admin_authorized') === 'true';
+    if (!isAuth) {
+      AppState.pendingAdminView = viewId;
+      openAdminPinModal();
+      return;
+    }
+    document.getElementById('adminLogoutBtn')?.classList.remove('hidden');
+  }
+
   AppState.currentView = viewId;
 
   // Toggle buttons
@@ -79,6 +108,59 @@ function switchMainView(viewId) {
     document.getElementById('viewStickerGenerator')?.classList.add('active-panel');
     updateStickerPreview(AppState.stickerSelectedBusId);
   }
+}
+
+// ==========================================
+// ADMIN PIN AUTHENTICATION HANDLERS
+// ==========================================
+function openAdminPinModal() {
+  const modal = document.getElementById('adminPinModal');
+  const input = document.getElementById('adminPinInput');
+  const err = document.getElementById('pinErrorMessage');
+  if (err) err.classList.add('hidden');
+  if (input) {
+    input.value = '';
+    setTimeout(() => input.focus(), 150);
+  }
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAdminPinModal() {
+  const modal = document.getElementById('adminPinModal');
+  if (modal) modal.classList.add('hidden');
+  AppState.pendingAdminView = null;
+}
+
+function handleAdminPinSubmit(event) {
+  event.preventDefault();
+  const input = document.getElementById('adminPinInput');
+  const err = document.getElementById('pinErrorMessage');
+  const val = input ? input.value.trim() : '';
+
+  // Official SUT Fleet Operations PIN: 19616
+  if (val === '19616') {
+    sessionStorage.setItem('sut_admin_authorized', 'true');
+    closeAdminPinModal();
+    document.body.classList.remove('student-mode');
+    document.getElementById('adminLogoutBtn')?.classList.remove('hidden');
+    const target = AppState.pendingAdminView || 'operations-center';
+    AppState.pendingAdminView = null;
+    switchMainView(target);
+  } else {
+    if (err) err.classList.remove('hidden');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+  }
+}
+
+function handleAdminLogout() {
+  sessionStorage.removeItem('sut_admin_authorized');
+  document.getElementById('adminLogoutBtn')?.classList.add('hidden');
+  document.body.classList.add('student-mode');
+  switchMainView('student-mobile');
+  alert("🔒 تم تسجيل خروج المشرف وتأمين غرفة العمليات.");
 }
 
 // ==========================================
@@ -1224,9 +1306,8 @@ function updateStickerPreview(busId) {
   if (lineEl) lineEl.textContent = bus.lineName;
   if (vendorEl) vendorEl.textContent = bus.vendorName;
 
-  // The actual full URL encoded into the QR code
-  // Example: http://10.160.13.52:8080/index.html?bus=101&view=student-mobile
-  const targetUrl = `${AppState.systemHost}/index.html?bus=${bus.id}&view=student-mobile`;
+  // The actual full URL encoded into the QR code for students (student-mode enforced)
+  const targetUrl = `${AppState.systemHost}/index.html?bus=${bus.id}&mode=student`;
 
   if (urlDisplay) {
     urlDisplay.textContent = targetUrl;
@@ -1240,7 +1321,7 @@ function updateStickerPreview(busId) {
 
 function testQrScanningLink() {
   const bus = FLEET_DATA.buses.find(b => b.id === AppState.stickerSelectedBusId) || FLEET_DATA.buses[0];
-  const targetUrl = `${AppState.systemHost}/index.html?bus=${bus.id}&view=student-mobile`;
+  const targetUrl = `${AppState.systemHost}/index.html?bus=${bus.id}&mode=student`;
   window.open(targetUrl, '_blank');
 }
 

@@ -2272,4 +2272,100 @@ input:checked + .slider:before {
   }
 }
 
+/* ==========================================================
+   STUDENT MODE ENFORCEMENT (Zero Admin Access)
+   ========================================================== */
+body.student-mode .nav-view-switcher {
+  display: none !important;
+}
+
+body.student-mode #soundToggleBtn,
+body.student-mode #adminLogoutBtn {
+  display: none !important;
+}
+
+body.student-mode .mobile-simulator-wrapper {
+  gap: 0 !important;
+  padding: 0 !important;
+  justify-content: center;
+}
+
+body.student-mode .mobile-frame-container {
+  width: 100% !important;
+  max-width: 580px !important;
+  margin: 0 auto !important;
+  height: auto !important;
+  min-height: calc(100vh - 90px) !important;
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
+  background: var(--bg-card) !important;
+}
+
+body.student-mode .phone-notch {
+  display: none !important;
+}
+
+body.student-mode .mobile-screen-scrollable {
+  padding: 1.25rem 1.25rem 3rem !important;
+  height: auto !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+body.student-mode .mobile-simulator-wrapper > .tip-card {
+  display: none !important;
+}
+
+/* ==========================================================
+   ADMIN PIN PROTECTION MODAL
+   ========================================================== */
+.admin-pin-box {
+  max-width: 440px !important;
+  text-align: center;
+  border-top: 4px solid var(--accent-primary) !important;
+}
+
+.pin-field {
+  font-size: 1.6rem !important;
+  letter-spacing: 8px;
+  text-align: center;
+  margin-top: 0.75rem;
+  font-family: monospace;
+  font-weight: 800;
+  color: #60a5fa !important;
+}
+
+.pin-error-text {
+  color: #ef4444;
+  font-size: 0.82rem;
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.pin-hint {
+  display: block;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 1.25rem;
+  line-height: 1.4;
+}
+
+#adminLogoutBtn {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #f87171 !important;
+  font-size: 0.8rem !important;
+  width: auto !important;
+  padding: 0.4rem 0.8rem !important;
+  gap: 0.4rem;
+  font-weight: 700;
+}
+
+#adminLogoutBtn:hover {
+  background: rgba(239, 68, 68, 0.3) !important;
+  color: #fff !important;
+}
+
+
 

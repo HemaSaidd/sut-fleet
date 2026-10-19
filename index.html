@@ -47,6 +47,9 @@
 
     <!-- Quick Audio & Status Controls -->
     <div class="nav-actions">
+      <button class="action-icon-btn hidden" id="adminLogoutBtn" onclick="handleAdminLogout()" title="تسجيل خروج مسؤول الحركة">
+        <span>🔒 خروج المشرف</span>
+      </button>
       <button class="action-icon-btn" id="soundToggleBtn" onclick="toggleAudioAlerts()" title="تفعيل / كتم صوت التنبيهات">
         <span id="soundIcon">🔔</span>
       </button>
@@ -599,6 +602,34 @@
         <div class="buses-select-list" id="modalBusesList">
           <!-- Populated via JS -->
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: Admin PIN Passcode Protection       -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop hidden" id="adminPinModal">
+    <div class="modal-box glass-panel admin-pin-box">
+      <div class="modal-head">
+        <h3>🔒 الدخول المصرح به - إدارة الحركة SUT</h3>
+        <button class="modal-close-btn" onclick="closeAdminPinModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-sub">هذه المنطقة مخصصة لمسؤولي حركة وسلامة أسطول جامعة السويدي للتكنولوجيا فقط.</p>
+        <form onsubmit="handleAdminPinSubmit(event)" class="admin-pin-form">
+          <div class="pin-input-group">
+            <label for="adminPinInput">أدخل رمز المرور السري (Admin PIN):</label>
+            <input type="password" id="adminPinInput" class="custom-input pin-field" placeholder="••••" maxlength="10" required autofocus autocomplete="off">
+            <div id="pinErrorMessage" class="pin-error-text hidden">⚠️ رمز المرور غير صحيح! يرجى مراجعة إدارة الحركة.</div>
+          </div>
+          <div class="pin-actions" style="margin-top: 1.25rem;">
+            <button type="submit" class="btn-primary-send" style="width:100%; justify-content:center;">
+              <span>🔓 دخول غرفة العمليات</span>
+            </button>
+          </div>
+          <span class="pin-hint">💡 الرمز المعتمد لغرفة العمليات هو رقم طوارئ الحركة: <strong>19616</strong></span>
+        </form>
       </div>
     </div>
   </div>
