@@ -291,10 +291,15 @@ function showPushNotificationToast(incident) {
 // ==========================================
 // INCIDENTS LIST & SEARCH/FILTER
 // ==========================================
+function handleSeverityFilterChange(filterValue) {
+  AppState.activeFilter = filterValue;
+  renderIncidentsList();
+}
+
 function filterIncidents(filterType, element) {
   AppState.activeFilter = filterType;
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  if (element) element.classList.add('active');
+  const select = document.getElementById('incidentSeverityFilter');
+  if (select) select.value = filterType;
   renderIncidentsList();
 }
 
@@ -309,16 +314,18 @@ function renderIncidentsList() {
 
   let filtered = AppState.currentIncidents.filter(inc => {
     if (AppState.activeFilter === 'CRITICAL' && inc.severity !== 'CRITICAL') return false;
-    if (AppState.activeFilter === 'PENDING' && (inc.status === 'RESOLVED' || inc.status === 'FINED')) return false;
-    if (AppState.activeFilter === 'RESOLVED' && inc.status !== 'RESOLVED' && inc.status !== 'FINED') return false;
+    if (AppState.activeFilter === 'MEDIUM' && inc.severity !== 'MEDIUM') return false;
+    if (AppState.activeFilter === 'LOW' && inc.severity !== 'LOW') return false;
+    if (AppState.activeFilter === 'PENDING' && inc.status === 'RESOLVED') return false;
+    if (AppState.activeFilter === 'RESOLVED' && inc.status !== 'RESOLVED') return false;
 
     if (AppState.searchQuery) {
       const q = AppState.searchQuery;
       const matchLine = inc.lineName?.toLowerCase().includes(q);
-      const matchPlate = inc.busPlate?.toLowerCase().includes(q);
       const matchVio = inc.violationTitle?.toLowerCase().includes(q);
-      const matchDriver = inc.driverName?.toLowerCase().includes(q);
-      if (!matchLine && !matchPlate && !matchVio && !matchDriver) return false;
+      const matchLoc = inc.location?.toLowerCase().includes(q);
+      const matchId = inc.id?.toLowerCase().includes(q);
+      if (!matchLine && !matchVio && !matchLoc && !matchId) return false;
     }
     return true;
   });
@@ -329,8 +336,7 @@ function renderIncidentsList() {
   if (filtered.length === 0) {
     container.innerHTML = `
       <div style="padding: 2.5rem 1rem; text-align: center; color: #64748b;">
-        <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">🔍</span>
-        <p>لا توجد بلاغات مطابقة لخيارات التصفية</p>
+        <p>لا توجد بلاغات مطابقة لخيارات التصفية المحددة</p>
       </div>
     `;
     return;
@@ -338,23 +344,23 @@ function renderIncidentsList() {
 
   container.innerHTML = filtered.map(inc => {
     const isSelected = inc.id === AppState.selectedIncidentId;
-    let sevBadge = `<span style="background:rgba(239,68,68,0.2); color:#f87171; font-size:0.7rem; font-weight:800; padding:2px 6px; border-radius:4px;">حرج 🔴</span>`;
+    let sevBadge = `<span style="background:rgba(239,68,68,0.15); color:#f87171; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:4px; border:1px solid rgba(239,68,68,0.3)">حرجة</span>`;
     if (inc.severity === 'MEDIUM') {
-      sevBadge = `<span style="background:rgba(245,158,11,0.2); color:#fbbf24; font-size:0.7rem; font-weight:800; padding:2px 6px; border-radius:4px;">متوسط 🟠</span>`;
+      sevBadge = `<span style="background:rgba(245,158,11,0.15); color:#fbbf24; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:4px; border:1px solid rgba(245,158,11,0.3)">متوسطة</span>`;
     } else if (inc.severity === 'LOW') {
-      sevBadge = `<span style="background:rgba(59,130,246,0.2); color:#93c5fd; font-size:0.7rem; font-weight:800; padding:2px 6px; border-radius:4px;">ملاحظة 🔵</span>`;
+      sevBadge = `<span style="background:rgba(59,130,246,0.15); color:#93c5fd; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:4px; border:1px solid rgba(59,130,246,0.3)">عامة</span>`;
     }
 
-    let statusText = 'بلاغ جديد 🔔';
+    let statusText = 'جديد';
     let statusClass = 'st-new';
     if (inc.status === 'INVESTIGATING') {
-      statusText = 'قيد التحقيق ⏳';
+      statusText = 'قيد المتابعة';
       statusClass = 'st-investigating';
     } else if (inc.status === 'FINED') {
-      statusText = 'غرامة معتمدة ⚠️';
+      statusText = 'إجراء معتمد';
       statusClass = 'st-fined';
     } else if (inc.status === 'RESOLVED') {
-      statusText = 'تم الحل ✓';
+      statusText = 'تم الإغلاق';
       statusClass = 'st-resolved';
     }
 
@@ -363,19 +369,49 @@ function renderIncidentsList() {
            id="card_${inc.id.replace(/[^a-zA-Z0-9]/g, '')}" 
            onclick="selectIncidentForDetails('${inc.id}')">
         <div class="card-top-row">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="font-size:1.2rem">${inc.violationIcon || '⚠️'}</span>
-            <strong>${inc.violationTitle}</strong>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <strong style="font-size:0.95rem; color:#f8fafc;">${inc.violationTitle}</strong>
           </div>
           ${sevBadge}
         </div>
-        <div class="card-meta-line">
-          <span>🚌 ${inc.busPlate} • ${inc.lineName}</span>
+        <div class="card-meta-line" style="margin:6px 0;">
+          <span style="color:#60a5fa; font-weight:700;">${inc.lineName}</span>
           <span style="color:#64748b">• ${inc.timestamp}</span>
         </div>
         <div class="card-footer-tags">
-          <span style="color:#94a3b8">${inc.vendorName}</span>
+          <span style="color:#94a3b8; font-size:0.75rem;">شركة أبو الهول</span>
           <span class="status-badge ${statusClass}">${statusText}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  renderMiniViolationsBreakdown();
+}
+
+function renderMiniViolationsBreakdown() {
+  const container = document.getElementById('miniViolationsBreakdown');
+  if (!container) return;
+
+  const counts = {};
+  AppState.currentIncidents.forEach(inc => {
+    const title = inc.violationTitle || "أخرى";
+    counts[title] = (counts[title] || 0) + 1;
+  });
+
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const total = sorted.reduce((sum, item) => sum + item[1], 0) || 1;
+
+  container.innerHTML = sorted.map(([title, count]) => {
+    const pct = Math.round((count / total) * 100);
+    return `
+      <div style="font-size:0.75rem;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:3px; color:#cbd5e1;">
+          <span>${title}</span>
+          <strong style="color:#93c5fd;">${count} (${pct}%)</strong>
+        </div>
+        <div style="height:5px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden;">
+          <div style="height:100%; width:${pct}%; background:#3b82f6; border-radius:3px;"></div>
         </div>
       </div>
     `;
@@ -405,15 +441,15 @@ function renderSelectedIncidentDetails(incidentId) {
   if (emptyState) emptyState.classList.add('hidden');
   content.classList.remove('hidden');
 
-  let sevBadge = `<span style="background:rgba(239,68,68,0.2); color:#f87171; font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:12px;">خطر حرج 🔴</span>`;
+  let sevBadge = `<span style="background:rgba(239,68,68,0.15); color:#f87171; font-size:0.75rem; font-weight:700; padding:2px 10px; border-radius:6px; border:1px solid rgba(239,68,68,0.3)">حالة حرجة</span>`;
   if (incident.severity === 'MEDIUM') {
-    sevBadge = `<span style="background:rgba(245,158,11,0.2); color:#fbbf24; font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:12px;">مخالفة متوسطة 🟠</span>`;
+    sevBadge = `<span style="background:rgba(245,158,11,0.15); color:#fbbf24; font-size:0.75rem; font-weight:700; padding:2px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.3)">حالة متوسطة</span>`;
   } else if (incident.severity === 'LOW') {
-    sevBadge = `<span style="background:rgba(59,130,246,0.2); color:#93c5fd; font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:12px;">ملاحظة عامة 🔵</span>`;
+    sevBadge = `<span style="background:rgba(59,130,246,0.15); color:#93c5fd; font-size:0.75rem; font-weight:700; padding:2px 10px; border-radius:6px; border:1px solid rgba(59,130,246,0.3)">حالة عامة</span>`;
   }
 
   const actionsLogHTML = (!incident.actionsTaken || incident.actionsTaken.length === 0)
-    ? `<p style="font-size:0.75rem; color:#64748b; font-style:italic">لم يتم اتخاذ إجراءات بعد. استخدم الأزرار أدناه للتدخل الفوري من إدارة الحركة بجامعة السويدي.</p>`
+    ? `<p style="font-size:0.75rem; color:#64748b; font-style:italic">لم يتم تسجيل إجراءات بعد. يمكنك استخدام أزرار الإجراء أدناه للمتابعة الرسمية.</p>`
     : incident.actionsTaken.map(a => `
         <div style="font-size:0.75rem; margin-bottom:6px; border-right:2px solid #3b82f6; padding-right:8px">
           <strong style="color:#60a5fa">${a.time} - ${a.user}:</strong>
@@ -437,27 +473,25 @@ function renderSelectedIncidentDetails(incidentId) {
       </div>
     </div>
 
-    <!-- Bus & Driver Intelligence Card -->
+    <!-- Bus & Operating Details Card -->
     <div class="ws-bus-card">
       <div class="ws-bus-header">
         <div>
-          <span class="bus-badge-lg">${incident.busPlate}</span>
-          <span class="line-title-lg">${incident.lineName}</span>
+          <span class="line-title-lg" style="font-size:1.15rem; font-weight:800; color:#60a5fa">${incident.lineName}</span>
         </div>
-        <span class="vendor-tag">${incident.vendorName}</span>
+        <span class="vendor-tag">شركة أبو الهول لنقل الركاب</span>
       </div>
       <div class="ws-bus-body">
         <div class="driver-contact-row">
           <div class="driver-meta">
-            <span class="d-avatar">👤</span>
             <div>
-              <strong style="color:#f8fafc">كابتن/ ${incident.driverName}</strong>
-              <p style="font-size:0.72rem; color:#94a3b8">سائق معتمد لدى جامعة السويدي للتكنولوجيا</p>
+              <strong style="color:#f8fafc">إدارة النقل والسلامة (غرفة 112)</strong>
+              <p style="font-size:0.75rem; color:#94a3b8">جامعة السويدي للتكنولوجيا • هاتف المتابعة: 01040772030</p>
             </div>
           </div>
           <div class="driver-actions">
-            <a href="tel:${incident.driverPhone}" class="btn-call-driver">
-              📞 اتصال بالسائق (${incident.driverPhone || '01011223344'})
+            <a href="tel:01040772030" class="btn-call-driver" style="background:#2563eb; text-decoration:none; padding:8px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; color:#fff; display:inline-flex; align-items:center; gap:6px;">
+              <span>اتصال بإدارة النقل</span>
             </a>
           </div>
         </div>
@@ -467,7 +501,7 @@ function renderSelectedIncidentDetails(incidentId) {
     <!-- Location & Incident Description -->
     <div class="ws-section-box">
       <div class="location-banner">
-        <span>📍 الموقع المرصود:</span>
+        <span>الموقع الجغرافي:</span>
         <strong>${incident.location}</strong>
       </div>
       <div class="notes-quote">
@@ -479,7 +513,7 @@ function renderSelectedIncidentDetails(incidentId) {
     <!-- Media Evidence Attachment -->
     ${incident.attachmentUrl ? `
       <div class="ws-section-box">
-        <span class="section-sub-title">📷 دليل المخالفة المرفق من هاتف الطالب:</span>
+        <span class="section-sub-title">دليل المخالفة المرفق من هاتف الطالب:</span>
         <div class="evidence-preview-wrap">
           <img src="${incident.attachmentUrl}" alt="دليل المخالفة" class="evidence-full-img" onclick="window.open(this.src, '_blank')">
         </div>
@@ -488,7 +522,7 @@ function renderSelectedIncidentDetails(incidentId) {
 
     <!-- Investigation Log -->
     <div class="ws-section-box">
-      <span class="section-sub-title">📝 سجل تدخلات إدارة الحركة والتحقيق:</span>
+      <span class="section-sub-title">سجل إجراءات التحقيق والمتابعة:</span>
       <div class="actions-log-container">
         ${actionsLogHTML}
       </div>
@@ -496,24 +530,24 @@ function renderSelectedIncidentDetails(incidentId) {
 
     <!-- Action Execution Bar -->
     <div class="ws-action-bar">
-      <button class="btn-action btn-act-warn" onclick="executeAdminAction('${incident.id}', 'INVESTIGATING', 'تم الاتصال بالسائق وتوجيه إنذار فوري وتخفيف السرعة')">
-        <span>⚠️ توجيه إنذار فوري</span>
+      <button class="btn-action btn-act-warn" onclick="executeAdminAction('${incident.id}', 'INVESTIGATING', 'تم التواصل مع مشرف الخط وتوجيه إنذار رسمي بالالتزام')">
+        <span>توجيه إنذار رسمي</span>
       </button>
-      <button class="btn-action btn-act-fine" onclick="executeAdminAction('${incident.id}', 'FINED', 'تم توقيع غرامة 500 ج.م على الشركة المشغلة لخرق تعليمات السلامة')">
-        <span>💸 توقيع غرامة تعاقدية</span>
+      <button class="btn-action btn-act-fine" onclick="executeAdminAction('${incident.id}', 'FINED', 'تم اعتماد مخالفة رسمية على الحافلة لخرق قواعد السلامة')">
+        <span>اعتماد مخالفة</span>
       </button>
       <button class="btn-action btn-act-resolve" onclick="executeAdminAction('${incident.id}', 'RESOLVED', 'تم التحقق من الالتزام وإغلاق البلاغ بنجاح')">
-        <span>✓ حل البلاغ وإغلاقه</span>
+        <span>حل البلاغ وإغلاقه</span>
       </button>
     </div>
   `;
 }
 
 function getIncidentStatusArabic(status) {
-  if (status === 'NEW') return 'بلاغ جديد 🔔';
-  if (status === 'INVESTIGATING') return 'قيد المتابعة ⏳';
-  if (status === 'FINED') return 'غرامة معتمدة ⚠️';
-  if (status === 'RESOLVED') return 'تم الحل والمطابقة ✓';
+  if (status === 'NEW') return 'بلاغ جديد';
+  if (status === 'INVESTIGATING') return 'قيد المتابعة';
+  if (status === 'FINED') return 'إجراء معتمد';
+  if (status === 'RESOLVED') return 'تم الحل والمطابقة';
   return status;
 }
 

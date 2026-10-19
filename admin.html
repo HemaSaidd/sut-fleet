@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>غرفة العمليات المركزية | جامعة السويدي للتكنولوجيا (SUT)</title>
-  <meta name="description" content="غرفة العمليات المركزية لمنظومة سلامة أسطول حافلات جامعة السويدي للتكنولوجيا - متابعة حية وطباعة الاستيكرات">
+  <title>إدارة النقل والسلامة | جامعة السويدي للتكنولوجيا (SUT)</title>
+  <meta name="description" content="منظومة إدارة ومتابعة بلاغات النقل الطلابي والسلامة - جامعة السويدي للتكنولوجيا">
   
   <!-- Google Fonts: Cairo & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +31,7 @@
         <img src="assets/sutech-logo.png" alt="SUTech Logo" style="height:36px; max-width:130px; object-fit:contain; display:block;">
       </div>
       <div class="brand-info">
-        <h1>SUTech <span class="accent-text">Safety & Operations</span></h1>
+        <h1>SUTech <span class="accent-text">Safety & Transport</span></h1>
         <p class="brand-sub">جامعة السويدي للتكنولوجيا • إدارة السلامة والأمان والنقل الطلابي (غرفة 112)</p>
       </div>
     </div>
@@ -39,24 +39,21 @@
     <!-- Active View Switcher Tabs -->
     <div class="nav-view-switcher" id="viewSwitcher" role="tablist">
       <button class="switcher-btn active" id="tabDashboardView" onclick="switchAdminView('operations-center')">
-        <span class="icon">🖥️</span>
-        <span>غرفة العمليات المركزية</span>
-        <span class="badge-counter pulse-glow" id="activeIncidentsBadge">0</span>
+        <span>متابعة البلاغات</span>
+        <span class="badge-counter" id="activeIncidentsBadge">0</span>
       </button>
       <button class="switcher-btn" id="tabStickerView" onclick="switchAdminView('sticker-generator')">
-        <span class="icon">🏷️</span>
-        <span>طباعة استيكرات الباصات (QR)</span>
+        <span>استيكر الباركود المعتمد</span>
       </button>
       <a href="index.html" target="_blank" class="switcher-btn" style="text-decoration:none">
-        <span class="icon">📱</span>
-        <span>معاينة صفحة الطالب ↗</span>
+        <span>صفحة الطالب ↗</span>
       </a>
     </div>
 
     <!-- Quick Audio & Status Controls -->
     <div class="nav-actions">
-      <button class="action-icon-btn hidden" id="adminLogoutBtn" onclick="handleAdminLogout()" title="تسجيل خروج مسؤول الحركة">
-        <span>🔒 خروج</span>
+      <button class="action-icon-btn hidden" id="adminLogoutBtn" onclick="handleAdminLogout()" title="تسجيل الخروج">
+        <span>خروج</span>
       </button>
       <button class="action-icon-btn" id="soundToggleBtn" onclick="toggleAudioAlerts()" title="تفعيل / كتم صوت التنبيهات">
         <span id="soundIcon">🔔</span>
@@ -75,7 +72,7 @@
   <main class="app-main-viewport" id="appMainViewport">
 
     <!-- ========================================== -->
-    <!-- VIEW 1: OPERATIONS COMMAND CENTER         -->
+    <!-- VIEW 1: INCIDENTS MONITORING WORKSPACE     -->
     <!-- ========================================== -->
     <section class="view-panel active-panel" id="viewOperationsCenter">
       <div class="ops-dashboard-layout">
@@ -123,22 +120,27 @@
           <div class="ops-stream-column glass-panel">
             <div class="stream-header">
               <div class="stream-title-row">
-                <h3>🔴 البلاغات الواردة (شركة أبو الهول)</h3>
-                <span class="badge-pill bg-red-glow" id="streamCountPill">0 بلاغات</span>
+                <h3>سجل البلاغات الواردة - شركة أبو الهول</h3>
+                <span class="badge-pill" id="streamCountPill" style="background:#1e3a8a; color:#93c5fd;">0 بلاغات</span>
               </div>
               <p class="stream-desc">بلاغات الطلاب الواردة مباشرة ومحدثة لحظياً عبر السحابة</p>
 
-              <!-- Incident Filters -->
-              <div class="stream-filters-bar">
-                <button class="filter-chip active" onclick="filterIncidents('ALL', this)">الكل</button>
-                <button class="filter-chip chip-critical" onclick="filterIncidents('CRITICAL', this)">الحرجة</button>
-                <button class="filter-chip chip-pending" onclick="filterIncidents('PENDING', this)">قيد المتابعة</button>
-                <button class="filter-chip chip-resolved" onclick="filterIncidents('RESOLVED', this)">تم الحل</button>
+              <!-- Drop List for Severity Filter -->
+              <div class="stream-filter-dropdown-wrap" style="margin-bottom:0.85rem;">
+                <label for="incidentSeverityFilter" style="font-size:0.78rem; color:#94a3b8; display:block; margin-bottom:4px; font-weight:600;">تصفية البلاغات حسب الحالة:</label>
+                <select id="incidentSeverityFilter" class="custom-select" style="width:100%; padding:9px 12px; background:#1e293b; border:1px solid #334155; border-radius:8px; color:#f8fafc; font-family:inherit; font-size:0.85rem;" onchange="handleSeverityFilterChange(this.value)">
+                  <option value="ALL">الكل (جميع البلاغات)</option>
+                  <option value="CRITICAL">الحالات الحرجة</option>
+                  <option value="MEDIUM">الحالات المتوسطة</option>
+                  <option value="LOW">الحالات العامة والملاحظات</option>
+                  <option value="PENDING">قيد المتابعة فقط</option>
+                  <option value="RESOLVED">تم الحل والإغلاق</option>
+                </select>
               </div>
 
               <!-- Search Bar -->
               <div class="stream-search-wrap">
-                <input type="text" id="incidentSearchInput" class="search-input" placeholder="بحث بالخط (مثال: العاشر، السويس، المعادي، الهرم...)" oninput="handleIncidentSearch(this.value)">
+                <input type="text" id="incidentSearchInput" class="search-input" placeholder="بحث باسم الخط (مثال: العاشر، السويس، المعادي...)" oninput="handleIncidentSearch(this.value)">
               </div>
             </div>
 
@@ -146,14 +148,24 @@
             <div class="incidents-scroll-list" id="incidentsList">
               <!-- Dynamically populated -->
             </div>
+
+            <!-- Simple Violations Analytics Dashboard -->
+            <div class="mini-dashboard-card" style="margin-top:1rem; padding:1rem; background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <h4 style="font-size:0.85rem; font-weight:700; color:#cbd5e1; margin:0;">أكثر المشاكل تسجيلاً</h4>
+                <span style="font-size:0.72rem; color:#64748b;">إحصائية تراكمية</span>
+              </div>
+              <div id="miniViolationsBreakdown" style="display:flex; flex-direction:column; gap:0.65rem;">
+                <!-- Populated dynamically via JS -->
+              </div>
+            </div>
           </div>
 
           <!-- Right Column: Incident Investigation & Action Workspace -->
           <div class="ops-details-column glass-panel" id="incidentDetailsWorkspace">
             <div class="empty-state-workspace" id="emptyWorkspaceState">
-              <div class="empty-icon">🛡️</div>
-              <h3>اختر بلاغاً من القائمة لبدء المتابعة والإجراء</h3>
-              <p>ستظهر هنا كامل التفاصيل مع صورة المخالفة وخريطة الـ GPS والإجراءات الرسمية المعتمدة.</p>
+              <h3>يرجى اختيار بلاغ من القائمة</h3>
+              <p>ستظهر هنا كامل التفاصيل مع صورة المخالفة والموقع الجغرافي والإجراءات الرسمية المعتمدة.</p>
             </div>
 
             <div class="active-workspace-content hidden" id="activeWorkspaceContent">
@@ -175,15 +187,18 @@
         <!-- Action Header -->
         <div class="glass-panel" style="width:100%; padding:1.25rem 2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; border-radius:16px;">
           <div>
-            <h3 style="font-size:1.2rem; color:#60a5fa; margin-bottom:4px">🏷️ استيكر وباركود السلامة الموحد (شركة أبو الهول)</h3>
+            <h3 style="font-size:1.2rem; color:#60a5fa; margin-bottom:4px">استيكر وباركود السلامة المعتمد (شركة أبو الهول)</h3>
             <p style="font-size:0.85rem; color:#94a3b8; margin:0">باركود رسمي موحد لكافة باصات وخطوط جامعة السويدي للتكنولوجيا.</p>
           </div>
           <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
             <button class="btn-primary-print" onclick="window.print()">
-              <span>🖨️ طباعة الاستيكر الموحد</span>
+              <span>طباعة الاستيكر الموحد</span>
             </button>
+            <a href="QR_Codes/استيكر_الباركود_الموحد_سلامتك_تهمنا.png" download="SUT_Safety_Sticker.png" class="btn-test-link" style="text-decoration:none; display:inline-flex; align-items:center;">
+              <span>تحميل استيكر "سلامتك تهمنا" (PNG)</span>
+            </a>
             <a href="QR_Codes/الباركود_الموحد_لحافلات_السويدي.png" download="SUT_Bus_QR.png" class="btn-test-link" style="text-decoration:none; display:inline-flex; align-items:center;">
-              <span>⬇️ تحميل صورة الباركود PNG</span>
+              <span>تحميل الباركود فقط</span>
             </a>
           </div>
         </div>
@@ -205,15 +220,15 @@
                 </div>
               </div>
               <div class="stk-badge-safety">
-                <span>سلامتك أولاً</span>
+                <span>سلامتك تهمنا</span>
                 <strong>SAFETY FIRST</strong>
               </div>
             </div>
 
             <!-- Sticker Center Call to Action -->
             <div class="stk-cta-banner">
-              <h3>لحمايتك.. أبلغ فوراً عن أي تجاوز أمني أو سلوك مخالف</h3>
-              <p>مسؤولو السيفتي بالجامعة يتابعون حافلتك مباشرة ويتدخلون فور إرسال البلاغ</p>
+              <h3>سلامتك تهمنا.. أبلغ فوراً عن أي تجاوز أو سلوك مخالف</h3>
+              <p>مسؤولو السلامة بالجامعة يتابعون حافلتك مباشرة ويتدخلون فور إرسال البلاغ</p>
             </div>
 
             <!-- Sticker Main Core (QR Code & Identity) -->
@@ -225,7 +240,6 @@
                   <img src="QR_Codes/الباركود_الموحد_لحافلات_السويدي.png" alt="SUT Unified QR" style="width:180px; height:180px; background:#fff; border-radius:8px; padding:6px; display:block; margin:0 auto;">
                 </div>
                 <div class="stk-qr-instruction">
-                  <span class="cam-icon">📷</span>
                   <strong>وجّه كاميرا موبايلك للمسح</strong>
                   <span>(يعمل بدون برامج إضافية)</span>
                 </div>
@@ -250,13 +264,13 @@
 
                 <!-- Examples of Reportable Violations Icons -->
                 <div class="stk-violations-teaser">
-                  <span class="teaser-title">أبلغ فوراً عن:</span>
+                  <span class="teaser-title">أبلغ عن:</span>
                   <div class="teaser-tags">
-                    <span class="t-tag">⚡ السرعة الزائدة</span>
-                    <span class="t-tag">📱 استخدام الموبايل</span>
-                    <span class="t-tag">🚬 التدخين</span>
-                    <span class="t-tag">🛑 الغرز والتجاوز الخطر</span>
-                    <span class="t-tag">❄️ أعطال التكييف</span>
+                    <span class="t-tag">السرعة الزائدة</span>
+                    <span class="t-tag">استخدام الموبايل</span>
+                    <span class="t-tag">التدخين</span>
+                    <span class="t-tag">التجاوز الخطر</span>
+                    <span class="t-tag">أعطال التكييف</span>
                   </div>
                 </div>
 
@@ -290,23 +304,23 @@
   <div class="modal-backdrop hidden" id="adminPinModal">
     <div class="modal-box glass-panel admin-pin-box">
       <div class="modal-head">
-        <h3>🔒 الدخول المصرح به - إدارة الحركة SUT</h3>
+        <h3>تسجيل الدخول - إدارة النقل والسلامة</h3>
         <button class="modal-close-btn" onclick="closeAdminPinModal()">✕</button>
       </div>
       <div class="modal-body">
-        <p class="modal-sub">هذه المنطقة مخصصة لمسؤولي حركة وسلامة أسطول جامعة السويدي للتكنولوجيا فقط.</p>
+        <p class="modal-sub">هذه اللوحة مخصصة لمسؤولي إدارة النقل والسلامة بجامعة السويدي للتكنولوجيا.</p>
         <form onsubmit="handleAdminPinSubmit(event)" class="admin-pin-form">
           <div class="pin-input-group">
             <label for="adminPinInput">أدخل رمز المرور السري (Admin PIN):</label>
             <input type="password" id="adminPinInput" class="custom-input pin-field" placeholder="••••" maxlength="10" required autofocus autocomplete="off">
-            <div id="pinErrorMessage" class="pin-error-text hidden">⚠️ رمز المرور غير صحيح! يرجى مراجعة إدارة الحركة.</div>
+            <div id="pinErrorMessage" class="pin-error-text hidden">رمز المرور غير صحيح! يرجى مراجعة إدارة النقل.</div>
           </div>
           <div class="pin-actions" style="margin-top: 1.25rem;">
             <button type="submit" class="btn-primary-send" style="width:100%; justify-content:center;">
-              <span>🔓 دخول غرفة العمليات</span>
+              <span>دخول لوحة المتابعة</span>
             </button>
           </div>
-          <span class="pin-hint">💡 الرمز المعتمد لغرفة العمليات هو رقم طوارئ الحركة: <strong>19616</strong></span>
+          <span class="pin-hint">💡 رمز الدخول المصرح به لإدارة النقل: <strong>19616</strong></span>
         </form>
       </div>
     </div>
