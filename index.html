@@ -878,6 +878,20 @@
         </button>
       </div>
 
+      <!-- Operating Hours Notice (Active 6:00 AM - 7:30 PM Cairo Time) -->
+      <div id="scheduleWarningBanner" class="hidden" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.16), rgba(185, 28, 28, 0.22)); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; text-align: center;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; font-size: 0.9rem; color: #fca5a5; margin-bottom: 4px;">
+          <span>🌙 خارج مواعيد تشغيل خطوط جامعة السويدي</span>
+        </div>
+        <p style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 8px 0;">
+          تستقبل المنظومة بلاغات الطلاب أثناء ساعات تشغيل حافلات الجامعة الرسمية (من <strong>6:00 صباحاً</strong> حتى <strong>7:30 مساءً</strong>).<br>
+          للحالات الطارئة خارج هذا التوقيت، يرجى التواصل مباشرة مع إدارة النقل والسلامة:
+        </p>
+        <a href="tel:01040772030" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.25); border: 1px solid rgba(239, 68, 68, 0.5); color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; text-decoration: none;">
+          <span>📞 اتصال مباشر بإدارة النقل: 01040772030</span>
+        </a>
+      </div>
+
       <!-- Student Incident Form -->
       <form id="studentReportForm" onsubmit="handleStudentReportSubmit(event)">
         
@@ -1095,12 +1109,44 @@
       }
     }
 
+    function isSutOperatingHours() {
+      try {
+        const now = new Date();
+        const parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Africa/Cairo',
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: false
+        }).formatToParts(now);
+
+        let hour = 12, minute = 0;
+        parts.forEach(p => {
+          if (p.type === 'hour') hour = parseInt(p.value, 10);
+          if (p.type === 'minute') minute = parseInt(p.value, 10);
+        });
+
+        const totalMinutes = hour * 60 + minute;
+        const startMinutes = 6 * 60; // 06:00 AM (360)
+        const endMinutes = 19 * 60 + 30; // 07:30 PM (1170)
+
+        return (totalMinutes >= startMinutes && totalMinutes <= endMinutes);
+      } catch (e) {
+        return true;
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       // 1. Detect bus from URL parameter (?bus=105)
       const urlParams = new URLSearchParams(window.location.search);
       const busParam = urlParams.get('bus');
       if (busParam && FLEET_DATA.buses.some(b => b.id === busParam)) {
         selectedBusId = busParam;
+      }
+
+      // 2. Check operating schedule (6:00 AM - 7:30 PM Cairo Time)
+      if (!isSutOperatingHours()) {
+        const warnBanner = document.getElementById('scheduleWarningBanner');
+        if (warnBanner) warnBanner.classList.remove('hidden');
       }
 
       updateBusHeader();
@@ -1311,6 +1357,24 @@
         submitBtn.innerHTML = '<span>⏳ جارٍ حفظ البلاغ...</span>';
       }
 
+      // Check operating hours (6:00 AM - 7:30 PM Cairo Time)
+      const isDuringHours = isSutOperatingHours();
+      if (!isDuringHours) {
+        const confirmSend = confirm(
+          "⚠️ تنبيه تشغيل الخطوط:\n\n" +
+          "أنت حالياً خارج مواعيد تشغيل حافلات جامعة السويدي الرسمية (المواعيد المعتمدة: من 6:00 صباحاً حتى 7:30 مساءً).\n\n" +
+          "إذا كان هذا بلاغاً عاجلاً عن رحلة جامعية أو تجربة للنظام، اضغط (موافق OK) للمتابعة.\n" +
+          "أو يمكنك التواصل هاتفياً مباشرة مع إدارة النقل والسلامة: 01040772030."
+        );
+        if (!confirmSend) {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لمسؤولي السلامة بالجامعة</span>';
+          }
+          return;
+        }
+      }
+
       try {
         const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
         const firstViolation = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]) || FLEET_DATA.violationTypes[0];
@@ -1319,7 +1383,10 @@
         const severity = sevInput ? sevInput.value : 'CRITICAL';
 
         const location = document.getElementById('reportLocationInput')?.value || "طريق مصر الإسماعيلية الصحراوي أمام العاشر";
-        const notes = document.getElementById('reportNotesInput')?.value || "مخالفة واضحة على خط جامعة السويدي تستوجب التنبيه الفوري.";
+        let notes = document.getElementById('reportNotesInput')?.value || "مخالفة واضحة على خط جامعة السويدي تستوجب التنبيه الفوري.";
+        if (!isDuringHours) {
+          notes = "[⚠️ بلاغ خارج مواعيد التشغيل الرسمية بعد 7:30 م] " + notes;
+        }
 
         const isAnonymous = document.getElementById('anonToggle')?.checked || false;
         const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (document.getElementById('studentNameInput')?.value || "طالب بجامعة السويدي");
