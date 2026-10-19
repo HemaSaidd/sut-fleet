@@ -80,23 +80,12 @@
     <section class="view-panel active-panel" id="viewOperationsCenter">
       <div class="ops-dashboard-layout">
         
-        <!-- Live KPI Summary Strip -->
+        <!-- Clean, Focused KPI Strip -->
         <div class="ops-kpi-grid">
-          <div class="kpi-card glass-panel">
-            <div class="kpi-icon-wrap bg-blue-subtle">🚌</div>
-            <div class="kpi-data">
-              <span class="kpi-label">إجمالي خطوط SUT العاملة</span>
-              <div class="kpi-value-row">
-                <span class="kpi-number" id="kpiActiveBuses">23</span>
-                <span class="kpi-trend positive">100% تغطية</span>
-              </div>
-            </div>
-          </div>
-
           <div class="kpi-card glass-panel">
             <div class="kpi-icon-wrap bg-red-subtle">🚨</div>
             <div class="kpi-data">
-              <span class="kpi-label">بلاغات اليوم النشطة</span>
+              <span class="kpi-label">بلاغات جديدة ونشطة</span>
               <div class="kpi-value-row">
                 <span class="kpi-number" id="kpiTodayIncidents">0</span>
                 <span class="kpi-trend danger" id="kpiCriticalCount">0 حرجة</span>
@@ -105,23 +94,23 @@
           </div>
 
           <div class="kpi-card glass-panel">
-            <div class="kpi-icon-wrap bg-green-subtle">⏱️</div>
+            <div class="kpi-icon-wrap bg-blue-subtle">🏢</div>
             <div class="kpi-data">
-              <span class="kpi-label">متوسط سرعة الاستجابة</span>
+              <span class="kpi-label">الشركة المشغلة المعتمدة</span>
               <div class="kpi-value-row">
-                <span class="kpi-number">4.8</span>
-                <span class="kpi-unit">دقائق</span>
+                <span class="kpi-number" style="font-size:1.15rem">شركة أبو الهول</span>
+                <span class="kpi-trend positive">23 خط منتظم</span>
               </div>
             </div>
           </div>
 
           <div class="kpi-card glass-panel">
-            <div class="kpi-icon-wrap bg-gold-subtle">🛡️</div>
+            <div class="kpi-icon-wrap bg-green-subtle">📍</div>
             <div class="kpi-data">
-              <span class="kpi-label">مؤشر سلامة أسطول السويدي</span>
+              <span class="kpi-label">مكتب السلامة والأمان</span>
               <div class="kpi-value-row">
-                <span class="kpi-number" id="kpiSafetyScore">95.2%</span>
-                <span class="kpi-trend positive">ممتاز</span>
+                <span class="kpi-number" style="font-size:1.15rem">غرفة 112</span>
+                <span class="kpi-trend positive">01040772030</span>
               </div>
             </div>
           </div>
@@ -134,10 +123,10 @@
           <div class="ops-stream-column glass-panel">
             <div class="stream-header">
               <div class="stream-title-row">
-                <h3>🔴 البلاغات الحية لخطوط جامعة السويدي</h3>
+                <h3>🔴 البلاغات الواردة (شركة أبو الهول)</h3>
                 <span class="badge-pill bg-red-glow" id="streamCountPill">0 بلاغات</span>
               </div>
-              <p class="stream-desc">بلاغات الطلاب الواردة مباشرة ومحدثة لحظياً</p>
+              <p class="stream-desc">بلاغات الطلاب الواردة مباشرة ومحدثة لحظياً عبر السحابة</p>
 
               <!-- Incident Filters -->
               <div class="stream-filters-bar">
@@ -163,62 +152,12 @@
           <div class="ops-details-column glass-panel" id="incidentDetailsWorkspace">
             <div class="empty-state-workspace" id="emptyWorkspaceState">
               <div class="empty-icon">🛡️</div>
-              <h3>اختر بلاغاً من القائمة لبدء التحقيق واتخاذ الإجراء</h3>
-              <p>ستظهر هنا كامل التفاصيل مع صورة المخالفة وخريطة المسار والإجراءات الرسمية المعتمدة بجامعة السويدي.</p>
+              <h3>اختر بلاغاً من القائمة لبدء المتابعة والإجراء</h3>
+              <p>ستظهر هنا كامل التفاصيل مع صورة المخالفة وخريطة الـ GPS والإجراءات الرسمية المعتمدة.</p>
             </div>
 
             <div class="active-workspace-content hidden" id="activeWorkspaceContent">
               <!-- Dynamically populated when an incident is clicked -->
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Lower Section: Contractors & Safety Analytics -->
-        <div class="ops-analytics-section">
-          
-          <!-- Contractors Risk & Performance Table -->
-          <div class="analytics-card glass-panel">
-            <div class="card-head-row">
-              <div>
-                <h3>🏢 أداء شركات النقل المقاولة المعتمدة لجامعة السويدي</h3>
-                <p>مؤشر أمان كل شركة وإجمالي الغرامات المطبقة عليها بناءً على بلاغات الطلاب</p>
-              </div>
-              <button class="btn-secondary-sm" onclick="exportVendorSafetyReport()">
-                <span>📊 تصدير بيان الخصومات</span>
-              </button>
-            </div>
-
-            <div class="table-responsive">
-              <table class="ops-table" id="vendorsTable">
-                <thead>
-                  <tr>
-                    <th>شركة النقل</th>
-                    <th>عدد الحافلات</th>
-                    <th>إجمالي البلاغات</th>
-                    <th>مخالفات خطيرة</th>
-                    <th>مؤشر الأمان</th>
-                    <th>الغرامات الموقعة</th>
-                    <th>حالة الاعتماد</th>
-                  </tr>
-                </thead>
-                <tbody id="vendorsTableBody">
-                  <!-- Generated via JS -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Top Recurring Violations Breakdown -->
-          <div class="analytics-card glass-panel">
-            <div class="card-head-row">
-              <div>
-                <h3>⚠️ أكثر المخالفات رصداً على خطوط الجامعة</h3>
-                <p>التوزيع النسبي للمخالفات هذا الشهر</p>
-              </div>
-            </div>
-            <div class="violation-breakdown-list" id="violationBreakdownList">
-              <!-- Generated via JS -->
             </div>
           </div>
 
@@ -231,61 +170,26 @@
     <!-- VIEW 2: PRINTABLE BUS STICKER GENERATOR   -->
     <!-- ========================================== -->
     <section class="view-panel" id="viewStickerGenerator">
-      <div class="sticker-studio-layout">
+      <div class="sticker-studio-layout" style="display:flex; flex-direction:column; align-items:center; max-width:780px; margin:0 auto; gap:1.5rem;">
         
-        <!-- Controls Column -->
-        <div class="sticker-controls-panel glass-panel">
-          <div class="panel-head">
-            <h3>🏷️ مصمم استيكرات الباركود الرسمية (SUT)</h3>
-            <p>اختر الخط والحافلة لتوليد باركود رسمي معتمد ومقروء 100% بكاميرات الموبايل.</p>
+        <!-- Action Header -->
+        <div class="glass-panel" style="width:100%; padding:1.25rem 2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; border-radius:16px;">
+          <div>
+            <h3 style="font-size:1.2rem; color:#60a5fa; margin-bottom:4px">🏷️ استيكر وباركود السلامة الموحد (شركة أبو الهول)</h3>
+            <p style="font-size:0.85rem; color:#94a3b8; margin:0">باركود رسمي موحد لكافة باصات وخطوط جامعة السويدي للتكنولوجيا.</p>
           </div>
-
-          <!-- Line and Bus Selector -->
-          <div class="control-group">
-            <label class="control-label" for="stickerBusSelect">اختر خط السير والحافلة:</label>
-            <select id="stickerBusSelect" class="custom-select" onchange="updateStickerPreview(this.value)">
-              <!-- Populated dynamically with all 23 SUT lines -->
-            </select>
-          </div>
-
-          <!-- IP & Domain Configuration -->
-          <div class="control-group host-config-box">
-            <label class="control-label" for="customHostInput">
-              🌐 عنوان السيرفر / رابط المنظومة (URL المشفر في الباركود):
-            </label>
-            <input type="text" id="customHostInput" class="custom-input" value="" oninput="handleHostChange(this.value)">
-            <div class="host-presets">
-              <button type="button" class="preset-pill active" onclick="setPresetHost(window.location.origin)">الدومين الحالي (Origin)</button>
-              <button type="button" class="preset-pill" onclick="setPresetHost('http://10.244.47.33:8080')">IP شبكة الجامعة</button>
-            </div>
-            <span class="host-hint">💡 هذا هو الرابط الذي سيفتحه هاتف الطالب عند مسح الباركود؛ يوجّه الطالب لصفحة الإبلاغ فوراً بدون أي وصول للوحة الإدارة.</span>
-          </div>
-
-          <div class="control-group">
-            <label class="control-label">حجم الاستيكر:</label>
-            <div class="segmented-control">
-              <button class="segment-btn active" onclick="setStickerSize('A4')">A4 (صدر الكابينة)</button>
-              <button class="segment-btn" onclick="setStickerSize('A5')">A5 (خلف المقاعد)</button>
-            </div>
-          </div>
-
-          <div class="control-group">
-            <label class="control-label" for="customEmergencyPhone">رقم إدارة النقل والسلامة المطبوع:</label>
-            <input type="text" id="customEmergencyPhone" class="custom-input" value="01040772030" oninput="updateStickerPhone(this.value)">
-          </div>
-
-          <div class="print-actions-row">
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
             <button class="btn-primary-print" onclick="window.print()">
-              <span>🖨️ طباعة الاستيكر الرسمي الحقيقي</span>
+              <span>🖨️ طباعة الاستيكر الموحد</span>
             </button>
-            <button class="btn-test-link" onclick="testQrScanningLink()">
-              <span>🔗 تجربة الرابط بالمتصفح</span>
-            </button>
+            <a href="QR_Codes/الباركود_الموحد_لحافلات_السويدي.png" download="SUT_Bus_QR.png" class="btn-test-link" style="text-decoration:none; display:inline-flex; align-items:center;">
+              <span>⬇️ تحميل صورة الباركود PNG</span>
+            </a>
           </div>
         </div>
 
         <!-- Live Sticker Visual Preview (Print Target) -->
-        <div class="sticker-preview-wrapper">
+        <div class="sticker-preview-wrapper" style="width:100%; display:flex; justify-content:center;">
           <div class="printable-sticker-sheet size-a4" id="printableSticker">
             
             <!-- Sticker Top Header -->
@@ -312,33 +216,31 @@
               <p>مسؤولو السيفتي بالجامعة يتابعون حافلتك مباشرة ويتدخلون فور إرسال البلاغ</p>
             </div>
 
-            <!-- Sticker Main Core (QR Code & Bus Identity) -->
+            <!-- Sticker Main Core (QR Code & Identity) -->
             <div class="stk-body-grid">
               
               <!-- QR Code Card -->
               <div class="stk-qr-card">
                 <div class="qr-svg-holder" id="stickerQrHolder">
-                  <!-- SVG QR inserted via JS -->
+                  <img src="QR_Codes/الباركود_الموحد_لحافلات_السويدي.png" alt="SUT Unified QR" style="width:180px; height:180px; background:#fff; border-radius:8px; padding:6px; display:block; margin:0 auto;">
                 </div>
                 <div class="stk-qr-instruction">
                   <span class="cam-icon">📷</span>
                   <strong>وجّه كاميرا موبايلك للمسح</strong>
                   <span>(يعمل بدون برامج إضافية)</span>
                 </div>
-                <div class="stk-url-debug" id="stickerEncodedUrl"></div>
               </div>
 
-              <!-- Bus & Driver Details Card -->
+              <!-- Bus Details Card -->
               <div class="stk-bus-info-card">
-                
                 <div class="stk-info-row primary">
-                  <span class="stk-label">خط السير الرسمي:</span>
-                  <span class="stk-value bus-number-lg" id="stkBusLine">خط العاشر من رمضان 1</span>
+                  <span class="stk-label">المنظومة الرسمية:</span>
+                  <span class="stk-value bus-number-lg">أسطول حافلات السويدي</span>
                 </div>
 
                 <div class="stk-info-row">
                   <span class="stk-label">الشركة المشغلة:</span>
-                  <span class="stk-value" id="stkVendorName">شركة أبو الهول</span>
+                  <span class="stk-value">شركة أبو الهول لنقل الركاب</span>
                 </div>
 
                 <div class="stk-info-row">

@@ -1,15 +1,13 @@
 """
-UniFleet Safety - QR Code Image Generator for SUT Buses
+UniFleet Safety - Unified QR Code & Sticker Generator
 جامعة السويدي للتكنولوجيا (Elsewedy University of Technology - SUT)
-Generates standalone PNG and SVG QR code images for buses into the 'QR_Codes' folder.
+شركة أبو الهول لنقل الركاب
 """
 
 import os
 import sys
-import json
 import urllib.request
 import urllib.parse
-from PIL import Image, ImageDraw, ImageFont
 
 if sys.platform == "win32":
     try:
@@ -24,307 +22,280 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 # Official SUT Production URL
 PRODUCTION_BASE_URL = "https://sut-fleet.vercel.app"
 
-# Buses list
-BUSES = [
-    {"id": "101", "line": "خط العاشر من رمضان 1", "vendor": "شركة أبو الهول"},
-    {"id": "102", "line": "خط العاشر من رمضان 2", "vendor": "شركة أبو الهول"},
-    {"id": "103", "line": "خط الإسماعيلية الصحراوي", "vendor": "شركة أبو الهول"},
-    {"id": "104", "line": "خط السويس", "vendor": "شركة أبو الهول"},
-    {"id": "105", "line": "خط ميت غمر والشرقية", "vendor": "شركة أبو الهول"},
-    {"id": "106", "line": "خط التجمع الخامس والجامعة الأمريكية", "vendor": "شركة أبو الهول"},
-    {"id": "107", "line": "خط الرحاب ومدينتي", "vendor": "شركة أبو الهول"},
-    {"id": "108", "line": "خط الشروق والمستقبل", "vendor": "شركة أبو الهول"},
-    {"id": "109", "line": "خط العبور والنهضة", "vendor": "شركة أبو الهول"},
-    {"id": "110", "line": "خط جسر السويس ومصر الجديدة", "vendor": "شركة أبو الهول"}
-]
-
-def download_qr_code_image(target_url, size=500):
-    """Fetch QR code PNG from high-reliability standard QR API"""
+def download_qr_code_image(target_url, size=800):
+    """Fetch high-resolution QR code PNG"""
     encoded_url = urllib.parse.quote(target_url)
     api_url = f"https://api.qrserver.com/v1/create-qr-code/?size={size}x{size}&data={encoded_url}&margin=10&format=png"
     req = urllib.request.Request(api_url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=10) as response:
+    with urllib.request.urlopen(req, timeout=15) as response:
         return response.read()
 
-def create_complete_bus_sticker(bus_id, line_name, vendor_name, target_url, output_path):
-    """Create a beautiful printable sticker banner containing the QR code"""
-    # 1. Download pure QR code
-    qr_bytes = download_qr_code_image(target_url, size=400)
-    temp_qr_path = os.path.join(OUTPUT_DIR, f"temp_qr_{bus_id}.png")
-    with open(temp_qr_path, "wb") as f:
+def generate_unified_qr():
+    print("Generating Unified SUT Fleet QR Code & Sticker...")
+
+    # 1. Download pure high-res unified QR code (points to root /)
+    qr_bytes = download_qr_code_image(f"{PRODUCTION_BASE_URL}/", size=800)
+    unified_qr_path = os.path.join(OUTPUT_DIR, "الباركود_الموحد_لحافلات_السويدي.png")
+    with open(unified_qr_path, "wb") as f:
         f.write(qr_bytes)
+    print(f"Unified QR Image saved: {unified_qr_path}")
 
-    qr_img = Image.open(temp_qr_path).convert("RGBA")
-
-    # 2. Canvas setup (Width: 600px, Height: 750px)
-    width, height = 600, 750
-    sticker = Image.new("RGBA", (width, height), (13, 19, 34, 255)) # Dark navy
-    draw = ImageDraw.Draw(sticker)
-
-    # Outer border
-    draw.rectangle([10, 10, width - 10, height - 10], outline=(59, 130, 246, 180), width=3)
-
-    # Top Header strip
-    draw.rectangle([10, 10, width - 10, 95], fill=(24, 34, 53, 255))
-    
-    # Try using system font or default
-    try:
-        font_lg = ImageFont.truetype("arial.ttf", 26)
-        font_md = ImageFont.truetype("arial.ttf", 20)
-        font_sm = ImageFont.truetype("arial.ttf", 15)
-        font_bold = ImageFont.truetype("arialbd.ttf", 28)
-    except Exception:
-        font_lg = font_md = font_sm = font_bold = ImageFont.load_default()
-
-    # Paste QR in center
-    qr_pos_x = (width - 400) // 2
-    qr_pos_y = 200
-    sticker.paste(qr_img, (qr_pos_x, qr_pos_y))
-
-    # Add decorative white frame around QR
-    draw.rectangle([qr_pos_x - 4, qr_pos_y - 4, qr_pos_x + 404, qr_pos_y + 404], outline=(255, 255, 255, 220), width=2)
-
-    # Clean up temp
-    try:
-        os.remove(temp_qr_path)
-    except Exception:
-        pass
-
-    sticker.convert("RGB").save(output_path, "PNG")
-    print(f"Sticker generated: {output_path}")
-
-def generate_all():
-    print("Generating SUT Fleet QR Code Images...")
-
-    # 1. Standalone Pure QR Code for Line 1 (العاشر 1)
-    url_101 = f"{PRODUCTION_BASE_URL}/?bus=101"
-    png_bytes_101 = download_qr_code_image(url_101, size=600)
-    pure_qr_101_path = os.path.join(OUTPUT_DIR, "QR_خط_العاشر_من_رمضان_1.png")
-    with open(pure_qr_101_path, "wb") as f:
-        f.write(png_bytes_101)
-    print(f"Line 1 QR Code saved: {pure_qr_101_path}")
-
-    # 2. Standalone General QR Code (Student Safety Form)
-    general_url = f"{PRODUCTION_BASE_URL}/"
-    png_bytes_gen = download_qr_code_image(general_url, size=600)
-    pure_qr_gen_path = os.path.join(OUTPUT_DIR, "QR_العام_لكل_الخطوط.png")
-    with open(pure_qr_gen_path, "wb") as f:
-        f.write(png_bytes_gen)
-    print(f"General QR Code saved: {pure_qr_gen_path}")
-
-    # 3. Generate QR codes for lines
-    for bus in BUSES[:6]:
-        bus_url = f"{PRODUCTION_BASE_URL}/?bus={bus['id']}"
-        bus_bytes = download_qr_code_image(bus_url, size=500)
-        clean_name = f"QR_{bus['line'].replace(' ', '_')}.png"
-        file_path = os.path.join(OUTPUT_DIR, clean_name)
-        with open(file_path, "wb") as f:
-            f.write(bus_bytes)
-        print(f"Saved: {file_path}")
-
-    # 4. Generate an HTML Viewer sheet for easy printing and viewing
-    cards_html = ""
-    # General card
-    cards_html += f"""
-    <div class="qr-card">
-      <div class="line-tag-main">باركود عام (لكافة الخطوط)</div>
-      <div class="vendor-sub">الشركة المشغلة: شركة أبو الهول</div>
-      <img src="QR_العام_لكل_الخطوط.png" class="qr-img" alt="General QR">
-      <div class="scan-hint">📷 امسح بكاميرا الهاتف للفتح المباشر</div>
-      <div class="safety-pledge">🔒 بلاغك يصل مباشرة لمسؤولي السيفتي بالجامعة</div>
-      <div class="room-notice">🏢 في حالة وجود شكوى تخص السلامة احنا في روم 112</div>
-      <div class="emergency-badge">🚨 إدارة النقل: 01040772030</div>
-    </div>
-    """
-
-    for bus in BUSES[:6]:
-        clean_name = f"QR_{bus['line'].replace(' ', '_')}.png"
-        cards_html += f"""
-    <div class="qr-card">
-      <div class="line-tag-main">{bus['line']}</div>
-      <div class="vendor-sub">الشركة المشغلة: شركة أبو الهول</div>
-      <img src="{clean_name}" class="qr-img" alt="{bus['line']}">
-      <div class="scan-hint">📷 امسح بكاميرا الهاتف للفتح المباشر</div>
-      <div class="safety-pledge">🔒 بلاغك يصل مباشرة لمسؤولي السيفتي بالجامعة</div>
-      <div class="room-notice">🏢 في حالة وجود شكوى تخص السلامة احنا في روم 112</div>
-      <div class="emergency-badge">🚨 إدارة النقل: 01040772030</div>
-    </div>
-        """
-
+    # 2. Generate the unified official printable sticker HTML
     html_content = f"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>استيكرات باركود حافلات جامعة السويدي للتكنولوجيا (SUT)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استيكر السلامة الموحد | جامعة السويدي للتكنولوجيا (SUT)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
+    :root {{
+      --primary: #3b82f6;
+      --navy: #0f172a;
+      --card-bg: #1e293b;
+    }}
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
       font-family: 'Cairo', system-ui, sans-serif;
       background: #0b1120;
       color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       padding: 2rem 1rem;
-      text-align: center;
-      margin: 0;
     }}
-    .header-bar {{
-      max-width: 900px;
-      margin: 0 auto 2rem;
-      background: #1e293b;
-      padding: 1.25rem 2rem;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.1);
+    .print-actions {{
+      margin-bottom: 2rem;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
       gap: 1rem;
     }}
-    .brand-wrap {{
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      text-align: right;
-    }}
-    .logo-box {{
-      background: #ffffff;
-      padding: 6px 12px;
-      border-radius: 8px;
+    .btn {{
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      transition: all 0.2s;
       display: inline-flex;
       align-items: center;
-    }}
-    .logo-box img {{
-      height: 42px;
-      max-width: 150px;
-      object-fit: contain;
-    }}
-    h1 {{
-      font-size: 1.2rem;
-      margin: 0 0 4px;
-      color: #f8fafc;
-    }}
-    .sub-head {{
-      color: #94a3b8;
-      font-size: 0.85rem;
-      margin: 0;
+      gap: 0.5rem;
     }}
     .btn-print {{
       background: #3b82f6;
       color: #fff;
-      border: none;
-      padding: 10px 24px;
-      font-size: 0.95rem;
-      font-weight: bold;
-      border-radius: 10px;
-      cursor: pointer;
-      font-family: inherit;
     }}
-    .cards-grid {{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1.5rem;
-      max-width: 1200px;
-      margin: 0 auto;
+    .btn-print:hover {{
+      background: #2563eb;
     }}
-    .qr-card {{
-      background: #151e2e;
-      border: 2px solid #3b82f6;
-      border-radius: 16px;
-      padding: 1.5rem 1.25rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    .btn-download {{
+      background: #10b981;
+      color: #fff;
+      text-decoration: none;
+    }}
+    .btn-download:hover {{
+      background: #059669;
+    }}
+    /* The Official Sticker Sheet */
+    .sticker-sheet {{
+      width: 100%;
+      max-width: 580px;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 20px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+      border: 3px solid #1e40af;
+      text-align: center;
+      position: relative;
+    }}
+    .sheet-header {{
       display: flex;
-      flex-direction: column;
       align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
     }}
-    .line-tag-main {{
-      font-size: 1.15rem;
+    .logo-img {{
+      height: 48px;
+      max-width: 170px;
+      object-fit: contain;
+    }}
+    .dept-title {{
+      text-align: left;
+    }}
+    .dept-title h2 {{
+      font-size: 1.05rem;
       font-weight: 800;
-      color: #60a5fa;
+      color: #1e3a8a;
+    }}
+    .dept-title p {{
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 600;
+    }}
+    .cta-banner {{
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.5rem;
+    }}
+    .cta-banner h3 {{
+      font-size: 1.15rem;
+      color: #1d4ed8;
+      font-weight: 800;
       margin-bottom: 4px;
     }}
-    .vendor-sub {{
-      font-size: 0.85rem;
-      color: #94a3b8;
-      margin-bottom: 1rem;
+    .cta-banner p {{
+      font-size: 0.82rem;
+      color: #475569;
+    }}
+    .qr-container {{
+      background: #f8fafc;
+      border: 2px dashed #94a3b8;
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: inline-block;
+      margin-bottom: 1.25rem;
     }}
     .qr-img {{
-      width: 220px;
-      height: 220px;
-      background: #fff;
-      border-radius: 12px;
-      padding: 8px;
-      margin: 0 auto 0.85rem;
+      width: 250px;
+      height: 250px;
       display: block;
+      margin: 0 auto;
     }}
     .scan-hint {{
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #e2e8f0;
-      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0.5rem;
     }}
-    .safety-pledge {{
-      font-size: 0.78rem;
-      color: #cbd5e1;
-      margin-bottom: 0.35rem;
+    .company-badge {{
+      display: inline-block;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 1rem;
+    }}
+    .info-grid {{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      text-align: right;
+    }}
+    .info-card {{
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+    }}
+    .info-card strong {{
+      display: block;
+      color: #1e3a8a;
+      font-size: 0.92rem;
+      margin-top: 2px;
     }}
     .room-notice {{
-      background: rgba(59, 130, 246, 0.12);
-      border: 1px dashed rgba(59, 130, 246, 0.4);
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 0.78rem;
-      color: #93c5fd;
-      margin: 0.4rem 0;
-      width: 100%;
-      box-sizing: border-box;
-    }}
-    .emergency-badge {{
-      font-size: 0.8rem;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
       font-weight: 700;
-      color: #f87171;
-      margin-top: 0.4rem;
+      color: #92400e;
+      margin-bottom: 1.25rem;
+    }}
+    .footer-bar {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 2px solid #e2e8f0;
+      padding-top: 1rem;
+      font-size: 0.85rem;
+      color: #475569;
+    }}
+    .hotline-highlight {{
+      font-weight: 800;
+      color: #dc2626;
+      font-size: 0.95rem;
     }}
     @media print {{
-      body {{ background: #fff; color: #000; padding: 0; }}
-      .btn-print {{ display: none; }}
-      .header-bar {{ border: 1px solid #ccc; background: #f8fafc; color: #000; }}
-      .header-bar h1 {{ color: #000; }}
-      .header-bar .sub-head {{ color: #555; }}
-      .qr-card {{ background: #fff; border: 2px solid #000; color: #000; break-inside: avoid; page-break-inside: avoid; }}
-      .line-tag-main {{ color: #000; }}
-      .vendor-sub {{ color: #444; }}
-      .scan-hint {{ color: #222; }}
-      .safety-pledge {{ color: #333; }}
-      .room-notice {{ background: #f1f5f9; border-color: #94a3b8; color: #000; }}
-      .emergency-badge {{ color: #dc2626; }}
+      body {{ background: #fff; padding: 0; }}
+      .print-actions {{ display: none; }}
+      .sticker-sheet {{ box-shadow: none; border-width: 2px; width: 100%; max-width: 100%; }}
     }}
   </style>
 </head>
 <body>
-  <div class="header-bar">
-    <div class="brand-wrap">
-      <div class="logo-box">
-        <img src="../assets/sutech-logo.png" alt="SUTech Logo">
-      </div>
-      <div>
-        <h1>جامعة السويدي للتكنولوجيا - منظومة السلامة والأمان</h1>
-        <p class="sub-head">استيكرات باركود الحافلات الرسمية • إدارة النقل الطلابي والسلامة (غرفة 112)</p>
-      </div>
-    </div>
-    <button class="btn-print" onclick="window.print()">🖨️ طباعة الاستيكرات</button>
+
+  <div class="print-actions">
+    <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الاستيكر الموحد</button>
+    <a href="الباركود_الموحد_لحافلات_السويدي.png" download="SUT_Bus_QR.png" class="btn btn-download">⬇️ تحميل صورة الباركود PNG</a>
   </div>
 
-  <div class="cards-grid">
-    {cards_html}
+  <div class="sticker-sheet">
+    <div class="sheet-header">
+      <img src="../assets/sutech-logo.png" alt="SUTech Logo" class="logo-img">
+      <div class="dept-title">
+        <h2>جامعة السويدي للتكنولوجيا</h2>
+        <p>إدارة السلامة والأمان والنقل الطلابي</p>
+      </div>
+    </div>
+
+    <div class="cta-banner">
+      <h3>لحمايتك.. أبلغ فوراً عن أي تجاوز أو مخالفة بالباص</h3>
+      <p>يتابع مسؤولو السلامة بالجامعة بلاغك لحظياً لضمان سلامتك طوال الطريق</p>
+    </div>
+
+    <div class="company-badge">
+      الشركة المشغلة المعتمدة: <strong>شركة أبو الهول لنقل الركاب</strong>
+    </div>
+
+    <div class="qr-container">
+      <img src="الباركود_الموحد_لحافلات_السويدي.png" alt="Unified QR Code" class="qr-img">
+      <div class="scan-hint">📷 وجّه كاميرا الموبايل للمسح الفوري</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <span>🔒 خصوصية البلاغ:</span>
+        <strong>سري ومحمي لمسؤولي السيفتي</strong>
+      </div>
+      <div class="info-card">
+        <span>🚨 رقم إدارة النقل المباشر:</span>
+        <strong class="hotline-highlight">01040772030</strong>
+      </div>
+    </div>
+
+    <div class="room-notice">
+      🏢 في حالة وجود أي شكوى أو استفسار يخص السلامة.. احنا في روم 112 بالجامعة
+    </div>
+
+    <div class="footer-bar">
+      <span>جامعة السويدي للتكنولوجيا - مصر</span>
+      <span>Elsewedy University of Technology</span>
+    </div>
   </div>
+
 </body>
 </html>
 """
-    sheet_path = os.path.join(OUTPUT_DIR, "عرض_وطباعة_الباركود.html")
+    sheet_path = os.path.join(OUTPUT_DIR, "استيكر_السلامة_الموحد_للطباعة.html")
     with open(sheet_path, "w", encoding="utf-8") as f:
         f.write(html_content)
-    print(f"Printable sheet generated: {sheet_path}")
+    print(f"Unified Sticker Sheet created: {sheet_path}")
 
 if __name__ == "__main__":
-    generate_all()
+    generate_unified_qr()

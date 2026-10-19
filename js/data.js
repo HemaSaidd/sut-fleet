@@ -40,31 +40,7 @@ const FLEET_DATA = {
       activeBuses: 23,
       totalIncidents: 4,
       criticalIncidents: 1,
-      finesTotal: 8000,
-      safetyScore: 95,
-      status: "COMPLIANT"
-    },
-    {
-      id: "VEND-02",
-      name: "ترافيل لاين لنقل الركاب",
-      contactPerson: "أ/ رأفت سلامة",
-      phone: "01129876543",
-      activeBuses: 8,
-      totalIncidents: 9,
-      criticalIncidents: 3,
-      finesTotal: 24500,
-      safetyScore: 84,
-      status: "WARNING"
-    },
-    {
-      id: "VEND-03",
-      name: "إكسبريس النور للنقل الجامعي",
-      contactPerson: "كابتن/ إيهاب زهران",
-      phone: "01234567890",
-      activeBuses: 5,
-      totalIncidents: 2,
-      criticalIncidents: 0,
-      finesTotal: 3000,
+      finesTotal: 0,
       safetyScore: 98,
       status: "COMPLIANT"
     }
@@ -78,9 +54,9 @@ const FLEET_DATA = {
       model: "مرسيدس MCV 400 - 33 راكب",
       lineName: "خط العاشر 1",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "محمد عبد السلام",
-      driverPhone: "01011223344",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -89,9 +65,9 @@ const FLEET_DATA = {
       model: "مرسيدس MCV - 33 راكب",
       lineName: "خط العاشر 2",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "ياسر المغاوري",
-      driverPhone: "01022334455",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -99,10 +75,10 @@ const FLEET_DATA = {
       numberPlate: "باص 103 (د ع ص 7819)",
       model: "باص كبير 50 راكب",
       lineName: "خط الاسماعيلية",
-      vendorId: "VEND-02",
-      vendorName: "ترافيل لاين",
-      driverName: "إبراهيم الدسوقي",
-      driverPhone: "01133445566",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 50
     },
     {
@@ -110,10 +86,10 @@ const FLEET_DATA = {
       numberPlate: "باص 104 (ف ط ر 3302)",
       model: "مرسيدس MCV - 33 راكب",
       lineName: "خط السويس",
-      vendorId: "VEND-02",
-      vendorName: "ترافيل لاين",
-      driverName: "محمود عبد الرؤوف",
-      driverPhone: "01144556677",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -121,10 +97,10 @@ const FLEET_DATA = {
       numberPlate: "باص 105 (ج ل ق 9012)",
       model: "باص 33 راكب",
       lineName: "خط ميت غمر",
-      vendorId: "VEND-03",
-      vendorName: "إكسبريس النور",
-      driverName: "طارق الشربيني",
-      driverPhone: "01255667788",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -133,9 +109,9 @@ const FLEET_DATA = {
       model: "مرسيدس باص كبير - 50 راكب",
       lineName: "خط التجمع",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "سامح الأباصيري",
-      driverPhone: "01066778899",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 50
     },
     {
@@ -143,10 +119,10 @@ const FLEET_DATA = {
       numberPlate: "باص 107 (ر ع ل 1184)",
       model: "ميني باص 29 راكب",
       lineName: "خط الرحاب",
-      vendorId: "VEND-02",
-      vendorName: "ترافيل لاين",
-      driverName: "كرم الجندي",
-      driverPhone: "01177889900",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 29
     },
     {
@@ -155,9 +131,9 @@ const FLEET_DATA = {
       model: "مرسيدس 33 راكب",
       lineName: "خط الشروق",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "عصام البنا",
-      driverPhone: "01088990011",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -166,9 +142,9 @@ const FLEET_DATA = {
       model: "مرسيدس 33 راكب",
       lineName: "خط مدينتي",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "خالد عبد الرحيم",
-      driverPhone: "01099001122",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -176,10 +152,10 @@ const FLEET_DATA = {
       numberPlate: "باص 110 (ك ل ج 7719)",
       model: "ميني باص 29 راكب",
       lineName: "خط العبور",
-      vendorId: "VEND-03",
-      vendorName: "إكسبريس النور",
-      driverName: "جمال بدران",
-      driverPhone: "01200112233",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 29
     },
     {
@@ -187,10 +163,10 @@ const FLEET_DATA = {
       numberPlate: "باص 111 (أ ب ر 2389)",
       model: "باص كبير 50 راكب",
       lineName: "خط جسر السويس",
-      vendorId: "VEND-02",
-      vendorName: "ترافيل لاين",
-      driverName: "مصطفى قاسم",
-      driverPhone: "01111223344",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 50
     },
     {
@@ -199,9 +175,9 @@ const FLEET_DATA = {
       model: "باص كبير 50 راكب",
       lineName: "خط مصر الجديدة",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "أشرف عبد العال",
-      driverPhone: "01022331199",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 50
     },
     {
@@ -210,9 +186,9 @@ const FLEET_DATA = {
       model: "باص كبير 50 راكب",
       lineName: "خط مدينة نصر",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "عادل الشاذلي",
-      driverPhone: "01033442288",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 50
     },
     {
@@ -220,10 +196,10 @@ const FLEET_DATA = {
       numberPlate: "باص 114 (ل م هـ 5510)",
       model: "مرسيدس 33 راكب",
       lineName: "خط العباسية",
-      vendorId: "VEND-02",
-      vendorName: "ترافيل لاين",
-      driverName: "هشام الفقي",
-      driverPhone: "01144553377",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -231,10 +207,10 @@ const FLEET_DATA = {
       numberPlate: "باص 115 (ط ر و 6721)",
       model: "باص كبير 50 راكب",
       lineName: "خط الهرم -1",
-      vendorId: "VEND-02",
-      vendorName: "ترافيل لاين",
-      driverName: "سيد كمال الأباصيري",
-      driverPhone: "01155664488",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 50
     },
     {
@@ -242,10 +218,10 @@ const FLEET_DATA = {
       numberPlate: "باص 116 (ع ف ج 8830)",
       model: "مرسيدس 33 راكب",
       lineName: "خط الهرم -2",
-      vendorId: "VEND-03",
-      vendorName: "إكسبريس النور",
-      driverName: "رمضان فوزي",
-      driverPhone: "01266775599",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -253,10 +229,10 @@ const FLEET_DATA = {
       numberPlate: "باص 117 (ص ب ل 1209)",
       model: "باص كبير 50 راكب",
       lineName: "خط اكتوبر",
-      vendorId: "VEND-02",
-      vendorName: "ترافيل لاين",
-      driverName: "وليد القصاص",
-      driverPhone: "01177886600",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 50
     },
     {
@@ -265,9 +241,9 @@ const FLEET_DATA = {
       model: "باص كبير 50 راكب",
       lineName: "خط باسوس المرج",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "شريف الديب",
-      driverPhone: "01088997711",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 50
     },
     {
@@ -275,10 +251,10 @@ const FLEET_DATA = {
       numberPlate: "باص 119 (ك م ق 7843)",
       model: "باص كبير 50 راكب",
       lineName: "خط الجيزة دائري",
-      vendorId: "VEND-02",
-      vendorName: "ترافيل لاين",
-      driverName: "تامر الشناوي",
-      driverPhone: "01199008822",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 50
     },
     {
@@ -287,9 +263,9 @@ const FLEET_DATA = {
       model: "مرسيدس 33 راكب",
       lineName: "خط المعادي 1",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "حسين المليجي",
-      driverPhone: "01000119933",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -297,10 +273,10 @@ const FLEET_DATA = {
       numberPlate: "باص 121 (د ط ع 5590)",
       model: "مرسيدس 33 راكب",
       lineName: "خط المعادي 2",
-      vendorId: "VEND-03",
-      vendorName: "إكسبريس النور",
-      driverName: "ماهر قطب",
-      driverPhone: "01211220044",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -308,10 +284,10 @@ const FLEET_DATA = {
       numberPlate: "باص 122 (ب ر س 9871)",
       model: "مرسيدس 33 راكب",
       lineName: "خط حلوان",
-      vendorId: "VEND-03",
-      vendorName: "إكسبريس النور",
-      driverName: "عاطف النجار",
-      driverPhone: "01222331155",
+      vendorId: "VEND-01",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 33
     },
     {
@@ -320,9 +296,9 @@ const FLEET_DATA = {
       model: "باص كبير 50 راكب",
       lineName: "خط بنها منيا القمح",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "فتحي الدمرداش",
-      driverPhone: "01033442266",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       capacity: 50
     }
   ],
@@ -413,9 +389,9 @@ const FLEET_DATA = {
       busPlate: "باص 101",
       lineName: "خط العاشر 1",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "محمد عبد السلام",
-      driverPhone: "01011223344",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       violationCode: "PHONE_USAGE",
       violationTitle: "استخدام الموبايل أثناء السير",
       violationIcon: "📱",
@@ -439,9 +415,9 @@ const FLEET_DATA = {
       busPlate: "باص 106",
       lineName: "خط التجمع",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "سامح الأباصيري",
-      driverPhone: "01066778899",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       violationCode: "RECKLESS_SPEED",
       violationTitle: "سرعة زائدة وغرز متهورة",
       violationIcon: "⚡",
@@ -467,9 +443,9 @@ const FLEET_DATA = {
       busPlate: "باص 123",
       lineName: "خط بنها منيا القمح",
       vendorId: "VEND-01",
-      vendorName: "شركة النيل للنقل",
-      driverName: "فتحي الدمرداش",
-      driverPhone: "01033442266",
+      vendorName: "شركة أبو الهول",
+      driverName: "",
+      driverPhone: "",
       violationCode: "SMOKING_CABIN",
       violationTitle: "التدخين داخل الحافلة",
       violationIcon: "🚬",
