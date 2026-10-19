@@ -17,16 +17,17 @@ const FLEET_DATA = {
       : "http://10.244.47.33:8080"
   },
 
-  // Optional: Cloud Realtime Database Config (إذا أردت ربط المنظومة بقاعدة بيانات سحابية مباشرة 100%)
+  // Cloud Realtime Database Config (مفعل الآن سحابياً 100%)
   firebaseConfig: {
-    enabled: false, // غيّرها إلى true لتفعيل الربط السحابي المباشر بدون سيرفر محلي
-    apiKey: "",
-    authDomain: "",
-    databaseURL: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    enabled: true,
+    apiKey: "AIzaSyBkbZyU_-6-d-9csKu6FklUwHFbfQ3P0Q4",
+    authDomain: "sut-fleet.firebaseapp.com",
+    databaseURL: "https://sut-fleet-default-rtdb.firebaseio.com",
+    projectId: "sut-fleet",
+    storageBucket: "sut-fleet.firebasestorage.app",
+    messagingSenderId: "327140439270",
+    appId: "1:327140439270:web:16cfba9e9332ddb6793727",
+    measurementId: "G-JXGMHT1ZKN"
   },
 
   // University Contractor Companies (شركات النقل المقاولة المعتمدة)

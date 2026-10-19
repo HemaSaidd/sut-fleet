@@ -329,11 +329,28 @@ function initFirebaseIfEnabled() {
         statusDot.classList.add('pulsing');
       }
 
+      let isInitialLoad = true;
+
+      // Seed with initial sample incidents if database is completely empty on first launch
+      firebaseDb.ref('incidents').once('value', snapshot => {
+        if (!snapshot.exists()) {
+          const initialMap = {};
+          FLEET_DATA.initialIncidents.forEach(inc => {
+            const key = inc.id.replace(/[^a-zA-Z0-9_-]/g, "");
+            initialMap[key] = inc;
+          });
+          firebaseDb.ref('incidents').set(initialMap);
+        }
+        setTimeout(() => {
+          isInitialLoad = false;
+        }, 1200);
+      });
+
       // Listen for incoming incidents in real-time
       firebaseDb.ref('incidents').limitToLast(100).on('child_added', (snap) => {
         const item = snap.val();
         if (item && item.id) {
-          handleIncomingLiveIncident(item);
+          handleIncomingLiveIncident(item, isInitialLoad);
         }
       });
 
@@ -476,7 +493,7 @@ function initRealtimeStream() {
   }
 }
 
-function handleIncomingLiveIncident(incident) {
+function handleIncomingLiveIncident(incident, isInitialLoad = false) {
   // Prevent duplicate insertion
   if (AppState.currentIncidents.some(i => i.id === incident.id)) {
     return;
@@ -486,11 +503,13 @@ function handleIncomingLiveIncident(incident) {
   AppState.currentIncidents.unshift(incident);
   AppState.selectedIncidentId = incident.id;
 
-  // Sound Chime Alert
-  playSafetyAlertChime(incident.severity || 'CRITICAL');
+  if (!isInitialLoad) {
+    // Sound Chime Alert
+    playSafetyAlertChime(incident.severity || 'CRITICAL');
 
-  // Show visual toast notification banner
-  showLiveAlertToast(incident);
+    // Show visual toast notification banner
+    showLiveAlertToast(incident);
+  }
 
   // Update UI and KPIs
   updateKpiSummary();
@@ -500,13 +519,15 @@ function handleIncomingLiveIncident(incident) {
     renderSelectedIncidentDetails(incident.id);
   }
 
-  // Mark newly arrived row with glowing flash class
-  setTimeout(() => {
-    const newCard = document.getElementById(`inc_card_${incident.id}`);
-    if (newCard) {
-      newCard.classList.add('newly-arrived');
-    }
-  }, 50);
+  if (!isInitialLoad) {
+    // Mark newly arrived row with glowing flash class
+    setTimeout(() => {
+      const newCard = document.getElementById(`inc_card_${incident.id}`);
+      if (newCard) {
+        newCard.classList.add('newly-arrived');
+      }
+    }, 50);
+  }
 }
 
 function handleIncomingIncidentUpdate(updateData) {
