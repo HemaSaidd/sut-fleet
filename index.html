@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SUT Fleet Safety | منظومة سلامة حافلات جامعة السويدي للتكنولوجيا</title>
+  <meta name="description" content="منظومة الرقابة التشاركية لسلامة أسطول حافلات جامعة السويدي للتكنولوجيا (SUT) - إبلاغ فوري عبر الباركود، متابعة سلوك السائقين، وغرفة عمليات مركزية">
+  
+  <!-- Google Fonts: Cairo & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="theme-dark">
+
+  <!-- Top Global Header / Navigation -->
+  <header class="global-navbar" id="mainHeader">
+    <div class="nav-brand">
+      <div class="brand-shield sut-brand">
+        <span class="sut-badge-text">SUT</span>
+      </div>
+      <div class="brand-info">
+        <h1>Elsewedy <span class="accent-text">Fleet Safety</span></h1>
+        <p class="brand-sub">جامعة السويدي للتكنولوجيا • إدارة النقل والخدمات اللوجستية</p>
+      </div>
+    </div>
+
+    <!-- Active View Switcher Tabs -->
+    <div class="nav-view-switcher" id="viewSwitcher" role="tablist">
+      <button class="switcher-btn active" id="tabMobileView" onclick="switchMainView('student-mobile')">
+        <span class="icon">📱</span>
+        <span>شاشة الطالب (الباركود)</span>
+      </button>
+      <button class="switcher-btn" id="tabDashboardView" onclick="switchMainView('operations-center')">
+        <span class="icon">🖥️</span>
+        <span>غرفة العمليات المركزية</span>
+        <span class="badge-counter pulse-glow" id="activeIncidentsBadge">2</span>
+      </button>
+      <button class="switcher-btn" id="tabStickerView" onclick="switchMainView('sticker-generator')">
+        <span class="icon">🏷️</span>
+        <span>طباعة استيكرات الباصات</span>
+      </button>
+    </div>
+
+    <!-- Quick Audio & Status Controls -->
+    <div class="nav-actions">
+      <button class="action-icon-btn" id="soundToggleBtn" onclick="toggleAudioAlerts()" title="تفعيل / كتم صوت التنبيهات">
+        <span id="soundIcon">🔔</span>
+      </button>
+      <div class="live-status-pill" id="serverLiveStatusPill">
+        <span class="status-dot pulsing" id="serverLiveDot"></span>
+        <span class="status-label" id="serverLiveLabel">مباشر SUT</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Live Push Toast Notifications Container -->
+  <div id="liveToastContainer" class="live-toast-container"></div>
+
+  <!-- Main View Container -->
+  <main class="app-main-viewport" id="appMainViewport">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: STUDENT MOBILE VIEW (Through QR)   -->
+    <!-- ========================================== -->
+    <section class="view-panel active-panel" id="viewStudentMobile">
+      <div class="mobile-simulator-wrapper">
+        <div class="mobile-frame-container">
+          
+          <!-- Mock Phone Bezel Top -->
+          <div class="phone-notch">
+            <span class="notch-speaker"></span>
+            <span class="notch-camera"></span>
+          </div>
+
+          <!-- Inside Phone Screen Content -->
+          <div class="mobile-screen-scrollable" id="studentScreen">
+            
+            <!-- Mobile Top Bar with SUT Branding -->
+            <div class="student-header">
+              <div class="uni-emblem-badge">
+                <span class="emblem-icon">⚡</span>
+                <div>
+                  <span class="uni-title">جامعة السويدي للتكنولوجيا (SUT)</span>
+                  <p class="uni-subtitle">سلامتك أولاً • منظومة النقل الطلابي</p>
+                </div>
+              </div>
+              <div class="emergency-quick-call">
+                <a href="tel:19616" class="sos-chip" title="اتصال طوارئ مباشر">
+                  <span>🚨 طوارئ: 19616</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Bus Identification Banner (Auto-detected via QR) -->
+            <div class="bus-detected-card" id="busDetectedCard">
+              <div class="card-icon">🚌</div>
+              <div class="card-details">
+                <div class="bus-header-row">
+                  <span class="bus-badge" id="studentBusPlate">باص 101</span>
+                  <span class="line-badge" id="studentBusLine">خط العاشر 1</span>
+                </div>
+                <div class="bus-meta-row">
+                  <span class="meta-item">الشركة: <strong id="studentBusVendor">شركة النيل للنقل</strong></span>
+                  <span class="meta-separator">•</span>
+                  <span class="meta-item">السائق: <strong id="studentDriverName">محمد عبد السلام</strong></span>
+                </div>
+              </div>
+              <button class="change-bus-btn" onclick="openBusSelectorModal()" title="تغيير الخط أو رقم الحافلة">
+                <span>تغيير</span>
+              </button>
+            </div>
+
+            <!-- Student Incident Form -->
+            <form id="studentReportForm" class="report-form" onsubmit="handleStudentReportSubmit(event)">
+              
+              <!-- Section 1: Violation Category Selection -->
+              <div class="form-section">
+                <div class="section-title-row">
+                  <label class="section-label">١. ما المخالفة التي لاحظتها؟ <span class="required-star">*</span></label>
+                  <span class="helper-hint">اختر سبباً أو أكثر</span>
+                </div>
+
+                <div class="violations-grid" id="violationsGrid">
+                  <!-- Generated dynamically via JS -->
+                </div>
+              </div>
+
+              <!-- Section 2: Severity Level -->
+              <div class="form-section">
+                <label class="section-label">٢. مستوى الخطورة الحالي</label>
+                <div class="severity-selector">
+                  <label class="severity-option opt-critical">
+                    <input type="radio" name="severityLevel" value="CRITICAL" id="sevCritical" checked>
+                    <span class="severity-card">
+                      <span class="sev-icon">🔴</span>
+                      <span class="sev-title">خطر داهم</span>
+                      <span class="sev-desc">يهدد سلامة الركاب فوراً</span>
+                    </span>
+                  </label>
+                  <label class="severity-option opt-medium">
+                    <input type="radio" name="severityLevel" value="MEDIUM" id="sevMedium">
+                    <span class="severity-card">
+                      <span class="sev-icon">🟠</span>
+                      <span class="sev-title">مخالفة متوسطة</span>
+                      <span class="sev-desc">إزعاج أو قيادة غير منضبطة</span>
+                    </span>
+                  </label>
+                  <label class="severity-option opt-low">
+                    <input type="radio" name="severityLevel" value="LOW" id="sevLow">
+                    <span class="severity-card">
+                      <span class="sev-icon">🔵</span>
+                      <span class="sev-title">ملاحظة عامة</span>
+                      <span class="sev-desc">نظافة، تكييف، أو تأخير</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Section 3: Location on Road -->
+              <div class="form-section">
+                <div class="section-title-row">
+                  <label class="section-label" for="reportLocationInput">٣. موقع الأتوبيس الآن</label>
+                  <button type="button" class="btn-location-gps" id="btnGpsAuto" onclick="detectUserLocation()">
+                    <span>📍 تحديد مكاني تلقائياً</span>
+                  </button>
+                </div>
+                <div class="input-with-icon">
+                  <input type="text" id="reportLocationInput" class="custom-input" placeholder="مثال: طريق الإسماعيلية الصحراوي أمام بوابة العاشر" required>
+                </div>
+              </div>
+
+              <!-- Section 4: Details & Notes -->
+              <div class="form-section">
+                <label class="section-label" for="reportNotesInput">٤. تفاصيل إضافية عن الواقعة</label>
+                <textarea id="reportNotesInput" class="custom-textarea" rows="3" placeholder="اشرح باختصار ما حدث لمساعدة غرفة العمليات بجامعة السويدي في التحقيق الفوري..."></textarea>
+              </div>
+
+              <!-- Section 5: Media Evidence Attachment (Simulated) -->
+              <div class="form-section">
+                <label class="section-label">٥. إرفاق صورة أو فيديو (اختياري)</label>
+                <div class="media-upload-box" id="mediaUploadZone" onclick="simulateMediaAttachment()">
+                  <div class="upload-content" id="uploadPlaceholder">
+                    <span class="upload-icon">📷</span>
+                    <span class="upload-text">اضغط لالتقاط أو إرفاق صورة/فيديو كدليل</span>
+                    <span class="upload-sub">يدعم JPG, PNG, MP4 حتى 25 ميجابايت</span>
+                  </div>
+                  <div class="attached-preview hidden" id="attachedPreview">
+                    <img id="previewImage" src="" alt="دليل المخالفة">
+                    <div class="preview-info">
+                      <span id="previewName">evidence.jpg</span>
+                      <button type="button" class="remove-img-btn" onclick="removeAttachedMedia(event)">✕ إزالة</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 6: Student Identity (Anonymous or Identifiable) -->
+              <div class="form-section student-id-box">
+                <div class="anon-toggle-row">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="anonToggle" onchange="toggleAnonymousMode(this.checked)">
+                    <span class="slider"></span>
+                  </label>
+                  <div class="anon-text">
+                    <strong>إرسال البلاغ بهوية سرية (مجهول)</strong>
+                    <p>لن يتم كشف اسمك للسائق أو لأي جهة خارجية</p>
+                  </div>
+                </div>
+
+                <div class="student-contact-fields" id="studentContactFields">
+                  <div class="input-grid-2">
+                    <div>
+                      <label class="field-label" for="studentNameInput">اسمك (اختياري)</label>
+                      <input type="text" id="studentNameInput" class="custom-input" placeholder="مثال: عمر خيري">
+                    </div>
+                    <div>
+                      <label class="field-label" for="studentPhoneInput">رقم الموبايل (لتلقي الرد)</label>
+                      <input type="tel" id="studentPhoneInput" class="custom-input" placeholder="01xxxxxxxxx">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="form-submit-row">
+                <button type="submit" class="btn-primary-send" id="btnSubmitReport">
+                  <span class="send-icon">🚀</span>
+                  <span>إرسال البلاغ لغرفة عمليات SUT</span>
+                </button>
+              </div>
+
+              <div class="safety-pledge-note">
+                <span>🔒 بلاغك يصل مباشرة لمسؤولي الحركة بجامعة السويدي للتكنولوجيا، وبسرية تامة.</span>
+              </div>
+
+            </form>
+
+            <!-- Success Overlay inside Phone -->
+            <div class="mobile-success-modal hidden" id="mobileSuccessModal">
+              <div class="success-card">
+                <div class="success-checkmark-circle">
+                  <span>✓</span>
+                </div>
+                <h3>تم إرسال بلاغك بنجاح!</h3>
+                <p class="ticket-number">رقم التذكرة: <span id="successTicketId">#SUT-9281</span></p>
+                <div class="success-summary">
+                  <p>تم استلام البلاغ في غرفة عمليات جامعة السويدي للتكنولوجيا ويجري الآن التواصل مع السائق ومشرف الخط للتحقق فوراً.</p>
+                </div>
+                <div class="success-actions">
+                  <button type="button" class="btn-close-modal" onclick="resetStudentReportForm()">
+                    إرسال بلاغ آخر
+                  </button>
+                  <a href="tel:19616" class="btn-call-desk">
+                    📞 الاتصال بخط الطوارئ 19616
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Simulator Helper Box on Desktop -->
+        <div class="simulator-sidebar-tips">
+          <div class="tip-card sut-accent-card">
+            <h4>⚡ خطوط جامعة السويدي للتكنولوجيا (23 خطاً معتمداً):</h4>
+            <p>تم تجهيز النظام بجميع خطوط الجامعة الرسمية (العاشر 1 و 2، الإسماعيلية، السويس، ميت غمر، التجمع، الرحاب، الشروق، مدينتي، العبور، جسر السويس، مصر الجديدة، مدينة نصر، العباسية، الهرم 1 و 2، أكتوبر، باسوس المرج، الجيزة دائري، المعادي 1 و 2، حلوان، وبنها منيا القمح).</p>
+          </div>
+          <div class="tip-card accent-border">
+            <h4>📲 مسح الباركود بالموبايل الحقيقي:</h4>
+            <p>افتح تاب <strong>"طباعة استيكرات الباصات"</strong>، ستجد الباركود الجديد المعتمد ISO والمربوط بـ IP شبكة الجامعة <code>10.160.13.52:8080</code>. وجّه كاميرا موبايلك (المتصل بنفس الشبكة) وسيفتح فوراً على شاشة هاتفك!</p>
+          </div>
+          <button class="btn-secondary-outline" onclick="simulateRandomIncident()">
+            <span>🎲 تجربة توليد بلاغ سريع على أحد الخطوط</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: OPERATIONS COMMAND CENTER         -->
+    <!-- ========================================== -->
+    <section class="view-panel" id="viewOperationsCenter">
+      <div class="ops-dashboard-layout">
+        
+        <!-- Live KPI Summary Strip -->
+        <div class="ops-kpi-grid">
+          <div class="kpi-card glass-panel">
+            <div class="kpi-icon-wrap bg-blue-subtle">🚌</div>
+            <div class="kpi-data">
+              <span class="kpi-label">إجمالي خطوط SUT العاملة</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number" id="kpiActiveBuses">23</span>
+                <span class="kpi-trend positive">100% تغطية</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card glass-panel">
+            <div class="kpi-icon-wrap bg-red-subtle">🚨</div>
+            <div class="kpi-data">
+              <span class="kpi-label">بلاغات اليوم النشطة</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number" id="kpiTodayIncidents">3</span>
+                <span class="kpi-trend danger" id="kpiCriticalCount">2 حرجة</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card glass-panel">
+            <div class="kpi-icon-wrap bg-green-subtle">⏱️</div>
+            <div class="kpi-data">
+              <span class="kpi-label">متوسط سرعة الاستجابة</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number">5.2</span>
+                <span class="kpi-unit">دقائق</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card glass-panel">
+            <div class="kpi-icon-wrap bg-gold-subtle">🛡️</div>
+            <div class="kpi-data">
+              <span class="kpi-label">مؤشر سلامة أسطول السويدي</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number" id="kpiSafetyScore">94.5%</span>
+                <span class="kpi-trend positive">ممتاز</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Incident Workflow Grid (Stream & Details) -->
+        <div class="ops-main-grid">
+          
+          <!-- Left Column: Live Incident Feed & Filter -->
+          <div class="ops-stream-column glass-panel">
+            <div class="stream-header">
+              <div class="stream-title-row">
+                <h3>🔴 البلاغات الحية لخطوط جامعة السويدي</h3>
+                <span class="badge-pill bg-red-glow" id="streamCountPill">3 بلاغات</span>
+              </div>
+              <p class="stream-desc">بلاغات الطلاب الواردة مباشرة من خطوط النقل</p>
+
+              <!-- Incident Filters -->
+              <div class="stream-filters-bar">
+                <button class="filter-chip active" onclick="filterIncidents('ALL', this)">الكل</button>
+                <button class="filter-chip chip-critical" onclick="filterIncidents('CRITICAL', this)">الحرجة (2)</button>
+                <button class="filter-chip chip-pending" onclick="filterIncidents('PENDING', this)">قيد المتابعة</button>
+                <button class="filter-chip chip-resolved" onclick="filterIncidents('RESOLVED', this)">تم الحل</button>
+              </div>
+
+              <!-- Search Bar -->
+              <div class="stream-search-wrap">
+                <input type="text" id="incidentSearchInput" class="search-input" placeholder="بحث بالخط (مثال: العاشر، السويس، المعادي، الهرم...)" oninput="handleIncidentSearch(this.value)">
+              </div>
+            </div>
+
+            <!-- Incident Cards List -->
+            <div class="incidents-scroll-list" id="incidentsList">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Right Column: Incident Investigation & Action Workspace -->
+          <div class="ops-details-column glass-panel" id="incidentDetailsWorkspace">
+            <div class="empty-state-workspace" id="emptyWorkspaceState">
+              <div class="empty-icon">🛡️</div>
+              <h3>اختر بلاغاً من القائمة لبدء التحقيق واتخاذ الإجراء</h3>
+              <p>ستظهر هنا كامل التفاصيل مع صورة المخالفة وخريطة المسار والإجراءات الرسمية المعتمدة بجامعة السويدي.</p>
+            </div>
+
+            <div class="active-workspace-content hidden" id="activeWorkspaceContent">
+              <!-- Dynamically populated when an incident is clicked -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Lower Section: Contractors & Safety Analytics -->
+        <div class="ops-analytics-section">
+          
+          <!-- Contractors Risk & Performance Table -->
+          <div class="analytics-card glass-panel">
+            <div class="card-head-row">
+              <div>
+                <h3>🏢 أداء شركات النقل المقاولة المعتمدة لجامعة السويدي</h3>
+                <p>مؤشر أمان كل شركة وإجمالي الغرامات المطبقة عليها بناءً على بلاغات الطلاب</p>
+              </div>
+              <button class="btn-secondary-sm" onclick="exportVendorSafetyReport()">
+                <span>📊 تصدير بيان الخصومات</span>
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="ops-table" id="vendorsTable">
+                <thead>
+                  <tr>
+                    <th>شركة النقل</th>
+                    <th>عدد الحافلات</th>
+                    <th>إجمالي البلاغات</th>
+                    <th>مخالفات خطيرة</th>
+                    <th>مؤشر الأمان</th>
+                    <th>الغرامات الموقعة</th>
+                    <th>حالة الاعتماد</th>
+                  </tr>
+                </thead>
+                <tbody id="vendorsTableBody">
+                  <!-- Generated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Top Recurring Violations Breakdown -->
+          <div class="analytics-card glass-panel">
+            <div class="card-head-row">
+              <div>
+                <h3>⚠️ أكثر المخالفات رصداً على خطوط الجامعة</h3>
+                <p>التوزيع النسبي للمخالفات هذا الشهر</p>
+              </div>
+            </div>
+            <div class="violation-breakdown-list" id="violationBreakdownList">
+              <!-- Generated via JS -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: PRINTABLE BUS STICKER GENERATOR   -->
+    <!-- ========================================== -->
+    <section class="view-panel" id="viewStickerGenerator">
+      <div class="sticker-studio-layout">
+        
+        <!-- Controls Column -->
+        <div class="sticker-controls-panel glass-panel">
+          <div class="panel-head">
+            <h3>🏷️ مصمم استيكرات الباركود الرسمية (SUT)</h3>
+            <p>اختر الخط والحافلة لتوليد باركود رسمي معتمد ومقروء 100% بكاميرات الموبايل.</p>
+          </div>
+
+          <!-- Line and Bus Selector -->
+          <div class="control-group">
+            <label class="control-label" for="stickerBusSelect">اختر خط السير والحافلة:</label>
+            <select id="stickerBusSelect" class="custom-select" onchange="updateStickerPreview(this.value)">
+              <!-- Populated dynamically with all 23 SUT lines -->
+            </select>
+          </div>
+
+          <!-- IP & Domain Configuration -->
+          <div class="control-group host-config-box">
+            <label class="control-label" for="customHostInput">
+              🌐 عنوان السيرفر / رابط المنظومة (URL المشفر في الباركود):
+            </label>
+            <input type="text" id="customHostInput" class="custom-input" value="http://10.244.47.33:8080" oninput="handleHostChange(this.value)">
+            <div class="host-presets">
+              <button type="button" class="preset-pill active" onclick="setPresetHost('http://10.244.47.33:8080')">IP الواي فاي الحالي (10.244.47.33)</button>
+              <button type="button" class="preset-pill" onclick="setPresetHost(window.location.origin)">نفس الدومين الحالي (Origin)</button>
+              <button type="button" class="preset-pill" onclick="setPresetHost('http://localhost:8080')">Localhost</button>
+            </div>
+            <span class="host-hint">💡 هذا هو الرابط الذي سيفتحه هاتف الطالب عند مسح الباركود؛ يمكن كتابة رابط الدومين العام (مثل رابط Cloudflare أو Firebase) ليعمل مع الطلاب على 4G.</span>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">حجم الاستيكر:</label>
+            <div class="segmented-control">
+              <button class="segment-btn active" onclick="setStickerSize('A4')">A4 (صدر الكابينة)</button>
+              <button class="segment-btn" onclick="setStickerSize('A5')">A5 (خلف المقاعد)</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="customEmergencyPhone">رقم خط الطوارئ المطبوع:</label>
+            <input type="text" id="customEmergencyPhone" class="custom-input" value="19616 - تحويلة الحركة 4" oninput="updateStickerPhone(this.value)">
+          </div>
+
+          <div class="print-actions-row">
+            <button class="btn-primary-print" onclick="window.print()">
+              <span>🖨️ طباعة الاستيكر الآن</span>
+            </button>
+            <button class="btn-secondary-download" onclick="testQrScanningLink()">
+              <span>🔗 تجربة فتح الرابط الآن</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Sticker Preview Preview Canvas -->
+        <div class="sticker-preview-canvas glass-panel">
+          <div class="preview-badge-watermark">معاينة استيكر جامعة السويدي المعتمد</div>
+          
+          <!-- The Actual Printable Sticker Card -->
+          <div class="printable-sticker-sheet sut-sticker-theme" id="printableSticker">
+            
+            <!-- Sticker Top Header with Elsewedy Emblem -->
+            <div class="stk-header">
+              <div class="stk-logo-circle sut-logo">
+                <span style="font-family:'Outfit', sans-serif; font-weight:900; font-size:1.4rem; letter-spacing:-1px;">SUT</span>
+              </div>
+              <div class="stk-titles">
+                <span class="stk-uni-name">جامعة السويدي للتكنولوجيا | Elsewedy University of Technology</span>
+                <h2 class="stk-main-motto">سلامتك أولاً.. صوتك يحمي الجميع</h2>
+                <p class="stk-sub-motto">إدارة الحركة والخدمات الميدانية • منظومة الرقابة التشاركية لنقل الطلاب</p>
+              </div>
+            </div>
+
+            <!-- Big Call to Action Strip -->
+            <div class="stk-cta-strip sut-cta">
+              <span>⚠️ إذا لاحظت أي سلوك يهدد سلامتك أو سلامة زملائك، امسح الباركود فوراً</span>
+            </div>
+
+            <!-- Sticker Center Grid: QR Code & Bus Info -->
+            <div class="stk-center-grid">
+              
+              <!-- Left: Vector High-Contrast ISO-18004 QR Code Container -->
+              <div class="stk-qr-box">
+                <div class="qr-svg-holder" id="stickerQrHolder">
+                  <!-- Generated via Pure JS ISO Vector SVG Engine -->
+                </div>
+                <span class="qr-scan-hint">📲 وجّه كاميرا الموبايل نحو الكود</span>
+                <span class="qr-url-micro" id="stickerEncodedUrl">http://10.160.13.52:8080/index.html?bus=101</span>
+              </div>
+
+              <!-- Right: Bus Information -->
+              <div class="stk-info-side">
+                
+                <div class="stk-info-row">
+                  <span class="stk-label">رقم الحافلة:</span>
+                  <span class="stk-value-plate" id="stkBusNumber">باص 101</span>
+                </div>
+
+                <div class="stk-info-row">
+                  <span class="stk-label">خط السير المعتمد:</span>
+                  <span class="stk-value-line" id="stkBusLine">خط العاشر 1</span>
+                </div>
+
+                <div class="stk-info-row">
+                  <span class="stk-label">الشركة المشغلة:</span>
+                  <span class="stk-value" id="stkVendorName">شركة النيل للنقل والخدمات اللوجستية</span>
+                </div>
+
+                <!-- Examples of Reportable Violations Icons -->
+                <div class="stk-violations-teaser">
+                  <span class="teaser-title">أبلغ فوراً عن:</span>
+                  <div class="teaser-tags">
+                    <span class="t-tag">⚡ السرعة الزائدة</span>
+                    <span class="t-tag">📱 استخدام الموبايل</span>
+                    <span class="t-tag">🚬 التدخين</span>
+                    <span class="t-tag">🛑 الغرز والتجاوز الخطر</span>
+                    <span class="t-tag">❄️ أعطال التكييف</span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Sticker Footer: Direct Emergency & Privacy -->
+            <div class="stk-footer">
+              <div class="stk-footer-col">
+                <span class="f-icon">🔒</span>
+                <span>بلاغك سري ومحمي بالكامل - لا يُكشف للسائق أبداً</span>
+              </div>
+              <div class="stk-footer-col hotline">
+                <span class="f-icon">🚨</span>
+                <span>خط الطوارئ المباشر: <strong id="stkHotlinePhone">19616 - تحويلة الحركة 4</strong></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- ========================================== -->
+  <!-- MODAL: Change / Select Bus Manually       -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop hidden" id="busSelectorModal">
+    <div class="modal-box glass-panel">
+      <div class="modal-head">
+        <h3>🚌 اختر خط السير والحافلة (جامعة السويدي SUT)</h3>
+        <button class="modal-close-btn" onclick="closeBusSelectorModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-sub">قائمة خطوط النقل الرسمية المعتمدة لجامعة السويدي للتكنولوجيا (23 خطاً):</p>
+        <div class="buses-select-list" id="modalBusesList">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Optional Firebase Cloud SDK for 100% Zero-Server Realtime Sync -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <script src="js/data.js"></script>
+  <script src="js/qr-generator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

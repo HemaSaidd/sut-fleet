@@ -1,0 +1,9 @@
+# System & Executables
+cloudflared.exe
+*.exe
+*.log
+__pycache__/
+
+# Local Database
+fleet_safety.db
+public_url.txt
