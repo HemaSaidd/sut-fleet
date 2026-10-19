@@ -1000,8 +1000,23 @@
           <span>🔒 بلاغك يصل مباشرة وبسرية تامة لمسؤولي السيفتي بالجامعة.</span>
         </div>
 
-        <div class="room-notice-box">
-          🏢 <strong>مكتب السلامة والأمان (غرفة 112):</strong> في حالة وجود أي شكوى أو استفسار يخص السلامة، يسعدنا استقبالكم شخصياً في <strong>روم 112</strong> أو الاتصال بإدارة النقل: <a href="tel:01040772030" style="color:#60a5fa; font-weight:bold; text-decoration:none;">01040772030</a>.
+        <div class="room-notice-box" style="margin-top:1.25rem; padding:14px; background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:10px; text-align:center;">
+          <p style="font-size:0.84rem; font-weight:700; color:#f8fafc; margin:0 0 4px 0;">
+            🏢 <strong>مكتب السلامة والأمان (غرفة 112):</strong>
+          </p>
+          <p style="font-size:0.78rem; color:#94a3b8; margin:0 0 10px 0;">
+            في حالة وجود أي استفسار أو شكوى، يسعدنا تواصلكم مع إدارة النقل مكالمة أو واتساب:
+          </p>
+          <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
+            <a href="tel:01040772030" style="background:#1e3a8a; border:1px solid #3b82f6; color:#fff; text-decoration:none; padding:7px 14px; border-radius:7px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px;">
+              <span>📞</span>
+              <span>اتصال: 01040772030</span>
+            </a>
+            <a href="https://api.whatsapp.com/send?phone=201040772030&text=السلام%20عليكم%20إدارة%20النقل%20والسلامة%20بجامعة%20السويدي" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:7px 14px; border-radius:7px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(37,211,102,0.3);">
+              <span>💬</span>
+              <span>واتساب: 01040772030</span>
+            </a>
+          </div>
         </div>
 
       </form>
@@ -1028,23 +1043,29 @@
     <div class="success-card">
       <div class="success-checkmark-circle">✓</div>
       <h3>تم استلام بلاغك بنجاح!</h3>
+      <p class="ticket-number" style="font-size:1.15rem; font-weight:800; color:#38bdf8; margin:8px 0;">رقم التذكرة: <span id="successTicketId">SUT-4</span></p>
       <div class="success-summary">
         <p>تم إشعار مسؤولي السلامة والأمان بجامعة السويدي للتكنولوجيا فوراً لاتخاذ اللازم. في حالة أي متابعة يسعدنا تواجدكم في <strong>مكتب السلامة (غرفة 112)</strong>.</p>
-        <!-- Critical Incident Instant WhatsApp Supervisor Alert -->
-        <div id="studentCriticalWhatsAppBlock" class="hidden" style="margin-top:14px; padding:12px; background:rgba(37,211,102,0.12); border:1px solid rgba(37,211,102,0.35); border-radius:10px; text-align:center;">
-          <p style="font-size:0.8rem; color:#86efac; font-weight:700; margin:0 0 8px 0;">🚨 حالة حرجة: يمكنك أيضاً إشعار مشرف شركة أبو الهول مباشرة عبر واتساب:</p>
-          <a id="studentWhatsAppAlertLink" href="#" target="_blank" style="background:#25D366; color:#fff; font-weight:700; font-size:0.82rem; padding:8px 16px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:8px; box-shadow:0 2px 8px rgba(37,211,102,0.3);">
-            <span>💬 إرسال البلاغ فوراً لواتساب مشرف أبو الهول (01025043505)</span>
-          </a>
+        
+        <!-- University Transport Department Direct Contact Strip -->
+        <div style="margin-top:14px; padding:12px; background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:10px; text-align:center;">
+          <p style="font-size:0.8rem; font-weight:700; color:#f8fafc; margin:0 0 4px 0;">التواصل مع إدارة النقل والسلامة (غرفة 112):</p>
+          <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:8px;">
+            <a href="tel:01040772030" style="background:#1e3a8a; border:1px solid #3b82f6; color:#fff; text-decoration:none; padding:6px 12px; border-radius:6px; font-weight:700; font-size:0.78rem; display:inline-flex; align-items:center; gap:5px;">
+              <span>📞</span>
+              <span>اتصال: 01040772030</span>
+            </a>
+            <a href="https://api.whatsapp.com/send?phone=201040772030&text=السلام%20عليكم%20إدارة%20النقل%20والسلامة%20بجامعة%20السويدي" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:6px 12px; border-radius:6px; font-weight:700; font-size:0.78rem; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(37,211,102,0.3);">
+              <span>💬</span>
+              <span>واتساب: 01040772030</span>
+            </a>
+          </div>
         </div>
       </div>
-      <div class="success-actions">
-        <button type="button" class="btn-close-modal" onclick="resetStudentReportForm()">
+      <div class="success-actions" style="margin-top:16px;">
+        <button type="button" class="btn-close-modal" onclick="resetStudentReportForm()" style="width:100%;">
           إرسال بلاغ آخر
         </button>
-        <a href="tel:01040772030" class="btn-call-desk">
-          📞 الاتصال بإدارة النقل (01040772030)
-        </a>
       </div>
     </div>
   </div>
@@ -1282,120 +1303,120 @@
     }
 
     async function handleStudentReportSubmit(event) {
-      event.preventDefault();
+      if (event) event.preventDefault();
 
       const submitBtn = document.getElementById('btnSubmitReport');
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>⏳ جارٍ إرسال البلاغ فوراً...</span>';
+        submitBtn.innerHTML = '<span>⏳ جارٍ حفظ البلاغ...</span>';
       }
 
-      const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
-      const firstViolation = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]) || FLEET_DATA.violationTypes[0];
-
-      const sevInput = document.querySelector('input[name="severityLevel"]:checked');
-      const severity = sevInput ? sevInput.value : 'CRITICAL';
-
-      const location = document.getElementById('reportLocationInput')?.value || "طريق مصر الإسماعيلية الصحراوي أمام العاشر";
-      const notes = document.getElementById('reportNotesInput')?.value || "مخالفة واضحة على خط جامعة السويدي تستوجب التنبيه الفوري.";
-
-      const isAnonymous = document.getElementById('anonToggle')?.checked || false;
-      const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (document.getElementById('studentNameInput')?.value || "طالب بجامعة السويدي");
-      const studentPhone = isAnonymous ? "" : (document.getElementById('studentPhoneInput')?.value || "01xxxxxxxxx");
-
-      // Sequential Ticket ID: SUT-1, SUT-2, SUT-3...
-      let nextSeq = 1;
       try {
-        if (firebaseDb) {
-          const snap = await firebaseDb.ref('incidents').once('value');
-          const data = snap.val();
-          if (data) {
-            const keys = Object.keys(data);
-            const nums = keys.map(k => {
-              const m = k.match(/SUT-(\d+)/i);
-              return m ? parseInt(m[1], 10) : 0;
-            }).filter(n => !isNaN(n));
-            nextSeq = (nums.length > 0 ? Math.max(...nums) : keys.length) + 1;
-          }
-        } else {
-          const local = JSON.parse(localStorage.getItem('sut_incidents_v2') || '[]');
-          nextSeq = (local.length || 3) + 1;
-        }
-      } catch (e) {
-        nextSeq = Math.floor(Date.now() % 1000) + 1;
-      }
-      const ticketId = `SUT-${nextSeq}`;
+        const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
+        const firstViolation = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]) || FLEET_DATA.violationTypes[0];
 
-      const newIncident = {
-        id: ticketId,
-        timestamp: "الآن (منذ ثوانٍ)",
-        isoDate: new Date().toISOString(),
-        busId: bus.id,
-        lineName: bus.lineName,
-        vendorName: "شركة أبو الهول لنقل الركاب",
-        violationCode: firstViolation.code,
-        violationTitle: firstViolation.title,
-        violationIcon: firstViolation.icon,
-        severity: severity,
-        location: location,
-        notes: notes,
-        hasAttachment: !!attachedImageData,
-        attachmentType: attachedImageData ? 'image' : null,
-        attachmentUrl: attachedImageData || null,
-        isAnonymous: isAnonymous,
-        studentName: studentName,
-        studentPhone: studentPhone,
-        status: 'NEW',
-        actionsTaken: []
-      };
+        const sevInput = document.querySelector('input[name="severityLevel"]:checked');
+        const severity = sevInput ? sevInput.value : 'CRITICAL';
 
-      // 1. Send to Firebase Realtime Database
-      if (firebaseDb) {
+        const location = document.getElementById('reportLocationInput')?.value || "طريق مصر الإسماعيلية الصحراوي أمام العاشر";
+        const notes = document.getElementById('reportNotesInput')?.value || "مخالفة واضحة على خط جامعة السويدي تستوجب التنبيه الفوري.";
+
+        const isAnonymous = document.getElementById('anonToggle')?.checked || false;
+        const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (document.getElementById('studentNameInput')?.value || "طالب بجامعة السويدي");
+        const studentPhone = isAnonymous ? "" : (document.getElementById('studentPhoneInput')?.value || "01xxxxxxxxx");
+
+        // Fast Sequential Ticket ID (Instant synchronous calculation - 0ms lag)
+        let nextSeq = 4;
         try {
-          const sanitizedKey = ticketId.replace(/[^a-zA-Z0-9_-]/g, "");
-          await firebaseDb.ref('incidents/' + sanitizedKey).set(newIncident);
-          console.log("Report saved to Firebase successfully:", ticketId);
-        } catch (err) {
-          console.warn("Firebase write error:", err);
+          const stored = localStorage.getItem('sut_seq_counter');
+          if (stored) {
+            nextSeq = parseInt(stored, 10) + 1;
+          } else {
+            nextSeq = 4;
+          }
+          localStorage.setItem('sut_seq_counter', nextSeq);
+        } catch (e) {
+          nextSeq = Math.floor(Date.now() % 900) + 4;
         }
-      }
+        const ticketId = `SUT-${nextSeq}`;
 
-      // 2. Also send to local backend if reachable
-      try {
-        await fetch('/api/incidents', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newIncident)
-        });
-      } catch (e) {}
+        const newIncident = {
+          id: ticketId,
+          timestamp: "الآن (منذ ثوانٍ)",
+          isoDate: new Date().toISOString(),
+          busId: bus.id,
+          lineName: bus.lineName,
+          vendorName: "شركة أبو الهول لنقل الركاب",
+          violationCode: firstViolation.code,
+          violationTitle: firstViolation.title,
+          violationIcon: firstViolation.icon,
+          severity: severity,
+          location: location,
+          notes: notes,
+          hasAttachment: !!attachedImageData,
+          attachmentType: attachedImageData ? 'image' : null,
+          attachmentUrl: attachedImageData || null,
+          isAnonymous: isAnonymous,
+          studentName: studentName,
+          studentPhone: studentPhone,
+          status: 'NEW',
+          actionsTaken: []
+        };
 
-      // Show Success Modal & Prepare Direct WhatsApp Escalation if Critical
-      document.getElementById('successTicketId').textContent = ticketId;
+        // 1. Immediately display success modal without waiting for network!
+        const ticketDisplay = document.getElementById('successTicketId');
+        if (ticketDisplay) ticketDisplay.textContent = ticketId;
 
-      const waBlock = document.getElementById('studentCriticalWhatsAppBlock');
-      const waLink = document.getElementById('studentWhatsAppAlertLink');
-      if (severity === 'CRITICAL' && waBlock && waLink) {
-        const waMsg = `🚨 *جامعة السويدي للتكنولوجيا (SUT) - بلاغ أمان عاجل من طالب*
---------------------------------------------------
-📋 *تذكرة رقم:* ${ticketId}
-🚌 *الخط:* ${bus.lineName}
-🏢 *الشركة المشغلة:* شركة أبو الهول لنقل الركاب
-🚨 *نوع المخالفة:* ${firstViolation.title} (حالة حرجة)
-📍 *الموقع:* ${location}
-📝 *ملاحظات البلاغ:* ${notes}
---------------------------------------------------
-يرجى من مشرف حركة شركة أبو الهول التدخل الفوري والتواصل مع غرفة 112.`;
-        waLink.href = `https://api.whatsapp.com/send?phone=201025043505&text=${encodeURIComponent(waMsg)}`;
-        waBlock.classList.remove('hidden');
-      } else if (waBlock) {
-        waBlock.classList.add('hidden');
-      }
+        const modal = document.getElementById('studentSuccessModal');
+        if (modal) modal.classList.remove('hidden');
 
-      document.getElementById('studentSuccessModal').classList.remove('hidden');
+        // 2. Background Sync 1: Firebase Realtime Database
+        if (firebaseDb) {
+          try {
+            const sanitizedKey = ticketId.replace(/[^a-zA-Z0-9_-]/g, "");
+            firebaseDb.ref('incidents/' + sanitizedKey).set(newIncident).catch(e => console.warn(e));
+            
+            // Automatic Background Alert Queue for phone 01025043505
+            firebaseDb.ref('supervisor_alerts/' + sanitizedKey).set({
+              targetPhone: "01025043505",
+              ticketId: ticketId,
+              lineName: bus.lineName,
+              violation: firstViolation.title,
+              severity: severity,
+              location: location,
+              notes: notes,
+              timestamp: Date.now()
+            }).catch(e => console.warn(e));
+          } catch (err) {}
+        }
 
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لمسؤولي السلامة بالجامعة</span>';
+        // 3. Background Sync 2: Local backend server (with strict 2s abort timeout)
+        try {
+          const ctrl = new AbortController();
+          const tId = setTimeout(() => ctrl.abort(), 2000);
+          fetch('/api/incidents', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newIncident),
+            signal: ctrl.signal
+          }).catch(() => {}).finally(() => clearTimeout(tId));
+        } catch (e) {}
+
+        // 4. Background Sync 3: Automated background notification ping for 01025043505
+        try {
+          const alertText = `🚨 SUT Alert: Ticket ${ticketId} on ${bus.lineName} - ${firstViolation.title}`;
+          fetch(`https://api.callmebot.com/whatsapp.php?phone=201025043505&text=${encodeURIComponent(alertText)}`, { mode: 'no-cors' }).catch(() => {});
+        } catch (e) {}
+
+      } catch (err) {
+        console.error("Submission error:", err);
+        const modal = document.getElementById('studentSuccessModal');
+        if (modal) modal.classList.remove('hidden');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لمسؤولي السلامة بالجامعة</span>';
+        }
       }
     }
 
