@@ -108,8 +108,8 @@ def init_db():
     if count == 0:
         initial_samples = [
             (
-                "SUT-9102", "101", "باص 101", "خط العاشر 1", "VEND-01", "شركة النيل للنقل",
-                "محمد عبد السلام", "01011223344", "PHONE_USAGE", "استخدام الموبايل أثناء السير", "📱",
+                "SUT-1", "101", "باص 101", "خط العاشر 1", "VEND-01", "شركة أبو الهول لنقل الركاب",
+                "", "", "PHONE_USAGE", "استخدام الموبايل أثناء السير", "📱",
                 "CRITICAL", "طريق مصر الإسماعيلية الصحراوي قبل بوابة العاشر",
                 "السائق ماسك الموبايل بيتفرج على فيديوهات والسرعة عالية على الصحراوي والأتوبيس بيحود.",
                 1, "image", "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80",
@@ -117,22 +117,22 @@ def init_db():
                 time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 360))
             ),
             (
-                "SUT-9098", "106", "باص 106", "خط التجمع", "VEND-01", "شركة النيل للنقل",
-                "سامح الأباصيري", "01066778899", "RECKLESS_SPEED", "سرعة زائدة وغرز متهورة", "⚡",
+                "SUT-2", "106", "باص 106", "خط التجمع", "VEND-01", "شركة أبو الهول لنقل الركاب",
+                "", "", "RECKLESS_SPEED", "سرعة زائدة وغرز متهورة", "⚡",
                 "CRITICAL", "الطريق الدائري الأوسطي مخرج السويس",
                 "سرعة الأتوبيس فوق 110 كم/س وتجاوز خطر وغرز مفاجئة بين الشاحنات.",
                 1, "image", "https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?w=800&auto=format&fit=crop&q=80",
                 1, "طالب بجامعة السويدي (مجهول)", "", "INVESTIGATING",
-                json.dumps([{"time": "منذ 10 دقائق", "user": "غرفة عمليات SUT", "text": "تم التواصل مع مشرف خط التجمع لإلزام السائق بالتهدئة ومراقبة عداد السرعة عبر الـ GPS."}], ensure_ascii=False),
+                json.dumps([{"time": "منذ 10 دقائق", "user": "إدارة النقل والسلامة", "text": "تم التواصل مع مشرف خط التجمع بشركة أبو الهول لإلزام السائق بالتهدئة ومراقبة عداد السرعة."}], ensure_ascii=False),
                 time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 1320))
             ),
             (
-                "SUT-9085", "123", "باص 123", "خط بنها منيا القمح", "VEND-01", "شركة النيل للنقل",
-                "فتحي الدمرداش", "01033442266", "SMOKING_CABIN", "التدخين داخل الحافلة", "🚬",
+                "SUT-3", "123", "باص 123", "خط بنها منيا القمح", "VEND-01", "شركة أبو الهول لنقل الركاب",
+                "", "", "SMOKING_CABIN", "التدخين داخل الحافلة", "🚬",
                 "MEDIUM", "طريق بنها - الزقازيق الزراعي",
                 "السائق يقوم بالتدخين داخل الكابينة والدخان يملأ الصالون رغم اعتراض الطلاب.",
                 0, None, None, 0, "مريم حسام - SUT", "01122334455", "FINED",
-                json.dumps([{"time": "منذ 25 دقيقة", "user": "إدارة الحركة بجامعة السويدي", "text": "توقيع غرامة فورية بقيمة 1,500 ج.م على شركة النيل للنقل وتحذير السائق."}], ensure_ascii=False),
+                json.dumps([{"time": "منذ 25 دقيقة", "user": "إدارة السلامة بجامعة السويدي", "text": "توقيع غرامة فورية بقيمة 1,500 ج.م على شركة أبو الهول وتحذير السائق رسمياً."}], ensure_ascii=False),
                 time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 2700))
             )
         ]
@@ -314,11 +314,13 @@ class FleetSafetyHandler(http.server.SimpleHTTPRequestHandler):
         # 1. New Incident from Student Phone
         if parsed.path == "/api/incidents":
             try:
-                ticket_id = payload.get("id") or f"#SUT-{int(time.time() * 1000) % 9000 + 1000}"
-                iso_date = payload.get("isoDate") or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-
                 conn = sqlite3.connect(DB_PATH)
                 cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) FROM incidents")
+                curr_count = cursor.fetchone()[0]
+                ticket_id = payload.get("id") or f"SUT-{curr_count + 1}"
+                iso_date = payload.get("isoDate") or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
                 cursor.execute("""
                 INSERT INTO incidents (
                     id, bus_id, bus_plate, line_name, vendor_id, vendor_name,

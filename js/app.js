@@ -11,7 +11,7 @@ const AppState = {
   currentIncidents: [...FLEET_DATA.initialIncidents],
   activeFilter: 'ALL',
   searchQuery: '',
-  selectedIncidentId: 'SUT-9102',
+  selectedIncidentId: 'SUT-1',
   audioAlertsEnabled: true,
   audioContext: null,
   simulatedAttachedImage: null,
@@ -731,8 +731,9 @@ async function handleStudentReportSubmit(event) {
   const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (document.getElementById('studentNameInput')?.value || "طالب بجامعة السويدي");
   const studentPhone = isAnonymous ? "" : (document.getElementById('studentPhoneInput')?.value || "01xxxxxxxxx");
 
-  // Generate Unique SUT Ticket ID
-  const ticketId = `#SUT-${Math.floor(1000 + Math.random() * 9000)}`;
+  // Generate Sequential SUT Ticket ID: SUT-1, SUT-2, ...
+  const nextSeq = (AppState.currentIncidents?.length || 0) + 1;
+  const ticketId = `SUT-${nextSeq}`;
 
   const newIncident = {
     id: ticketId,

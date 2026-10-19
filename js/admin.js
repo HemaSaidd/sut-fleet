@@ -370,7 +370,8 @@ function renderIncidentsList() {
            onclick="selectIncidentForDetails('${inc.id}')">
         <div class="card-top-row">
           <div style="display:flex; align-items:center; gap:8px;">
-            <strong style="font-size:0.95rem; color:#f8fafc;">${inc.violationTitle}</strong>
+            <span style="font-size:0.75rem; font-weight:800; color:#38bdf8; background:rgba(56,189,248,0.12); padding:2px 7px; border-radius:5px; border:1px solid rgba(56,189,248,0.25); letter-spacing:0.5px;">${inc.id}</span>
+            <strong style="font-size:0.92rem; color:#f8fafc;">${inc.violationTitle}</strong>
           </div>
           ${sevBadge}
         </div>
@@ -393,25 +394,56 @@ function renderMiniViolationsBreakdown() {
   const container = document.getElementById('miniViolationsBreakdown');
   if (!container) return;
 
-  const counts = {};
+  const stats = {};
   AppState.currentIncidents.forEach(inc => {
     const title = inc.violationTitle || "أخرى";
-    counts[title] = (counts[title] || 0) + 1;
+    const icon = inc.violationIcon || "⚠️";
+    if (!stats[title]) {
+      stats[title] = { count: 0, icon: icon };
+    }
+    stats[title].count += 1;
   });
 
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  const total = sorted.reduce((sum, item) => sum + item[1], 0) || 1;
+  const sorted = Object.entries(stats).sort((a, b) => b[1].count - a[1].count);
+  const total = sorted.reduce((sum, item) => sum + item[1].count, 0) || 1;
 
-  container.innerHTML = sorted.map(([title, count]) => {
-    const pct = Math.round((count / total) * 100);
+  const colorPalettes = [
+    { bg: "linear-gradient(90deg, #ef4444, #f87171)", badge: "rgba(239,68,68,0.15)", text: "#fca5a5", border: "rgba(239,68,68,0.3)" },
+    { bg: "linear-gradient(90deg, #f59e0b, #fbbf24)", badge: "rgba(245,158,11,0.15)", text: "#fde68a", border: "rgba(245,158,11,0.3)" },
+    { bg: "linear-gradient(90deg, #3b82f6, #60a5fa)", badge: "rgba(59,130,246,0.15)", text: "#bfdbfe", border: "rgba(59,130,246,0.3)" },
+    { bg: "linear-gradient(90deg, #10b981, #34d399)", badge: "rgba(16,185,129,0.15)", text: "#a7f3d0", border: "rgba(16,185,129,0.3)" },
+    { bg: "linear-gradient(90deg, #8b5cf6, #a78bfa)", badge: "rgba(139,92,246,0.15)", text: "#ddd6fe", border: "rgba(139,92,246,0.3)" },
+  ];
+
+  if (sorted.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; color:#64748b; padding:1.2rem; font-size:0.85rem;">
+        لا توجد بلاغات مسجلة حتى الآن
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = sorted.map(([title, item], index) => {
+    const pct = Math.round((item.count / total) * 100);
+    const palette = colorPalettes[index % colorPalettes.length];
     return `
-      <div style="font-size:0.75rem;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:3px; color:#cbd5e1;">
-          <span>${title}</span>
-          <strong style="color:#93c5fd;">${count} (${pct}%)</strong>
+      <div class="violation-stat-card" style="background:rgba(30,41,59,0.65); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:0.85rem 1rem; display:flex; flex-direction:column; justify-content:space-between; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+            <span style="font-size:1.15rem; flex-shrink:0;">${item.icon}</span>
+            <span style="font-size:0.82rem; font-weight:600; color:#f1f5f9; line-height:1.3;" title="${title}">
+              ${title}
+            </span>
+          </div>
+          <span style="font-size:0.75rem; font-weight:700; background:${palette.badge}; color:${palette.text}; border:1px solid ${palette.border}; padding:2px 8px; border-radius:6px; white-space:nowrap; flex-shrink:0;">
+            ${item.count} بلاغ (${pct}%)
+          </span>
         </div>
-        <div style="height:5px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden;">
-          <div style="height:100%; width:${pct}%; background:#3b82f6; border-radius:3px;"></div>
+        <div>
+          <div style="height:6px; background:rgba(255,255,255,0.07); border-radius:4px; overflow:hidden;">
+            <div style="height:100%; width:${pct}%; background:${palette.bg}; border-radius:4px; transition:width 0.4s ease;"></div>
+          </div>
         </div>
       </div>
     `;

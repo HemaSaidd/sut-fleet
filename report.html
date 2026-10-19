@@ -1028,7 +1028,7 @@
     <div class="success-card">
       <div class="success-checkmark-circle">✓</div>
       <h3>تم استلام بلاغك بنجاح!</h3>
-      <p class="ticket-number">رقم التذكرة: <span id="successTicketId">#SUT-9281</span></p>
+      <p class="ticket-number">رقم التذكرة: <span id="successTicketId">SUT-1</span></p>
       <div class="success-summary">
         <p>تم إشعار مسؤولي السلامة والأمان بجامعة السويدي للتكنولوجيا فوراً لاتخاذ اللازم. في حالة أي متابعة يسعدنا تواجدكم في <strong>مكتب السلامة (غرفة 112)</strong>.</p>
       </div>
@@ -1297,8 +1297,28 @@
       const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (document.getElementById('studentNameInput')?.value || "طالب بجامعة السويدي");
       const studentPhone = isAnonymous ? "" : (document.getElementById('studentPhoneInput')?.value || "01xxxxxxxxx");
 
-      // Unique Ticket ID
-      const ticketId = `#SUT-${Math.floor(1000 + Math.random() * 9000)}`;
+      // Sequential Ticket ID: SUT-1, SUT-2, SUT-3...
+      let nextSeq = 1;
+      try {
+        if (firebaseDb) {
+          const snap = await firebaseDb.ref('incidents').once('value');
+          const data = snap.val();
+          if (data) {
+            const keys = Object.keys(data);
+            const nums = keys.map(k => {
+              const m = k.match(/SUT-(\d+)/i);
+              return m ? parseInt(m[1], 10) : 0;
+            }).filter(n => !isNaN(n));
+            nextSeq = (nums.length > 0 ? Math.max(...nums) : keys.length) + 1;
+          }
+        } else {
+          const local = JSON.parse(localStorage.getItem('sut_incidents_v2') || '[]');
+          nextSeq = (local.length || 3) + 1;
+        }
+      } catch (e) {
+        nextSeq = Math.floor(Date.now() % 1000) + 1;
+      }
+      const ticketId = `SUT-${nextSeq}`;
 
       const newIncident = {
         id: ticketId,
@@ -1349,7 +1369,7 @@
 
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لغرفة عمليات SUT</span>';
+        submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لمسؤولي السلامة بالجامعة</span>';
       }
     }
 

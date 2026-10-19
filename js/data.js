@@ -382,14 +382,14 @@ const FLEET_DATA = {
   // Initial Incidents (Realistic University Line Samples)
   initialIncidents: [
     {
-      id: "SUT-9102",
+      id: "SUT-1",
       timestamp: "منذ 6 دقائق",
       isoDate: new Date(Date.now() - 6 * 60 * 1000).toISOString(),
       busId: "101",
       busPlate: "باص 101",
       lineName: "خط العاشر 1",
       vendorId: "VEND-01",
-      vendorName: "شركة أبو الهول",
+      vendorName: "شركة أبو الهول لنقل الركاب",
       driverName: "",
       driverPhone: "",
       violationCode: "PHONE_USAGE",
@@ -408,14 +408,14 @@ const FLEET_DATA = {
       actionsTaken: []
     },
     {
-      id: "SUT-9098",
+      id: "SUT-2",
       timestamp: "منذ 22 دقيقة",
       isoDate: new Date(Date.now() - 22 * 60 * 1000).toISOString(),
       busId: "106",
       busPlate: "باص 106",
       lineName: "خط التجمع",
       vendorId: "VEND-01",
-      vendorName: "شركة أبو الهول",
+      vendorName: "شركة أبو الهول لنقل الركاب",
       driverName: "",
       driverPhone: "",
       violationCode: "RECKLESS_SPEED",
@@ -432,18 +432,18 @@ const FLEET_DATA = {
       studentPhone: "",
       status: "INVESTIGATING",
       actionsTaken: [
-        { time: "منذ 10 دقائق", user: "غرفة عمليات SUT", text: "تم التواصل مع مشرف خط التجمع لإلزام السائق بالتهدئة ومراقبة عداد السرعة عبر الـ GPS." }
+        { time: "منذ 10 دقائق", user: "إدارة النقل والسلامة", text: "تم التواصل مع مشرف خط التجمع بشركة أبو الهول لإلزام السائق بالتهدئة ومراقبة عداد السرعة." }
       ]
     },
     {
-      id: "SUT-9085",
+      id: "SUT-3",
       timestamp: "منذ 45 دقيقة",
       isoDate: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
       busId: "123",
       busPlate: "باص 123",
       lineName: "خط بنها منيا القمح",
       vendorId: "VEND-01",
-      vendorName: "شركة أبو الهول",
+      vendorName: "شركة أبو الهول لنقل الركاب",
       driverName: "",
       driverPhone: "",
       violationCode: "SMOKING_CABIN",
@@ -460,7 +460,7 @@ const FLEET_DATA = {
       studentPhone: "01122334455",
       status: "FINED",
       actionsTaken: [
-        { time: "منذ 25 دقيقة", user: "إدارة الحركة بجامعة السويدي", text: "توقيع غرامة فورية بقيمة 1,500 ج.م على شركة النيل للنقل وتحذير السائق." }
+        { time: "منذ 25 دقيقة", user: "إدارة السلامة بجامعة السويدي", text: "توقيع غرامة فورية بقيمة 1,500 ج.م على شركة أبو الهول لنقل الركاب وتحذير السائق رسمياً." }
       ]
     }
   ]
