@@ -1147,6 +1147,12 @@
       if (!isSutOperatingHours()) {
         const warnBanner = document.getElementById('scheduleWarningBanner');
         if (warnBanner) warnBanner.classList.remove('hidden');
+
+        const submitBtn = document.getElementById('btnSubmitReport');
+        if (submitBtn) {
+          submitBtn.style.opacity = '0.85';
+          submitBtn.innerHTML = '<span>🔒 استقبال البلاغات مغلق حالياً (6:00 ص - 7:30 م)</span>';
+        }
       }
 
       updateBusHeader();
@@ -1360,19 +1366,18 @@
       // Check operating hours (6:00 AM - 7:30 PM Cairo Time)
       const isDuringHours = isSutOperatingHours();
       if (!isDuringHours) {
-        const confirmSend = confirm(
-          "⚠️ تنبيه تشغيل الخطوط:\n\n" +
-          "أنت حالياً خارج مواعيد تشغيل حافلات جامعة السويدي الرسمية (المواعيد المعتمدة: من 6:00 صباحاً حتى 7:30 مساءً).\n\n" +
-          "إذا كان هذا بلاغاً عاجلاً عن رحلة جامعية أو تجربة للنظام، اضغط (موافق OK) للمتابعة.\n" +
-          "أو يمكنك التواصل هاتفياً مباشرة مع إدارة النقل والسلامة: 01040772030."
+        alert(
+          "⛔ استقبال البلاغات مغلق حالياً:\n\n" +
+          "نظام بلاغات السلامة متاح حصرياً أثناء مواعيد تشغيل حافلات جامعة السويدي الرسمية (من 6:00 صباحاً حتى 7:30 مساءً).\n\n" +
+          "للحالات الطارئة خارج أوقات التشغيل، يرجى التواصل هاتفياً مباشرة مع إدارة النقل والسلامة على:\n" +
+          "📞 01040772030 (غرفة 112)"
         );
-        if (!confirmSend) {
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لمسؤولي السلامة بالجامعة</span>';
-          }
-          return;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '0.85';
+          submitBtn.innerHTML = '<span>🔒 استقبال البلاغات مغلق (متاح 6:00 ص - 7:30 م)</span>';
         }
+        return;
       }
 
       try {
@@ -1383,10 +1388,7 @@
         const severity = sevInput ? sevInput.value : 'CRITICAL';
 
         const location = document.getElementById('reportLocationInput')?.value || "طريق مصر الإسماعيلية الصحراوي أمام العاشر";
-        let notes = document.getElementById('reportNotesInput')?.value || "مخالفة واضحة على خط جامعة السويدي تستوجب التنبيه الفوري.";
-        if (!isDuringHours) {
-          notes = "[⚠️ بلاغ خارج مواعيد التشغيل الرسمية بعد 7:30 م] " + notes;
-        }
+        const notes = document.getElementById('reportNotesInput')?.value || "مخالفة واضحة على خط جامعة السويدي تستوجب التنبيه الفوري.";
 
         const isAnonymous = document.getElementById('anonToggle')?.checked || false;
         const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (document.getElementById('studentNameInput')?.value || "طالب بجامعة السويدي");
