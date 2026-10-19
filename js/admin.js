@@ -544,19 +544,19 @@ function renderSelectedIncidentDetails(incidentId) {
         <div class="driver-contact-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <div class="driver-meta">
             <div>
-              <strong style="color:#f8fafc">مشرف تشغيل أسطول أبو الهول • إدارة النقل والسلامة (غرفة 112)</strong>
-              <p style="font-size:0.75rem; color:#94a3b8">جامعة السويدي للتكنولوجيا • هاتف المشرف والمتابعة: <strong style="color:#38bdf8;">01040772030</strong></p>
+              <strong style="color:#f8fafc">مشرف تشغيل أسطول أبو الهول (إدارة الطوارئ والمتابعة)</strong>
+              <p style="font-size:0.75rem; color:#94a3b8">جامعة السويدي للتكنولوجيا • هاتف المشرف: <strong style="color:#38bdf8;">01025043505</strong> • مكتب السلامة: غرفة 112</p>
             </div>
           </div>
           <div class="driver-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
             <button type="button" onclick="sendWhatsAppSupervisorAlert('${incident.id}')" style="background:#25D366; color:#fff; border:none; padding:7px 14px; border-radius:7px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(37,211,102,0.25);">
-              <span>📲 إشعار واتساب للمشرف</span>
+              <span>📲 إشعار واتساب للمشرف (01025043505)</span>
             </button>
             <button type="button" onclick="sendSmsSupervisorAlert('${incident.id}')" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:7px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
               <span>💬 إرسال SMS</span>
             </button>
-            <a href="tel:01040772030" class="btn-call-driver" style="background:#1e293b; border:1px solid #334155; text-decoration:none; padding:7px 14px; border-radius:7px; font-weight:600; font-size:0.82rem; color:#f1f5f9; display:inline-flex; align-items:center; gap:6px;">
-              <span>📞 اتصال هاتفي</span>
+            <a href="tel:01025043505" class="btn-call-driver" style="background:#1e293b; border:1px solid #334155; text-decoration:none; padding:7px 14px; border-radius:7px; font-weight:600; font-size:0.82rem; color:#f1f5f9; display:inline-flex; align-items:center; gap:6px;">
+              <span>📞 اتصال بالمشرف</span>
             </a>
           </div>
         </div>
@@ -697,11 +697,11 @@ function sendWhatsAppSupervisorAlert(incidentId) {
   if (!incident) return;
 
   const msg = formatSupervisorAlertMessage(incident);
-  const phone = "201040772030"; // Egyptian international format
+  const phone = "201025043505"; // Dedicated Abu El Hol Fleet Supervisor Phone
   const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`;
 
   // Automatically record this action in the incident log
-  executeAdminAction(incidentId, 'INVESTIGATING', 'تم إرسال إشعار أمان عاجل لمشرف شركة أبو الهول عبر تطبيق واتساب');
+  executeAdminAction(incidentId, 'INVESTIGATING', 'تم إرسال إشعار أمان عاجل لمشرف شركة أبو الهول (01025043505) عبر تطبيق واتساب');
 
   window.open(url, '_blank');
 }
@@ -710,11 +710,11 @@ function sendSmsSupervisorAlert(incidentId) {
   const incident = AppState.currentIncidents.find(i => i.id === incidentId);
   if (!incident) return;
 
-  const msg = `[SUT إدارة السلامة] بلاغ حرج تذكرة ${incident.id} على ${incident.lineName} - مخالفة: ${incident.violationTitle}. الموقع: ${incident.location}. يرجى تدخل مشرف أبو الهول فوراً والتواصل مع غرفة 112 هاتف 01040772030`;
-  const phone = "01040772030";
+  const msg = `[SUT إدارة السلامة] بلاغ حرج تذكرة ${incident.id} على ${incident.lineName} - مخالفة: ${incident.violationTitle}. الموقع: ${incident.location}. يرجى تدخل مشرف أبو الهول فوراً. هاتف إدارة السلامة (غرفة 112): 01040772030`;
+  const phone = "01025043505";
   const url = `sms:${phone}?body=${encodeURIComponent(msg)}`;
 
-  executeAdminAction(incidentId, 'INVESTIGATING', 'تم إرسال إشعار أمان عاجل لمشرف شركة أبو الهول عبر الرسائل النصية SMS');
+  executeAdminAction(incidentId, 'INVESTIGATING', 'تم إرسال إشعار أمان عاجل لمشرف شركة أبو الهول (01025043505) عبر الرسائل النصية SMS');
 
   window.location.href = url;
 }

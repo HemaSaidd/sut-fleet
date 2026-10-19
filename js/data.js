@@ -35,8 +35,9 @@ const FLEET_DATA = {
     {
       id: "VEND-01",
       name: "شركة أبو الهول لنقل الركاب",
-      contactPerson: "إدارة تشغيل أسطول السويدي",
-      phone: "01040772030",
+      contactPerson: "مشرف تشغيل أسطول أبو الهول",
+      phone: "01025043505",
+      supervisorPhone: "01025043505",
       activeBuses: 23,
       totalIncidents: 4,
       criticalIncidents: 1,
