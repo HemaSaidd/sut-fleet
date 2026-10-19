@@ -13,6 +13,16 @@
   
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/style.css">
+
+  <script>
+    // Immediate redirect for student QR scans
+    (function() {
+      var p = new URLSearchParams(window.location.search);
+      if (p.has('bus') || p.get('mode') === 'student') {
+        window.location.replace('report.html' + window.location.search);
+      }
+    })();
+  </script>
 </head>
 <body class="theme-dark">
 
@@ -30,11 +40,7 @@
 
     <!-- Active View Switcher Tabs -->
     <div class="nav-view-switcher" id="viewSwitcher" role="tablist">
-      <button class="switcher-btn active" id="tabMobileView" onclick="switchMainView('student-mobile')">
-        <span class="icon">📱</span>
-        <span>شاشة الطالب (الباركود)</span>
-      </button>
-      <button class="switcher-btn" id="tabDashboardView" onclick="switchMainView('operations-center')">
+      <button class="switcher-btn active" id="tabDashboardView" onclick="switchMainView('operations-center')">
         <span class="icon">🖥️</span>
         <span>غرفة العمليات المركزية</span>
         <span class="badge-counter pulse-glow" id="activeIncidentsBadge">2</span>
@@ -43,6 +49,10 @@
         <span class="icon">🏷️</span>
         <span>طباعة استيكرات الباصات</span>
       </button>
+      <a href="report.html" target="_blank" class="switcher-btn" id="tabMobileView" style="text-decoration:none">
+        <span class="icon">📱</span>
+        <span>صفحة إبلاغ الطالب (QR) ↗</span>
+      </a>
     </div>
 
     <!-- Quick Audio & Status Controls -->
@@ -69,7 +79,7 @@
     <!-- ========================================== -->
     <!-- VIEW 1: STUDENT MOBILE VIEW (Through QR)   -->
     <!-- ========================================== -->
-    <section class="view-panel active-panel" id="viewStudentMobile">
+    <section class="view-panel" id="viewStudentMobile">
       <div class="mobile-simulator-wrapper">
         <div class="mobile-frame-container">
           
@@ -288,7 +298,7 @@
     <!-- ========================================== -->
     <!-- VIEW 2: OPERATIONS COMMAND CENTER         -->
     <!-- ========================================== -->
-    <section class="view-panel" id="viewOperationsCenter">
+    <section class="view-panel active-panel" id="viewOperationsCenter">
       <div class="ops-dashboard-layout">
         
         <!-- Live KPI Summary Strip -->

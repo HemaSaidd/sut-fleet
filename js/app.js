@@ -5,7 +5,7 @@
 
 // Application State Store
 const AppState = {
-  currentView: 'student-mobile',
+  currentView: 'operations-center',
   selectedBusId: '101', // Default: خط العاشر 1
   selectedViolationCodes: ['PHONE_USAGE'],
   currentIncidents: [...FLEET_DATA.initialIncidents],
@@ -39,33 +39,26 @@ document.addEventListener('DOMContentLoaded', () => {
     initRealtimeStream();
   }
 
-  // Check URL parameters (e.g. ?bus=106&mode=student)
+  // Check URL parameters: if student scan, redirect to standalone report.html
   const urlParams = new URLSearchParams(window.location.search);
   const busParam = urlParams.get('bus');
   const modeParam = urlParams.get('mode');
   const viewParam = urlParams.get('view');
 
-  const isStudent = (modeParam === 'student') || (busParam && !viewParam);
+  if (modeParam === 'student' || busParam) {
+    window.location.replace('report.html' + window.location.search);
+    return;
+  }
 
-  if (isStudent) {
-    document.body.classList.add('student-mode');
-    if (busParam && FLEET_DATA.buses.some(b => b.id === busParam)) {
-      selectBus(busParam);
-    }
-    switchMainView('student-mobile');
+  // Admin Flow
+  const isAdminAuth = sessionStorage.getItem('sut_admin_authorized') === 'true';
+  if (isAdminAuth) {
+    document.getElementById('adminLogoutBtn')?.classList.remove('hidden');
+    switchMainView(viewParam || 'operations-center');
   } else {
-    // Admin Flow
-    const isAdminAuth = sessionStorage.getItem('sut_admin_authorized') === 'true';
-    if (isAdminAuth) {
-      document.getElementById('adminLogoutBtn')?.classList.remove('hidden');
-      switchMainView(viewParam || 'operations-center');
-    } else {
-      switchMainView('student-mobile');
-      if (viewParam === 'operations-center' || viewParam === 'sticker-generator') {
-        AppState.pendingAdminView = viewParam;
-        openAdminPinModal();
-      }
-    }
+    // Require SUT Fleet PIN 19616 to unlock Operations Center
+    AppState.pendingAdminView = viewParam || 'operations-center';
+    openAdminPinModal();
   }
 });
 
@@ -126,7 +119,13 @@ function openAdminPinModal() {
 }
 
 function closeAdminPinModal() {
+  const isAuth = sessionStorage.getItem('sut_admin_authorized') === 'true';
   const modal = document.getElementById('adminPinModal');
+  if (!isAuth) {
+    // If student or unauthorized user closes PIN modal, redirect to report.html
+    window.location.replace('report.html');
+    return;
+  }
   if (modal) modal.classList.add('hidden');
   AppState.pendingAdminView = null;
 }
@@ -140,7 +139,8 @@ function handleAdminPinSubmit(event) {
   // Official SUT Fleet Operations PIN: 19616
   if (val === '19616') {
     sessionStorage.setItem('sut_admin_authorized', 'true');
-    closeAdminPinModal();
+    const modal = document.getElementById('adminPinModal');
+    if (modal) modal.classList.add('hidden');
     document.body.classList.remove('student-mode');
     document.getElementById('adminLogoutBtn')?.classList.remove('hidden');
     const target = AppState.pendingAdminView || 'operations-center';
@@ -158,9 +158,8 @@ function handleAdminPinSubmit(event) {
 function handleAdminLogout() {
   sessionStorage.removeItem('sut_admin_authorized');
   document.getElementById('adminLogoutBtn')?.classList.add('hidden');
-  document.body.classList.add('student-mode');
-  switchMainView('student-mobile');
-  alert("🔒 تم تسجيل خروج المشرف وتأمين غرفة العمليات.");
+  AppState.pendingAdminView = 'operations-center';
+  openAdminPinModal();
 }
 
 // ==========================================
@@ -1306,8 +1305,8 @@ function updateStickerPreview(busId) {
   if (lineEl) lineEl.textContent = bus.lineName;
   if (vendorEl) vendorEl.textContent = bus.vendorName;
 
-  // The actual full URL encoded into the QR code for students (student-mode enforced)
-  const targetUrl = `${AppState.systemHost}/index.html?bus=${bus.id}&mode=student`;
+  // The actual full URL encoded into the QR code for students (points exclusively to report.html)
+  const targetUrl = `${AppState.systemHost}/report.html?bus=${bus.id}`;
 
   if (urlDisplay) {
     urlDisplay.textContent = targetUrl;
@@ -1321,7 +1320,7 @@ function updateStickerPreview(busId) {
 
 function testQrScanningLink() {
   const bus = FLEET_DATA.buses.find(b => b.id === AppState.stickerSelectedBusId) || FLEET_DATA.buses[0];
-  const targetUrl = `${AppState.systemHost}/index.html?bus=${bus.id}&mode=student`;
+  const targetUrl = `${AppState.systemHost}/report.html?bus=${bus.id}`;
   window.open(targetUrl, '_blank');
 }
 
