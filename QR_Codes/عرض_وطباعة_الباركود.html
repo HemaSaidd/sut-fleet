@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>استيكرات باركود حافلات جامعة السويدي للتكنولوجيا (SUT)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 { color: #60a5fa; margin-bottom: 0.5rem; }
+    p { color: #94a3b8; margin-bottom: 2rem; }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .qr-card {
+      background: #1e293b;
+      border: 2px solid #3b82f6;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    .qr-card h2 {
+      font-size: 1.3rem;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+    .qr-card .line-tag {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .qr-img {
+      width: 240px;
+      height: 240px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px;
+      margin: 0 auto 1rem;
+      display: block;
+    }
+    .scan-hint {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-bottom: 0.5rem;
+    }
+    .url-text {
+      font-size: 0.75rem;
+      color: #60a5fa;
+      direction: ltr;
+      word-break: break-all;
+    }
+    .btn-print {
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ استيكرات باركود حافلات جامعة السويدي للتكنولوجيا (SUT)</h1>
+  <p>امسح أي كود بكاميرا الموبايل لتفتح صفحة البلاغ المباشرة للطالب بدون أي وصول للوحة الإدارة</p>
+  <button class="btn-print" onclick="window.print()">🖨️ طباعة الاستيكرات</button>
+
+  <div class="cards-grid">
+    <div class="qr-card">
+      <h2>باص 101</h2>
+      <span class="line-tag">خط العاشر من رمضان 1</span>
+      <img src="QR_باص_101_العاشر.png" class="qr-img" alt="QR Code Bus 101">
+      <div class="scan-hint">📷 امسح بكاميرا الهاتف للفتح الفوري</div>
+      <div class="url-text">https://sut-fleet.vercel.app/?bus=101</div>
+    </div>
+
+    <div class="qr-card">
+      <h2>كود عام (لكافة الحافلات)</h2>
+      <span class="line-tag">منظومة النقل الطلابي SUT</span>
+      <img src="QR_العام_لجميع_الباصات.png" class="qr-img" alt="General QR Code">
+      <div class="scan-hint">📷 يتيح للطالب اختيار خطه وحافلته</div>
+      <div class="url-text">https://sut-fleet.vercel.app/</div>
+    </div>
+
+    <div class="qr-card">
+      <h2>باص 102</h2>
+      <span class="line-tag">خط العاشر من رمضان 2</span>
+      <img src="QR_باص_102_خط_العاشر_من_رمضان_2.png" class="qr-img" alt="QR Code Bus 102">
+      <div class="scan-hint">📷 امسح بكاميرا الهاتف للفتح الفوري</div>
+      <div class="url-text">https://sut-fleet.vercel.app/?bus=102</div>
+    </div>
+
+    <div class="qr-card">
+      <h2>باص 103</h2>
+      <span class="line-tag">خط الإسماعيلية الصحراوي</span>
+      <img src="QR_باص_103_خط_الإسماعيلية_الصحراوي.png" class="qr-img" alt="QR Code Bus 103">
+      <div class="scan-hint">📷 امسح بكاميرا الهاتف للفتح الفوري</div>
+      <div class="url-text">https://sut-fleet.vercel.app/?bus=103</div>
+    </div>
+  </div>
+</body>
+</html>
