@@ -1408,6 +1408,31 @@
           fetch(`https://api.callmebot.com/whatsapp.php?phone=201025043505&text=${encodeURIComponent(alertText)}`, { mode: 'no-cors' }).catch(() => {});
         } catch (e) {}
 
+        // 5. Background Sync 4: Automated Outlook Email Notification to Hse@sut.edu.eg
+        try {
+          fetch('https://formsubmit.co/ajax/Hse@sut.edu.eg', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              "_subject": `🚨 [بلاغ سلامة جامعة السويدي] تذكرة ${ticketId} - خط ${bus.lineName} (${firstViolation.title})`,
+              "تذكرة رقم": ticketId,
+              "الخط": bus.lineName,
+              "الشركة المشغلة": "شركة أبو الهول لنقل الركاب",
+              "نوع المخالفة": firstViolation.title,
+              "درجة الخطورة": severity === 'CRITICAL' ? 'حالة حرجة (تدخل عاجل)' : (severity === 'MEDIUM' ? 'متوسطة' : 'عامة'),
+              "موقع البلاغ": location,
+              "ملاحظات الطالب": notes,
+              "اسم مقدم البلاغ": studentName,
+              "رقم الهاتف": studentPhone || "غير مسجل",
+              "تاريخ وتوقيت البلاغ": new Date().toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' }),
+              "_template": "table"
+            })
+          }).catch(() => {});
+        } catch (e) {}
+
       } catch (err) {
         console.error("Submission error:", err);
         const modal = document.getElementById('studentSuccessModal');
