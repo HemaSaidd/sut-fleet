@@ -9,8 +9,8 @@ const FLEET_DATA = {
   university: {
     nameAr: "جامعة السويدي للتكنولوجيا",
     nameEn: "Elsewedy University of Technology (SUT)",
-    department: "إدارة الحركة والخدمات الميدانية والنقل الطلابي",
-    hotline: "19616 - تحويلة الحركة 4",
+    department: "إدارة السلامة والأمان والنقل الطلابي - غرفة 112",
+    hotline: "01040772030 (إدارة النقل)",
     campusLocation: "طريق مصر الإسماعيلية الصحراوي - العاشر من رمضان",
     defaultHost: (typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file')) 
       ? window.location.origin 
@@ -34,10 +34,10 @@ const FLEET_DATA = {
   vendors: [
     {
       id: "VEND-01",
-      name: "شركة النيل للنقل والخدمات اللوجستية",
-      contactPerson: "م/ حسام الشريف (مدير الحركة)",
-      phone: "01001234567",
-      activeBuses: 10,
+      name: "شركة أبو الهول لنقل الركاب",
+      contactPerson: "إدارة تشغيل أسطول السويدي",
+      phone: "01040772030",
+      activeBuses: 23,
       totalIncidents: 4,
       criticalIncidents: 1,
       finesTotal: 8000,

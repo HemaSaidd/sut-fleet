@@ -638,7 +638,7 @@ function initStickerGenerator() {
   if (!select) return;
 
   select.innerHTML = FLEET_DATA.buses.map(b => `
-    <option value="${b.id}">باص ${b.id} - ${b.lineName} (${b.vendorName})</option>
+    <option value="${b.id}">${b.lineName}</option>
   `).join('');
 
   const hostInput = document.getElementById('customHostInput');
@@ -675,9 +675,9 @@ function updateStickerPreview(busId) {
   const qrHolder = document.getElementById('stickerQrHolder');
   const urlDisplay = document.getElementById('stickerEncodedUrl');
 
-  if (plateEl) plateEl.textContent = `باص ${bus.id}`;
+  if (plateEl) plateEl.textContent = bus.lineName;
   if (lineEl) lineEl.textContent = bus.lineName;
-  if (vendorEl) vendorEl.textContent = bus.vendorName;
+  if (vendorEl) vendorEl.textContent = bus.vendorName || "شركة أبو الهول";
 
   // The actual full URL encoded into the QR code for students:
   // Points directly to the root report form (index.html?bus=101)

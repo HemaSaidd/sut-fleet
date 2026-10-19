@@ -27,12 +27,12 @@
   <!-- Top Global Header / Navigation -->
   <header class="global-navbar" id="mainHeader">
     <div class="nav-brand">
-      <div class="brand-shield sut-brand">
-        <span class="sut-badge-text">SUT</span>
+      <div class="sut-logo-pill" style="background:#ffffff; padding:4px 8px; border-radius:8px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.25);">
+        <img src="assets/sutech-logo.png" alt="SUTech Logo" style="height:36px; max-width:130px; object-fit:contain; display:block;">
       </div>
       <div class="brand-info">
-        <h1>Elsewedy <span class="accent-text">Operations Center</span></h1>
-        <p class="brand-sub">جامعة السويدي للتكنولوجيا • إدارة النقل والخدمات اللوجستية</p>
+        <h1>SUTech <span class="accent-text">Safety & Operations</span></h1>
+        <p class="brand-sub">جامعة السويدي للتكنولوجيا • إدارة السلامة والأمان والنقل الطلابي (غرفة 112)</p>
       </div>
     </div>
 
@@ -270,8 +270,8 @@
           </div>
 
           <div class="control-group">
-            <label class="control-label" for="customEmergencyPhone">رقم خط الطوارئ المطبوع:</label>
-            <input type="text" id="customEmergencyPhone" class="custom-input" value="19616 - تحويلة الحركة 4" oninput="updateStickerPhone(this.value)">
+            <label class="control-label" for="customEmergencyPhone">رقم إدارة النقل والسلامة المطبوع:</label>
+            <input type="text" id="customEmergencyPhone" class="custom-input" value="01040772030" oninput="updateStickerPhone(this.value)">
           </div>
 
           <div class="print-actions-row">
@@ -291,11 +291,13 @@
             <!-- Sticker Top Header -->
             <div class="stk-header">
               <div class="stk-uni-brand">
-                <div class="stk-emblem">⚡</div>
+                <div style="background:#ffffff; padding:4px 8px; border-radius:6px; display:inline-flex; align-items:center;">
+                  <img src="assets/sutech-logo.png" alt="SUTech Logo" style="height:36px; max-width:130px; object-fit:contain;">
+                </div>
                 <div>
                   <h2 class="stk-title">جامعة السويدي للتكنولوجيا</h2>
                   <p class="stk-sub">ELSEWEDY UNIVERSITY OF TECHNOLOGY (SUT)</p>
-                  <span class="stk-dept">إدارة الحركة والخدمات اللوجستية • النقل الطلابي</span>
+                  <span class="stk-dept">إدارة السلامة والأمان والنقل الطلابي • غرفة 112</span>
                 </div>
               </div>
               <div class="stk-badge-safety">
@@ -307,7 +309,7 @@
             <!-- Sticker Center Call to Action -->
             <div class="stk-cta-banner">
               <h3>لحمايتك.. أبلغ فوراً عن أي تجاوز أمني أو سلوك مخالف</h3>
-              <p>مسؤول الحركة بالجامعة يتابع حافلتك مباشرة ويتدخل فور إرسال البلاغ</p>
+              <p>مسؤولو السيفتي بالجامعة يتابعون حافلتك مباشرة ويتدخلون فور إرسال البلاغ</p>
             </div>
 
             <!-- Sticker Main Core (QR Code & Bus Identity) -->
@@ -330,18 +332,18 @@
               <div class="stk-bus-info-card">
                 
                 <div class="stk-info-row primary">
-                  <span class="stk-label">رقم الحافلة:</span>
-                  <span class="stk-value bus-number-lg" id="stkBusNumber">باص 101</span>
-                </div>
-
-                <div class="stk-info-row">
                   <span class="stk-label">خط السير الرسمي:</span>
-                  <span class="stk-value" id="stkBusLine">خط العاشر من رمضان 1</span>
+                  <span class="stk-value bus-number-lg" id="stkBusLine">خط العاشر من رمضان 1</span>
                 </div>
 
                 <div class="stk-info-row">
                   <span class="stk-label">الشركة المشغلة:</span>
-                  <span class="stk-value" id="stkVendorName">شركة النيل للنقل والخدمات اللوجستية</span>
+                  <span class="stk-value" id="stkVendorName">شركة أبو الهول</span>
+                </div>
+
+                <div class="stk-info-row">
+                  <span class="stk-label">مكتب السلامة بالجامعة:</span>
+                  <span class="stk-value" style="color:#60a5fa">المبنى الرئيسي - غرفة 112</span>
                 </div>
 
                 <!-- Examples of Reportable Violations Icons -->
@@ -364,11 +366,11 @@
             <div class="stk-footer">
               <div class="stk-footer-col">
                 <span class="f-icon">🔒</span>
-                <span>بلاغك سري ومحمي بالكامل - لا يُكشف للسائق أبداً</span>
+                <span>بلاغك سري ومحمي بالكامل - يصل لمسؤولي السيفتي بالجامعة</span>
               </div>
               <div class="stk-footer-col hotline">
                 <span class="f-icon">🚨</span>
-                <span>خط الطوارئ المباشر: <strong id="stkHotlinePhone">19616 - تحويلة الحركة 4</strong></span>
+                <span>إدارة النقل والسلامة: <strong id="stkHotlinePhone">01040772030</strong></span>
               </div>
             </div>
 

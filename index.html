@@ -88,19 +88,46 @@
     .uni-emblem-badge {
       display: flex;
       align-items: center;
-      gap: 0.65rem;
+      gap: 0.75rem;
     }
 
-    .emblem-icon {
-      font-size: 1.6rem;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-md);
+    .sut-logo-pill {
+      background: #ffffff;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 15px var(--accent-glow);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .sut-header-logo {
+      height: 36px;
+      max-width: 135px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .line-badge-lg {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #93c5fd;
+    }
+
+    .room-notice-box {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px dashed rgba(59, 130, 246, 0.35);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      margin-top: 0.9rem;
+      font-size: 0.78rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .room-notice-box strong {
+      color: #60a5fa;
     }
 
     .uni-title {
@@ -817,15 +844,17 @@
     <!-- Top Bar with SUT Branding -->
     <header class="student-header">
       <div class="uni-emblem-badge">
-        <span class="emblem-icon">⚡</span>
+        <div class="sut-logo-pill">
+          <img src="assets/sutech-logo.png" alt="SUTech Logo" class="sut-header-logo">
+        </div>
         <div>
-          <span class="uni-title">جامعة السويدي للتكنولوجيا (SUT)</span>
-          <p class="uni-subtitle">سلامتك أولاً • منظومة النقل الطلابي</p>
+          <span class="uni-title">جامعة السويدي للتكنولوجيا</span>
+          <p class="uni-subtitle">منظومة السلامة والأمان • النقل الطلابي</p>
         </div>
       </div>
       <div>
-        <a href="tel:19616" class="sos-chip" title="اتصال طوارئ مباشر">
-          <span>🚨 طوارئ: 19616</span>
+        <a href="tel:01040772030" class="sos-chip" title="إدارة النقل والسلامة">
+          <span>🚨 إدارة النقل: 01040772030</span>
         </a>
       </div>
     </header>
@@ -838,17 +867,14 @@
         <div class="card-icon">🚌</div>
         <div class="card-details">
           <div class="bus-header-row">
-            <span class="bus-badge" id="studentBusPlate">باص 101</span>
-            <span class="line-badge" id="studentBusLine">خط العاشر 1</span>
+            <span class="line-badge-lg" id="studentBusLine">خط العاشر من رمضان 1</span>
           </div>
           <div class="bus-meta-row">
-            <span class="meta-item">الشركة: <strong id="studentBusVendor">شركة النيل للنقل</strong></span>
-            <span class="meta-separator">•</span>
-            <span class="meta-item">السائق: <strong id="studentDriverName">كابتن محمد عبد السلام</strong></span>
+            <span class="meta-item">الشركة المشغلة: <strong id="studentBusVendor">شركة أبو الهول</strong></span>
           </div>
         </div>
-        <button type="button" class="change-bus-btn" onclick="openBusSelectorModal()" title="تغيير الخط أو رقم الحافلة">
-          <span>تغيير</span>
+        <button type="button" class="change-bus-btn" onclick="openBusSelectorModal()" title="تغيير خط السير">
+          <span>تغيير الخط</span>
         </button>
       </div>
 
@@ -967,12 +993,16 @@
         <div class="form-submit-row">
           <button type="submit" class="btn-primary-send" id="btnSubmitReport">
             <span class="send-icon">🚀</span>
-            <span>إرسال البلاغ لغرفة عمليات SUT</span>
+            <span>إرسال البلاغ لمسؤولي السلامة بالجامعة</span>
           </button>
         </div>
 
         <div class="safety-pledge-note">
-          <span>🔒 بلاغك يصل مباشرة وبسرية تامة لمسؤولي الحركة بجامعة السويدي للتكنولوجيا، ولا يمكن لأحد تعديله.</span>
+          <span>🔒 بلاغك يصل مباشرة وبسرية تامة لمسؤولي السيفتي بالجامعة.</span>
+        </div>
+
+        <div class="room-notice-box">
+          🏢 <strong>مكتب السلامة والأمان (غرفة 112):</strong> في حالة وجود أي شكوى أو استفسار يخص السلامة، يسعدنا استقبالكم شخصياً في <strong>روم 112</strong> أو الاتصال بإدارة النقل: <a href="tel:01040772030" style="color:#60a5fa; font-weight:bold; text-decoration:none;">01040772030</a>.
         </div>
 
       </form>
@@ -985,7 +1015,7 @@
   <div class="modal-backdrop hidden" id="busSelectorModal">
     <div class="modal-box">
       <div class="modal-head">
-        <h3>🚌 اختر رقم الحافلة وخط السير</h3>
+        <h3>🚌 اختر خط السير</h3>
         <button type="button" class="modal-close-btn" onclick="closeBusSelectorModal()">✕</button>
       </div>
       <div class="buses-select-list" id="modalBusesList">
@@ -1001,14 +1031,14 @@
       <h3>تم استلام بلاغك بنجاح!</h3>
       <p class="ticket-number">رقم التذكرة: <span id="successTicketId">#SUT-9281</span></p>
       <div class="success-summary">
-        <p>تم إشعار غرفة العمليات المركزية بجامعة السويدي للتكنولوجيا مباشرة، وجاري متابعة الحافلة مع مشرف الخط فوراً.</p>
+        <p>تم إشعار مسؤولي السلامة والأمان بجامعة السويدي للتكنولوجيا فوراً لاتخاذ اللازم. في حالة أي متابعة يسعدنا تواجدكم في <strong>مكتب السلامة (غرفة 112)</strong>.</p>
       </div>
       <div class="success-actions">
         <button type="button" class="btn-close-modal" onclick="resetStudentReportForm()">
           إرسال بلاغ آخر
         </button>
-        <a href="tel:19616" class="btn-call-desk">
-          📞 الاتصال بخط الطوارئ 19616
+        <a href="tel:01040772030" class="btn-call-desk">
+          📞 الاتصال بإدارة النقل (01040772030)
         </a>
       </div>
     </div>
@@ -1054,10 +1084,10 @@
 
     function updateBusHeader() {
       const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
-      document.getElementById('studentBusPlate').textContent = `باص ${bus.id}`;
-      document.getElementById('studentBusLine').textContent = bus.lineName;
-      document.getElementById('studentBusVendor').textContent = bus.vendorName;
-      document.getElementById('studentDriverName').textContent = `كابتن/ ${bus.driverName}`;
+      const lineEl = document.getElementById('studentBusLine');
+      const vendorEl = document.getElementById('studentBusVendor');
+      if (lineEl) lineEl.textContent = bus.lineName;
+      if (vendorEl) vendorEl.textContent = "شركة أبو الهول";
     }
 
     function initViolationsGrid() {
@@ -1120,37 +1150,55 @@
       const btn = document.getElementById('btnGpsAuto');
       if (!locInput) return;
 
-      if (btn) btn.innerHTML = '<span>⏳ جارٍ التحديد...</span>';
+      if (btn) btn.innerHTML = '<span>⏳ جارٍ التحديد بدقة عبر الـ GPS...</span>';
 
-      const sampleLocations = [
-        "طريق الإسماعيلية الصحراوي - أمام بوابة العاشر من رمضان",
-        "طريق بلبيس العاشر - بعد محطة التحصيل باتجاه جامعة السويدي",
-        "الطريق الدائري الإقليمي - تقاطع طريق السويس",
-        "طريق مصر الإسماعيلية - كوبري العبور اتجاه العاشر",
-        "محور 26 يوليو - قبل مطلع الشيخ زايد",
-        "طريق بنها - الزقازيق الزراعي أمام مدخل منيا القمح",
-        "الطريق الدائري الأوسطي - مدخل التجمع الخامس"
-      ];
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const randLoc = sampleLocations[Math.floor(Math.random() * sampleLocations.length)];
-            locInput.value = `${randLoc} (GPS: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`;
-            if (btn) btn.innerHTML = '<span>📍 تم التحديد بدقة</span>';
-          },
-          () => {
-            const randLoc = sampleLocations[Math.floor(Math.random() * sampleLocations.length)];
-            locInput.value = randLoc;
-            if (btn) btn.innerHTML = '<span>📍 تم التحديد</span>';
-          },
-          { timeout: 3000 }
-        );
-      } else {
-        const randLoc = sampleLocations[Math.floor(Math.random() * sampleLocations.length)];
-        locInput.value = randLoc;
-        if (btn) btn.innerHTML = '<span>📍 تم التحديد</span>';
+      if (!navigator.geolocation) {
+        alert("خاصية تحديد الموقع غير مدعومة بالمتصفح، يرجى كتابة موقعك يدوياً.");
+        if (btn) btn.innerHTML = '<span>📍 تحديد مكاني تلقائياً</span>';
+        return;
       }
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const acc = Math.round(pos.coords.accuracy || 15);
+
+          // Default fallback to GPS Coordinates
+          locInput.value = `إحداثيات حية: ${lat.toFixed(5)}, ${lon.toFixed(5)} (دقة ${acc}م)`;
+          if (btn) btn.innerHTML = '<span>📍 تم التحديد بدقة ✓</span>';
+
+          // Attempt Reverse Geocoding to get real road and city
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ar`, {
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.address) {
+                const a = data.address;
+                const road = a.road || a.pedestrian || a.suburb || a.neighbourhood || '';
+                const city = a.city || a.town || a.county || a.state || 'مصر';
+                const place = road ? `${road}، ${city}` : data.display_name.split(',').slice(0, 3).join('، ');
+                locInput.value = `${place} (GPS: ${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+              }
+            }
+          } catch (e) {
+            // Keep the GPS coordinates
+          }
+        },
+        (err) => {
+          console.warn("GPS error:", err);
+          let errText = "يرجى تشغيل الـ GPS بالهاتف والسماح للمتصفح بالوصول للموقع.";
+          if (err.code === 1) errText = "تم رفض إذن الموقع. يرجى تفعيله من إعدادات المتصفح أو كتابة موقعك يدوياً.";
+          alert(errText);
+          if (btn) btn.innerHTML = '<span>📍 تحديد مكاني تلقائياً</span>';
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
     }
 
     function triggerFileUpload() {
@@ -1220,10 +1268,10 @@
       list.innerHTML = FLEET_DATA.buses.map(b => `
         <div class="bus-option-item" onclick="selectBusFromModal('${b.id}')">
           <div>
-            <strong>باص ${b.id} - ${b.lineName}</strong>
-            <p style="font-size:0.7rem; color:#94a3b8">${b.vendorName} • كابتن/ ${b.driverName}</p>
+            <strong>${b.lineName}</strong>
+            <p style="font-size:0.7rem; color:#94a3b8">شركة أبو الهول لنقل الركاب</p>
           </div>
-          <span style="font-size:0.8rem; color:#60a5fa">اختيار ←</span>
+          <span style="font-size:0.8rem; color:#60a5fa">اختيار هذا الخط ←</span>
         </div>
       `).join('');
     }
@@ -1258,12 +1306,8 @@
         timestamp: "الآن (منذ ثوانٍ)",
         isoDate: new Date().toISOString(),
         busId: bus.id,
-        busPlate: `باص ${bus.id}`,
         lineName: bus.lineName,
-        vendorId: bus.vendorId,
-        vendorName: bus.vendorName,
-        driverName: bus.driverName,
-        driverPhone: bus.driverPhone,
+        vendorName: "شركة أبو الهول لنقل الركاب",
         violationCode: firstViolation.code,
         violationTitle: firstViolation.title,
         violationIcon: firstViolation.icon,

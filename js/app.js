@@ -232,10 +232,10 @@ function updateStudentBusHeader() {
   const vendorEl = document.getElementById('studentBusVendor');
   const driverEl = document.getElementById('studentDriverName');
 
-  if (plateEl) plateEl.textContent = `باص ${bus.id}`;
+  if (plateEl) plateEl.textContent = bus.lineName;
   if (lineEl) lineEl.textContent = bus.lineName;
-  if (vendorEl) vendorEl.textContent = bus.vendorName;
-  if (driverEl) driverEl.textContent = `كابتن/ ${bus.driverName}`;
+  if (vendorEl) vendorEl.textContent = "شركة أبو الهول";
+  if (driverEl) driverEl.textContent = "";
 }
 
 function initStudentViolationsGrid() {
