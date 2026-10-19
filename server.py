@@ -58,54 +58,12 @@ def get_local_ip():
 LOCAL_IP = get_local_ip()
 
 def start_tunnel_thread():
-    """Starts Cloudflare Tunnel if cloudflared.exe exists, giving an instant HTTPS link for 4G students"""
-    global PUBLIC_URL, tunnel_process
-    cloudflared_exe = os.path.join(BASE_DIR, "cloudflared.exe")
-    if not os.path.exists(cloudflared_exe):
-        return
+    """Permanent hosting on Vercel/Netlify is used for external 4G access"""
+    global PUBLIC_URL
+    PUBLIC_URL = None
 
-    try:
-        tunnel_process = subprocess.Popen(
-            [cloudflared_exe, "tunnel", "--protocol", "http2", "--url", f"http://127.0.0.1:{PORT}"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding="utf-8",
-            errors="replace"
-        )
-
-        def monitor_tunnel():
-            global PUBLIC_URL
-            for line in tunnel_process.stdout:
-                if not PUBLIC_URL:
-                    m = re.search(r"https://[a-zA-Z0-9\-]+\.trycloudflare\.com", line)
-                    if m:
-                        PUBLIC_URL = m.group(0)
-                        try:
-                            with open(os.path.join(BASE_DIR, "public_url.txt"), "w", encoding="utf-8") as f:
-                                f.write(PUBLIC_URL)
-                        except Exception:
-                            pass
-                        print("\n" + "*" * 68)
-                        print(f"  🌍 تم تشغيل رابط الإنترنت العام المباشر للطلاب (4G / 5G):")
-                        print(f"     {PUBLIC_URL}")
-                        print(f"  📲 كود الـ QR للاستيكرات يعمل الآن على هذا الرابط في أي مكان بمصر!")
-                        print("*" * 68 + "\n")
-                        broadcast_sse("system_public_url", {"publicUrl": PUBLIC_URL})
-
-        t = threading.Thread(target=monitor_tunnel, daemon=True)
-        t.start()
-    except Exception as e:
-        print(f"Warning: Cloudflare tunnel could not be started: {e}")
-
-@atexit.register
 def cleanup_tunnel():
-    global tunnel_process
-    if tunnel_process:
-        try:
-            tunnel_process.terminate()
-        except Exception:
-            pass
+    pass
 
 # ==========================================================
 # DATABASE INITIALIZATION & MIGRATION
