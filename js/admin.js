@@ -270,13 +270,19 @@ function showPushNotificationToast(incident) {
   const container = document.getElementById('liveToastContainer');
   if (!container) return;
 
+  const isCritical = incident.severity === 'CRITICAL';
   const toast = document.createElement('div');
-  toast.className = `live-push-toast ${incident.severity === 'CRITICAL' ? 'critical-toast' : ''}`;
+  toast.className = `live-push-toast ${isCritical ? 'critical-toast' : ''}`;
   toast.innerHTML = `
     <div class="toast-icon">${incident.violationIcon || '🚨'}</div>
     <div class="toast-body">
-      <strong>${incident.violationTitle} (${incident.busPlate})</strong>
-      <p>${incident.location}</p>
+      <strong>${incident.violationTitle} (${incident.lineName})</strong>
+      <p style="margin:2px 0 4px 0;">${incident.location}</p>
+      ${isCritical ? `
+        <button type="button" onclick="sendWhatsAppSupervisorAlert('${incident.id}')" style="background:#25D366; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-weight:700; font-size:0.78rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; margin-top:5px; box-shadow:0 2px 8px rgba(37,211,102,0.4);">
+          <span>📲 إرسال واتساب لمشرف أبو الهول فوراً</span>
+        </button>
+      ` : ''}
     </div>
     <button class="toast-close-btn" onclick="this.parentElement.remove()">✕</button>
   `;
@@ -285,7 +291,7 @@ function showPushNotificationToast(incident) {
   setTimeout(() => {
     toast.classList.add('fade-out');
     setTimeout(() => toast.remove(), 400);
-  }, 6000);
+  }, 7000);
 }
 
 // ==========================================
@@ -505,6 +511,27 @@ function renderSelectedIncidentDetails(incidentId) {
       </div>
     </div>
 
+    ${incident.severity === 'CRITICAL' ? `
+      <!-- Critical Severity Emergency Banner -->
+      <div class="critical-emergency-banner" style="background:linear-gradient(90deg, rgba(239,68,68,0.22), rgba(185,28,28,0.12)); border:1px solid rgba(239,68,68,0.45); border-radius:12px; padding:12px 16px; margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; box-shadow:0 4px 15px rgba(239,68,68,0.15);">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:1.8rem; filter:drop-shadow(0 0 6px rgba(239,68,68,0.5));">🚨</span>
+          <div>
+            <strong style="color:#fca5a5; font-size:0.92rem; display:block;">بلاغ أمان عاجل (حالة حرجة) - إخطار مشرف شركة أبو الهول</strong>
+            <span style="color:#cbd5e1; font-size:0.78rem;">تستوجب قواعد السلامة التواصل الفوري مع مشرف تشغيل أسطول أبو الهول لإلزام السائق بالتهدئة.</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" onclick="sendWhatsAppSupervisorAlert('${incident.id}')" style="background:#25D366; color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:800; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(37,211,102,0.35);">
+            <span>📲 إرسال إشعار واتساب فوري للمشرف</span>
+          </button>
+          <button type="button" onclick="sendSmsSupervisorAlert('${incident.id}')" style="background:#0284c7; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            <span>💬 رسالة SMS</span>
+          </button>
+        </div>
+      </div>
+    ` : ''}
+
     <!-- Bus & Operating Details Card -->
     <div class="ws-bus-card">
       <div class="ws-bus-header">
@@ -514,16 +541,22 @@ function renderSelectedIncidentDetails(incidentId) {
         <span class="vendor-tag">شركة أبو الهول لنقل الركاب</span>
       </div>
       <div class="ws-bus-body">
-        <div class="driver-contact-row">
+        <div class="driver-contact-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <div class="driver-meta">
             <div>
-              <strong style="color:#f8fafc">إدارة النقل والسلامة (غرفة 112)</strong>
-              <p style="font-size:0.75rem; color:#94a3b8">جامعة السويدي للتكنولوجيا • هاتف المتابعة: 01040772030</p>
+              <strong style="color:#f8fafc">مشرف تشغيل أسطول أبو الهول • إدارة النقل والسلامة (غرفة 112)</strong>
+              <p style="font-size:0.75rem; color:#94a3b8">جامعة السويدي للتكنولوجيا • هاتف المشرف والمتابعة: <strong style="color:#38bdf8;">01040772030</strong></p>
             </div>
           </div>
-          <div class="driver-actions">
-            <a href="tel:01040772030" class="btn-call-driver" style="background:#2563eb; text-decoration:none; padding:8px 16px; border-radius:8px; font-weight:600; font-size:0.85rem; color:#fff; display:inline-flex; align-items:center; gap:6px;">
-              <span>اتصال بإدارة النقل</span>
+          <div class="driver-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" onclick="sendWhatsAppSupervisorAlert('${incident.id}')" style="background:#25D366; color:#fff; border:none; padding:7px 14px; border-radius:7px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(37,211,102,0.25);">
+              <span>📲 إشعار واتساب للمشرف</span>
+            </button>
+            <button type="button" onclick="sendSmsSupervisorAlert('${incident.id}')" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:7px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+              <span>💬 إرسال SMS</span>
+            </button>
+            <a href="tel:01040772030" class="btn-call-driver" style="background:#1e293b; border:1px solid #334155; text-decoration:none; padding:7px 14px; border-radius:7px; font-weight:600; font-size:0.82rem; color:#f1f5f9; display:inline-flex; align-items:center; gap:6px;">
+              <span>📞 اتصال هاتفي</span>
             </a>
           </div>
         </div>
@@ -628,6 +661,62 @@ async function executeAdminAction(incidentId, newStatus, actionText) {
   updateKpiSummary();
   renderIncidentsList();
   renderSelectedIncidentDetails(incidentId);
+}
+
+// ==========================================
+// WHATSAPP & SMS SUPERVISOR ALERT INTEGRATION
+// ==========================================
+function formatSupervisorAlertMessage(incident) {
+  const line = incident.lineName || "خط غير محدد";
+  const violation = incident.violationTitle || "مخالفة أمان";
+  const loc = incident.location || "طريق خط السير";
+  const notes = incident.notes || "بلاغ مسجل مباشرة من ركاب الحافلة";
+  const ticket = incident.id || "SUT";
+  const time = incident.timestamp || "الآن";
+
+  return `🚨 *جامعة السويدي للتكنولوجيا (SUT) - إدارة السلامة والأمان*
+--------------------------------------------------
+⚠️ *إشعار أمان عاجل لمشرف تشغيل شركة أبو الهول*
+📋 *رقم التذكرة:* ${ticket}
+🚌 *الخط الميداني:* ${line}
+🏢 *الشركة المشغلة:* شركة أبو الهول لنقل الركاب
+🚨 *نوع المخالفة:* ${violation}
+📊 *مستوى الخطورة:* حالة حرجة تستوجب التدخل الفوري
+📍 *الموقع الجغرافي:* ${loc}
+📝 *ملاحظات البلاغ:* ${notes}
+🕒 *وقت البلاغ:* ${time}
+--------------------------------------------------
+⚠️ *المطلوب فوراً من مشرف الحركة:*
+1. الاتصال المباشر بالسائق وتوجيه أمر بالتهدئة والالتزام الفوري بقواعد السلامة.
+2. إفادة إدارة السلامة بالجامعة (غرفة 112) بالإجراء المتخذ لإغلاق التذكرة.
+📞 هاتف متابعة إدارة السلامة: 01040772030`;
+}
+
+function sendWhatsAppSupervisorAlert(incidentId) {
+  const incident = AppState.currentIncidents.find(i => i.id === incidentId);
+  if (!incident) return;
+
+  const msg = formatSupervisorAlertMessage(incident);
+  const phone = "201040772030"; // Egyptian international format
+  const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`;
+
+  // Automatically record this action in the incident log
+  executeAdminAction(incidentId, 'INVESTIGATING', 'تم إرسال إشعار أمان عاجل لمشرف شركة أبو الهول عبر تطبيق واتساب');
+
+  window.open(url, '_blank');
+}
+
+function sendSmsSupervisorAlert(incidentId) {
+  const incident = AppState.currentIncidents.find(i => i.id === incidentId);
+  if (!incident) return;
+
+  const msg = `[SUT إدارة السلامة] بلاغ حرج تذكرة ${incident.id} على ${incident.lineName} - مخالفة: ${incident.violationTitle}. الموقع: ${incident.location}. يرجى تدخل مشرف أبو الهول فوراً والتواصل مع غرفة 112 هاتف 01040772030`;
+  const phone = "01040772030";
+  const url = `sms:${phone}?body=${encodeURIComponent(msg)}`;
+
+  executeAdminAction(incidentId, 'INVESTIGATING', 'تم إرسال إشعار أمان عاجل لمشرف شركة أبو الهول عبر الرسائل النصية SMS');
+
+  window.location.href = url;
 }
 
 // ==========================================

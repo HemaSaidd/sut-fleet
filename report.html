@@ -1028,9 +1028,15 @@
     <div class="success-card">
       <div class="success-checkmark-circle">✓</div>
       <h3>تم استلام بلاغك بنجاح!</h3>
-      <p class="ticket-number">رقم التذكرة: <span id="successTicketId">SUT-1</span></p>
       <div class="success-summary">
         <p>تم إشعار مسؤولي السلامة والأمان بجامعة السويدي للتكنولوجيا فوراً لاتخاذ اللازم. في حالة أي متابعة يسعدنا تواجدكم في <strong>مكتب السلامة (غرفة 112)</strong>.</p>
+        <!-- Critical Incident Instant WhatsApp Supervisor Alert -->
+        <div id="studentCriticalWhatsAppBlock" class="hidden" style="margin-top:14px; padding:12px; background:rgba(37,211,102,0.12); border:1px solid rgba(37,211,102,0.35); border-radius:10px; text-align:center;">
+          <p style="font-size:0.8rem; color:#86efac; font-weight:700; margin:0 0 8px 0;">🚨 حالة حرجة: يمكنك أيضاً إشعار مشرف شركة أبو الهول مباشرة عبر واتساب:</p>
+          <a id="studentWhatsAppAlertLink" href="#" target="_blank" style="background:#25D366; color:#fff; font-weight:700; font-size:0.82rem; padding:8px 16px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:8px; box-shadow:0 2px 8px rgba(37,211,102,0.3);">
+            <span>💬 إرسال البلاغ فوراً لواتساب مشرف أبو الهول</span>
+          </a>
+        </div>
       </div>
       <div class="success-actions">
         <button type="button" class="btn-close-modal" onclick="resetStudentReportForm()">
@@ -1363,8 +1369,28 @@
         });
       } catch (e) {}
 
-      // Show Success Modal
+      // Show Success Modal & Prepare Direct WhatsApp Escalation if Critical
       document.getElementById('successTicketId').textContent = ticketId;
+
+      const waBlock = document.getElementById('studentCriticalWhatsAppBlock');
+      const waLink = document.getElementById('studentWhatsAppAlertLink');
+      if (severity === 'CRITICAL' && waBlock && waLink) {
+        const waMsg = `🚨 *جامعة السويدي للتكنولوجيا (SUT) - بلاغ أمان عاجل من طالب*
+--------------------------------------------------
+📋 *تذكرة رقم:* ${ticketId}
+🚌 *الخط:* ${bus.lineName}
+🏢 *الشركة المشغلة:* شركة أبو الهول لنقل الركاب
+🚨 *نوع المخالفة:* ${firstViolation.title} (حالة حرجة)
+📍 *الموقع:* ${location}
+📝 *ملاحظات البلاغ:* ${notes}
+--------------------------------------------------
+يرجى من مشرف حركة شركة أبو الهول التدخل الفوري والتواصل مع غرفة 112.`;
+        waLink.href = `https://api.whatsapp.com/send?phone=201040772030&text=${encodeURIComponent(waMsg)}`;
+        waBlock.classList.remove('hidden');
+      } else if (waBlock) {
+        waBlock.classList.add('hidden');
+      }
+
       document.getElementById('studentSuccessModal').classList.remove('hidden');
 
       if (submitBtn) {
