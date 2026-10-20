@@ -1186,6 +1186,11 @@
     }
     prefetchTicketSequence();
 
+    function sanitizeInput(str, maxLength = 250) {
+      if (!str || typeof str !== 'string') return '';
+      return str.replace(/[<>]/g, '').trim().slice(0, maxLength);
+    }
+
     function isSutOperatingHours() {
       try {
         const now = new Date();
@@ -1487,6 +1492,21 @@
         return;
       }
 
+      // Anti-Spam: Rate limiting (30 seconds cooldown between reports from the same device)
+      const LAST_REPORT_KEY = 'sut_last_report_ts';
+      const lastReportTs = parseInt(localStorage.getItem(LAST_REPORT_KEY) || '0', 10);
+      const nowTs = Date.now();
+      const COOLDOWN_MS = 30 * 1000;
+      if (nowTs - lastReportTs < COOLDOWN_MS) {
+        const remainingSec = Math.ceil((COOLDOWN_MS - (nowTs - lastReportTs)) / 1000);
+        alert(`⏳ تنبيه: تم استلام بلاغك السابق بنجاح.\n\nحرصاً على تنظيم البلاغات ومنع التكرار، يرجى الانتظار ${remainingSec} ثانية قبل إرسال بلاغ جديد.`);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>إرسال البلاغ إلى مسؤولي السلامة بالجامعة</span>';
+        }
+        return;
+      }
+
       try {
         const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
         const firstViolation = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]) || FLEET_DATA.violationTypes[0];
@@ -1494,7 +1514,7 @@
         // 1. Validate Custom Violation when "OTHER_VIOLATION" is selected (Strictly Required)
         const isOtherSelected = selectedViolationCodes.includes('OTHER_VIOLATION');
         const customViolationInput = document.getElementById('customViolationInput');
-        const customViolationText = customViolationInput ? customViolationInput.value.trim() : '';
+        const customViolationText = sanitizeInput(customViolationInput ? customViolationInput.value : '', 200);
         const customBox = document.getElementById('customViolationBox');
         const customError = document.getElementById('customViolationError');
 
@@ -1525,13 +1545,17 @@
         const sevInput = document.querySelector('input[name="severityLevel"]:checked');
         const severity = sevInput ? sevInput.value : 'CRITICAL';
 
-        const location = document.getElementById('reportLocationInput')?.value || "طريق مصر الإسماعيلية الصحراوي أمام العاشر";
-        const notes = document.getElementById('reportNotesInput')?.value || "مخالفة واضحة على خط جامعة السويدي تستوجب التنبيه الفوري.";
+        const location = sanitizeInput(document.getElementById('reportLocationInput')?.value, 150) || "طريق مصر الإسماعيلية الصحراوي أمام العاشر";
+        const notes = sanitizeInput(document.getElementById('reportNotesInput')?.value, 500) || "مخالفة واضحة على خط جامعة السويدي تستوجب التنبيه الفوري.";
 
         const isAnonymous = document.getElementById('anonToggle')?.checked || false;
-        const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (document.getElementById('studentNameInput')?.value.trim() || "طالب بجامعة السويدي");
-        const studentId = isAnonymous ? "" : (document.getElementById('studentIdInput')?.value.trim() || "");
-        const studentPhone = isAnonymous ? "" : (document.getElementById('studentPhoneInput')?.value.trim() || "");
+        const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (sanitizeInput(document.getElementById('studentNameInput')?.value, 60) || "طالب بجامعة السويدي");
+        const studentId = isAnonymous ? "" : sanitizeInput(document.getElementById('studentIdInput')?.value, 30);
+        const studentPhone = isAnonymous ? "" : sanitizeInput(document.getElementById('studentPhoneInput')?.value, 20);
+
+        try {
+          localStorage.setItem(LAST_REPORT_KEY, Date.now().toString());
+        } catch (e) {}
 
         // Guaranteed Unique Sequential Ticket ID (SUT-8, SUT-9, SUT-10...)
         currentKnownSeq = Math.max(currentKnownSeq || 7, 7) + 1;

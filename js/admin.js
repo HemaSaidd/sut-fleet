@@ -81,14 +81,33 @@ function closeAdminPinModal() {
   document.getElementById('appMainViewport')?.classList.remove('admin-locked');
 }
 
-function handleAdminPinSubmit(event) {
+async function sha256Hex(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function handleAdminPinSubmit(event) {
   event.preventDefault();
   const input = document.getElementById('adminPinInput');
   const err = document.getElementById('pinErrorMessage');
   const val = input ? input.value.trim() : '';
 
-  // Official SUT Fleet Operations PIN: 19616
-  if (val === '19616') {
+  // Cryptographic SHA-256 hash of authorized operations PIN
+  const AUTH_HASH = '3c62ec5be05ec2c2033c11c48059533ac47121c3d3f1e02a993aed10cfe808a3';
+  
+  let isAuthorized = false;
+  try {
+    const inputHash = await sha256Hex(val);
+    if (inputHash === AUTH_HASH) {
+      isAuthorized = true;
+    }
+  } catch (e) {
+    if (val === '19616') isAuthorized = true;
+  }
+
+  if (isAuthorized) {
     sessionStorage.setItem('sut_admin_authorized', 'true');
     const modal = document.getElementById('adminPinModal');
     if (modal) modal.classList.add('hidden');
