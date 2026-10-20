@@ -38,6 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Connect to Firebase Cloud Realtime Database
   initFirebaseCloud();
 
+  // Connect to Local Python Backend & SSE if running locally
+  initLocalBackendSync();
+
   // Render initial tables & analytics
   renderVendorsTable();
   renderViolationBreakdown();
@@ -174,11 +177,19 @@ function initFirebaseCloud() {
       firebaseDb.ref('incidents').on('child_changed', (snap) => {
         const item = snap.val();
         if (item && item.id) {
-          handleIncomingIncidentUpdate({
-            incidentId: item.id,
-            status: item.status,
-            actionsTaken: item.actionsTaken
-          });
+          const existing = AppState.currentIncidents.find(i => i.id === item.id);
+          // If this is strictly a status update or admin action entry:
+          if (existing && existing.isoDate === item.isoDate && 
+              (existing.status !== item.status || JSON.stringify(existing.actionsTaken || []) !== JSON.stringify(item.actionsTaken || []))) {
+            handleIncomingIncidentUpdate({
+              incidentId: item.id,
+              status: item.status,
+              actionsTaken: item.actionsTaken
+            });
+          } else {
+            // New report content submitted or resubmitted under this key!
+            handleIncomingLiveIncident(item, false);
+          }
         }
       });
     } catch (e) {
@@ -191,6 +202,12 @@ function handleIncomingLiveIncident(incident, isInitialLoad = false) {
   const existingIdx = AppState.currentIncidents.findIndex(i => i.id === incident.id);
   if (existingIdx > -1) {
     AppState.currentIncidents[existingIdx] = incident;
+    if (!isInitialLoad) {
+      const [updated] = AppState.currentIncidents.splice(existingIdx, 1);
+      AppState.currentIncidents.unshift(updated);
+      playSafetyAlertChime(incident.severity);
+      showPushNotificationToast(incident);
+    }
   } else {
     AppState.currentIncidents.unshift(incident);
 
@@ -199,6 +216,13 @@ function handleIncomingLiveIncident(incident, isInitialLoad = false) {
       showPushNotificationToast(incident);
     }
   }
+
+  // Always keep incidents ordered newest first by isoDate
+  AppState.currentIncidents.sort((a, b) => {
+    const da = a.isoDate ? new Date(a.isoDate).getTime() : 0;
+    const db = b.isoDate ? new Date(b.isoDate).getTime() : 0;
+    return db - da;
+  });
 
   updateKpiSummary();
   renderIncidentsList();
@@ -219,6 +243,59 @@ function handleIncomingIncidentUpdate(update) {
       renderSelectedIncidentDetails(update.incidentId);
     }
   }
+}
+
+// ==========================================
+// LOCAL BACKEND SYNC (SERVER.PY / SQLITE / SSE)
+// ==========================================
+function initLocalBackendSync() {
+  if (typeof window === 'undefined' || !window.location || !window.location.protocol.startsWith('http')) return;
+
+  // 1. Fetch incidents from local backend server.py SQLite database
+  fetch('/api/incidents')
+    .then(res => {
+      if (!res.ok) throw new Error('Not local backend');
+      return res.json();
+    })
+    .then(data => {
+      if (data && data.success && Array.isArray(data.incidents)) {
+        data.incidents.forEach(inc => {
+          const idx = AppState.currentIncidents.findIndex(i => i.id === inc.id);
+          if (idx === -1) {
+            AppState.currentIncidents.push(inc);
+          } else if (inc.isoDate && !AppState.currentIncidents[idx].isoDate) {
+            AppState.currentIncidents[idx] = inc;
+          }
+        });
+        AppState.currentIncidents.sort((a, b) => {
+          const da = a.isoDate ? new Date(a.isoDate).getTime() : 0;
+          const db = b.isoDate ? new Date(b.isoDate).getTime() : 0;
+          return db - da;
+        });
+        updateKpiSummary();
+        renderIncidentsList();
+      }
+    })
+    .catch(() => {});
+
+  // 2. Listen to Server-Sent Events from server.py
+  try {
+    if (window.EventSource) {
+      const evtSource = new EventSource('/api/events');
+      evtSource.addEventListener('new_incident', (e) => {
+        try {
+          const incident = JSON.parse(e.data);
+          handleIncomingLiveIncident(incident, false);
+        } catch (err) {}
+      });
+      evtSource.addEventListener('incident_updated', (e) => {
+        try {
+          const updateData = JSON.parse(e.data);
+          handleIncomingIncidentUpdate(updateData);
+        } catch (err) {}
+      });
+    }
+  } catch (err) {}
 }
 
 // ==========================================
@@ -544,19 +621,19 @@ function renderSelectedIncidentDetails(incidentId) {
         <div class="driver-contact-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <div class="driver-meta">
             <div>
-              <strong style="color:#f8fafc">مشرف تشغيل أسطول أبو الهول (إدارة الطوارئ والمتابعة)</strong>
-              <p style="font-size:0.75rem; color:#94a3b8">جامعة السويدي للتكنولوجيا • هاتف المشرف: <strong style="color:#38bdf8;">01025043505</strong> • مكتب السلامة: غرفة 112</p>
+              <strong style="color:#f8fafc">إدارة النقل الطلابي والسلامة والصحة المهنية</strong>
+              <p style="font-size:0.75rem; color:#94a3b8">جامعة السويدي للتكنولوجيا • هاتف الإدارة: <strong style="color:#38bdf8;">01040772030</strong> • مكتب النقل: غرفة 039 (الدور الأرضي) • مكتب السلامة والصحة المهنية: غرفة 112 (الدور الأول)</p>
             </div>
           </div>
           <div class="driver-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
             <button type="button" onclick="sendWhatsAppSupervisorAlert('${incident.id}')" style="background:#25D366; color:#fff; border:none; padding:7px 14px; border-radius:7px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(37,211,102,0.25);">
-              <span>📲 إشعار واتساب للمشرف (01025043505)</span>
+              <span>📲 إشعار واتساب لإدارة النقل (01040772030)</span>
             </button>
             <button type="button" onclick="sendSmsSupervisorAlert('${incident.id}')" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:7px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
               <span>💬 إرسال SMS</span>
             </button>
-            <a href="tel:01025043505" class="btn-call-driver" style="background:#1e293b; border:1px solid #334155; text-decoration:none; padding:7px 14px; border-radius:7px; font-weight:600; font-size:0.82rem; color:#f1f5f9; display:inline-flex; align-items:center; gap:6px;">
-              <span>📞 اتصال بالمشرف</span>
+            <a href="tel:01040772030" class="btn-call-driver" style="background:#1e293b; border:1px solid #334155; text-decoration:none; padding:7px 14px; border-radius:7px; font-weight:600; font-size:0.82rem; color:#f1f5f9; display:inline-flex; align-items:center; gap:6px;">
+              <span>📞 اتصال بإدارة النقل</span>
             </a>
           </div>
         </div>
@@ -571,7 +648,7 @@ function renderSelectedIncidentDetails(incidentId) {
       </div>
       <div class="notes-quote">
         <p>"${incident.notes || 'بلاغ رصد مخالفة أمان مباشر عبر باركود الحافلة'}"</p>
-        <span class="reporter-tag">مقدم البلاغ: ${incident.studentName} ${incident.studentPhone ? `(${incident.studentPhone})` : ''}</span>
+        <span class="reporter-tag">مقدم البلاغ: ${incident.studentName} ${incident.studentId ? `[كود الطالب: ${incident.studentId}]` : ''} ${incident.studentPhone ? `(${incident.studentPhone})` : ''}</span>
       </div>
     </div>
 
@@ -674,7 +751,7 @@ function formatSupervisorAlertMessage(incident) {
   const ticket = incident.id || "SUT";
   const time = incident.timestamp || "الآن";
 
-  return `🚨 *جامعة السويدي للتكنولوجيا (SUT) - إدارة السلامة والأمان*
+  return `🚨 *جامعة السويدي للتكنولوجيا (SUT) - إدارة السلامة والصحة المهنية*
 --------------------------------------------------
 ⚠️ *إشعار أمان عاجل لمشرف تشغيل شركة أبو الهول*
 📋 *رقم التذكرة:* ${ticket}
@@ -686,10 +763,11 @@ function formatSupervisorAlertMessage(incident) {
 📝 *ملاحظات البلاغ:* ${notes}
 🕒 *وقت البلاغ:* ${time}
 --------------------------------------------------
-⚠️ *المطلوب فوراً من مشرف الحركة:*
+⚠️ *المطلوب فوراً:*
 1. الاتصال المباشر بالسائق وتوجيه أمر بالتهدئة والالتزام الفوري بقواعد السلامة.
-2. إفادة إدارة السلامة بالجامعة (غرفة 112) بالإجراء المتخذ لإغلاق التذكرة.
-📞 هاتف متابعة إدارة السلامة: 01040772030`;
+2. إفادة إدارة النقل والسلامة بالجامعة بالإجراء المتخذ لإغلاق التذكرة.
+🏢 المقرات: مكتب إدارة النقل (غرفة 039 الدور الأرضي) • مكتب السيفتي (غرفة 112 الدور الأول)
+📞 هاتف متابعة إدارة النقل والسلامة (اتصال أو واتساب): 01040772030`;
 }
 
 function sendWhatsAppSupervisorAlert(incidentId) {
@@ -697,11 +775,11 @@ function sendWhatsAppSupervisorAlert(incidentId) {
   if (!incident) return;
 
   const msg = formatSupervisorAlertMessage(incident);
-  const phone = "201025043505"; // Dedicated Abu El Hol Fleet Supervisor Phone
+  const phone = "201040772030"; // Unified Transport Administration Phone (WhatsApp / Calls)
   const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`;
 
   // Automatically record this action in the incident log
-  executeAdminAction(incidentId, 'INVESTIGATING', 'تم إرسال إشعار أمان عاجل لمشرف شركة أبو الهول (01025043505) عبر تطبيق واتساب');
+  executeAdminAction(incidentId, 'INVESTIGATING', 'تم إرسال إشعار أمان عاجل لإدارة النقل (01040772030) عبر تطبيق واتساب');
 
   window.open(url, '_blank');
 }
@@ -710,11 +788,11 @@ function sendSmsSupervisorAlert(incidentId) {
   const incident = AppState.currentIncidents.find(i => i.id === incidentId);
   if (!incident) return;
 
-  const msg = `[SUT إدارة السلامة] بلاغ حرج تذكرة ${incident.id} على ${incident.lineName} - مخالفة: ${incident.violationTitle}. الموقع: ${incident.location}. يرجى تدخل مشرف أبو الهول فوراً. هاتف إدارة السلامة (غرفة 112): 01040772030`;
-  const phone = "01025043505";
+  const msg = `[SUT إدارة النقل والسلامة] بلاغ حرج تذكرة ${incident.id} على ${incident.lineName} - مخالفة: ${incident.violationTitle}. الموقع: ${incident.location}. يرجى التدخل فوراً. هاتف: 01040772030 (مكتب 039 الدور الأرضي / غرفة 112 الدور الأول)`;
+  const phone = "01040772030";
   const url = `sms:${phone}?body=${encodeURIComponent(msg)}`;
 
-  executeAdminAction(incidentId, 'INVESTIGATING', 'تم إرسال إشعار أمان عاجل لمشرف شركة أبو الهول (01025043505) عبر الرسائل النصية SMS');
+  executeAdminAction(incidentId, 'INVESTIGATING', 'تم إرسال إشعار أمان عاجل لإدارة النقل (01040772030) عبر الرسائل النصية SMS');
 
   window.location.href = url;
 }

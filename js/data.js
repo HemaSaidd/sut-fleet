@@ -9,8 +9,10 @@ const FLEET_DATA = {
   university: {
     nameAr: "جامعة السويدي للتكنولوجيا",
     nameEn: "Elsewedy University of Technology (SUT)",
-    department: "إدارة السلامة والأمان والنقل الطلابي - غرفة 112",
-    hotline: "01040772030 (إدارة النقل)",
+    department: "إدارة النقل (غرفة 039 الدور الأرضي) • مكتب السلامة والصحة المهنية (غرفة 112 الدور الأول)",
+    hotline: "01040772030 (إدارة النقل - واتساب ومكالمات)",
+    officeTransport: "مكتب إدارة النقل - غرفة رقم 039 (الدور الأرضي)",
+    officeSafety: "مكتب السلامة والصحة المهنية (السيفتي) بالجامعة - الدور الأول (غرفة رقم 112)",
     campusLocation: "طريق مصر الإسماعيلية الصحراوي - العاشر من رمضان",
     defaultHost: (typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file')) 
       ? window.location.origin 
@@ -36,8 +38,8 @@ const FLEET_DATA = {
       id: "VEND-01",
       name: "شركة أبو الهول لنقل الركاب",
       contactPerson: "مشرف تشغيل أسطول أبو الهول",
-      phone: "01025043505",
-      supervisorPhone: "01025043505",
+      phone: "01040772030",
+      supervisorPhone: "01040772030",
       activeBuses: 23,
       totalIncidents: 4,
       criticalIncidents: 1,
@@ -377,6 +379,15 @@ const FLEET_DATA = {
       defaultSeverity: "MEDIUM",
       standardFine: 2000,
       penaltyDescription: "توفير ميني باص تعزيزي على الخط"
+    },
+    {
+      code: "OTHER_VIOLATION",
+      icon: "✍️",
+      title: "أخرى (كتابة وتحديد المخالفة)",
+      riskLabel: "مخالفة خاصة ⚠️",
+      defaultSeverity: "CRITICAL",
+      standardFine: 2000,
+      penaltyDescription: "تحديد وكتابة تفاصيل المخالفة يدوياً من الطالب"
     }
   ],
 

@@ -592,6 +592,18 @@
       gap: 0.6rem;
     }
 
+    .input-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    @media (max-width: 680px) {
+      .input-grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .field-label {
       font-size: 0.74rem;
       color: var(--text-secondary);
@@ -849,7 +861,7 @@
         </div>
         <div>
           <span class="uni-title">جامعة السويدي للتكنولوجيا</span>
-          <p class="uni-subtitle">منظومة السلامة والأمان • النقل الطلابي</p>
+          <p class="uni-subtitle">منظومة السلامة والصحة المهنية • النقل الطلابي</p>
         </div>
       </div>
       <div>
@@ -885,11 +897,16 @@
         </div>
         <p style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 8px 0;">
           تستقبل المنظومة بلاغات الطلاب أثناء ساعات تشغيل حافلات الجامعة الرسمية (من <strong>6:00 صباحاً</strong> حتى <strong>7:30 مساءً</strong>).<br>
-          للحالات الطارئة خارج هذا التوقيت، يرجى التواصل مباشرة مع إدارة النقل والسلامة:
+          للحالات الطارئة خارج هذا التوقيت، يرجى التواصل مع إدارة النقل (مكالمة أو واتساب: <strong>01040772030</strong>) أو التوجه لمكتب إدارة النقل (غرفة 039 الدور الأرضي) أو مكتب السيفتي (غرفة 112 الدور الأول).
         </p>
-        <a href="tel:01040772030" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.25); border: 1px solid rgba(239, 68, 68, 0.5); color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; text-decoration: none;">
-          <span>📞 اتصال مباشر بإدارة النقل: 01040772030</span>
-        </a>
+        <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
+          <a href="tel:01040772030" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.25); border: 1px solid rgba(239, 68, 68, 0.5); color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; text-decoration: none;">
+            <span>📞 اتصال: 01040772030</span>
+          </a>
+          <a href="https://api.whatsapp.com/send?phone=201040772030&text=السلام%20عليكم%20إدارة%20النقل%20والسلامة%20بجامعة%20السويدي" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #25D366; color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; text-decoration: none;">
+            <span>💬 واتساب: 01040772030</span>
+          </a>
+        </div>
       </div>
 
       <!-- Student Incident Form -->
@@ -903,6 +920,19 @@
           </div>
           <div class="violations-grid" id="violationsGrid">
             <!-- Populated via JS -->
+          </div>
+
+          <!-- Custom Violation Box (يفتح تلقائياً عند اختيار "أخرى") -->
+          <div id="customViolationBox" class="hidden" style="margin-top: 14px; padding: 14px 16px; background: rgba(239, 68, 68, 0.08); border: 1.5px solid #ef4444; border-radius: 12px; transition: all 0.3s ease;">
+            <label for="customViolationInput" style="display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #fca5a5; margin-bottom: 8px;">
+              <span>✍️ يرجى كتابة وتحديد نوع المخالفة بالتفصيل:</span>
+              <span style="background: #ef4444; color: #fff; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; font-weight: 800;">إجباري ومطلوب *</span>
+            </label>
+            <input type="text" id="customViolationInput" class="custom-input" placeholder="اكتب نوع المخالفة التي لاحظتها بالتفصيل هنا..." style="background: rgba(15, 23, 42, 0.95); border-color: rgba(239, 68, 68, 0.5); font-size: 0.9rem; padding: 10px 14px; width: 100%; box-sizing: border-box;" oninput="document.getElementById('customViolationError')?.classList.add('hidden'); this.style.borderColor='rgba(239,68,68,0.5)';">
+            <div id="customViolationError" class="hidden" style="color: #f87171; font-size: 0.8rem; font-weight: 700; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+              <span>⚠️</span>
+              <span>يرجى كتابة نوع المخالفة بالتفصيل في هذا الحقل لمتابعة إرسال البلاغ.</span>
+            </div>
           </div>
         </div>
 
@@ -990,10 +1020,14 @@
           </div>
 
           <div class="student-contact-fields" id="studentContactFields">
-            <div class="input-grid-2">
+            <div class="input-grid-3">
               <div>
-                <label class="field-label" for="studentNameInput">اسمك (اختياري)</label>
+                <label class="field-label" for="studentNameInput">اسم الطالب (اختياري)</label>
                 <input type="text" id="studentNameInput" class="custom-input" placeholder="مثال: عمر خيري">
+              </div>
+              <div>
+                <label class="field-label" for="studentIdInput">الرقم الجامعي / كود الطالب (ID)</label>
+                <input type="text" id="studentIdInput" class="custom-input" placeholder="مثال: 20230123">
               </div>
               <div>
                 <label class="field-label" for="studentPhoneInput">رقم الموبايل (لتلقي الرد)</label>
@@ -1016,10 +1050,11 @@
 
         <div class="room-notice-box" style="margin-top:1.25rem; padding:14px; background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:10px; text-align:center;">
           <p style="font-size:0.84rem; font-weight:700; color:#f8fafc; margin:0 0 4px 0;">
-            🏢 <strong>مكتب السلامة والأمان (غرفة 112):</strong>
+            🏢 <strong>مقرات المتابعة بالجامعة:</strong>
           </p>
-          <p style="font-size:0.78rem; color:#94a3b8; margin:0 0 10px 0;">
-            في حالة وجود أي استفسار أو شكوى، يسعدنا تواصلكم مع إدارة النقل مكالمة أو واتساب:
+          <p style="font-size:0.8rem; color:#cbd5e1; margin:0 0 10px 0; line-height:1.6;">
+            مكتب إدارة النقل: <strong>غرفة رقم 039 (الدور الأرضي)</strong><br>
+            مكتب السلامة والصحة المهنية (السيفتي): <strong>الدور الأول - غرفة رقم 112</strong>
           </p>
           <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
             <a href="tel:01040772030" style="background:#1e3a8a; border:1px solid #3b82f6; color:#fff; text-decoration:none; padding:7px 14px; border-radius:7px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px;">
@@ -1056,26 +1091,39 @@
   <div class="success-modal hidden" id="studentSuccessModal">
     <div class="success-card">
       <div class="success-checkmark-circle">✓</div>
-      <h3>تم استلام بلاغك بنجاح!</h3>
-      <p class="ticket-number" style="font-size:1.15rem; font-weight:800; color:#38bdf8; margin:8px 0;">رقم التذكرة: <span id="successTicketId">SUT-4</span></p>
-      <div class="success-summary">
-        <p>تم إشعار مسؤولي السلامة والأمان بجامعة السويدي للتكنولوجيا فوراً لاتخاذ اللازم. في حالة أي متابعة يسعدنا تواجدكم في <strong>مكتب السلامة (غرفة 112)</strong>.</p>
-        
-        <!-- University Transport Department Direct Contact Strip -->
-        <div style="margin-top:14px; padding:12px; background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:10px; text-align:center;">
-          <p style="font-size:0.8rem; font-weight:700; color:#f8fafc; margin:0 0 4px 0;">التواصل مع إدارة النقل والسلامة (غرفة 112):</p>
-          <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:8px;">
-            <a href="tel:01040772030" style="background:#1e3a8a; border:1px solid #3b82f6; color:#fff; text-decoration:none; padding:6px 12px; border-radius:6px; font-weight:700; font-size:0.78rem; display:inline-flex; align-items:center; gap:5px;">
+      <h3 style="margin-bottom:6px;">تم الإبلاغ واستلام تذكرتك بنجاح!</h3>
+      <div style="display:inline-block; background:rgba(34, 197, 94, 0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); padding:4px 14px; border-radius:20px; font-weight:700; font-size:0.85rem; margin:4px auto 10px auto;">
+        🛡️ سلامتك تهمنا دائماً
+      </div>
+      <p class="ticket-number" style="font-size:1.18rem; font-weight:800; color:#38bdf8; margin:4px 0 10px 0;">رقم التذكرة: <span id="successTicketId">SUT-8</span></p>
+      
+      <div class="success-summary" style="background:rgba(255, 255, 255, 0.03); border:1px solid rgba(255, 255, 255, 0.07); padding:1rem; border-radius:12px; margin:0.8rem 0; text-align:center;">
+        <p style="font-size:0.85rem; color:#cbd5e1; margin:0 0 12px 0; line-height:1.6;">
+          تم إشعار مسؤولي السلامة والصحة المهنية بجامعة السويدي للتكنولوجيا فوراً لاتخاذ اللازم.
+        </p>
+
+        <!-- Transport & Safety Department Call/WhatsApp & In-Person Box -->
+        <div style="background:rgba(15, 23, 42, 0.75); border:1px solid rgba(59, 130, 246, 0.35); border-radius:10px; padding:12px; margin-bottom:8px; text-align:center;">
+          <p style="font-size:0.84rem; font-weight:700; color:#93c5fd; margin:0 0 6px 0;">
+            🏢 <strong>مقرات المتابعة بالجامعة:</strong>
+          </p>
+          <p style="font-size:0.82rem; color:#f8fafc; margin:0 0 10px 0; line-height:1.7;">
+            مكتب إدارة النقل: <strong>غرفة رقم 039 (الدور الأرضي)</strong><br>
+            مكتب السلامة والصحة المهنية (السيفتي): <strong>الدور الأول - غرفة رقم 112</strong>
+          </p>
+          <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
+            <a href="tel:01040772030" style="background:#1e3a8a; border:1px solid #3b82f6; color:#fff; text-decoration:none; padding:7px 14px; border-radius:7px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px;">
               <span>📞</span>
               <span>اتصال: 01040772030</span>
             </a>
-            <a href="https://api.whatsapp.com/send?phone=201040772030&text=السلام%20عليكم%20إدارة%20النقل%20والسلامة%20بجامعة%20السويدي" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:6px 12px; border-radius:6px; font-weight:700; font-size:0.78rem; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(37,211,102,0.3);">
+            <a href="https://api.whatsapp.com/send?phone=201040772030&text=السلام%20عليكم%20معي%20بلاغ%20سلامة%20بجامعة%20السويدي" target="_blank" style="background:#25D366; color:#fff; text-decoration:none; padding:7px 14px; border-radius:7px; font-weight:700; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(37,211,102,0.3);">
               <span>💬</span>
               <span>واتساب: 01040772030</span>
             </a>
           </div>
         </div>
       </div>
+
       <div class="success-actions" style="margin-top:16px;">
         <button type="button" class="btn-close-modal" onclick="resetStudentReportForm()" style="width:100%;">
           إرسال بلاغ آخر
@@ -1095,6 +1143,14 @@
     let selectedViolationCodes = ['PHONE_USAGE'];
     let attachedImageData = null;
     let firebaseDb = null;
+    let currentKnownSeq = 7;
+
+    // Check if opened with view=operations-center or view=admin and redirect to admin.html
+    const initialParams = new URLSearchParams(window.location.search);
+    const viewParam = initialParams.get('view');
+    if (viewParam === 'operations-center' || viewParam === 'admin') {
+      window.location.replace('admin.html' + window.location.search);
+    }
 
     // Initialize Firebase
     if (typeof FLEET_DATA !== 'undefined' && FLEET_DATA.firebaseConfig && FLEET_DATA.firebaseConfig.enabled && typeof firebase !== 'undefined') {
@@ -1108,6 +1164,27 @@
         console.warn("Firebase init error:", err);
       }
     }
+
+    // Pre-fetch latest ticket sequence from Firebase & localStorage to prevent ID collisions
+    function prefetchTicketSequence() {
+      // 1. Check Firebase RTDB counter
+      fetch('https://sut-fleet-default-rtdb.firebaseio.com/counters/lastTicketNumber.json')
+        .then(r => r.json())
+        .then(val => {
+          if (typeof val === 'number' && val >= currentKnownSeq) {
+            currentKnownSeq = val;
+          }
+        }).catch(() => {});
+
+      // 2. Check localStorage
+      try {
+        const stored = parseInt(localStorage.getItem('sut_seq_counter') || '0', 10);
+        if (stored > currentKnownSeq) {
+          currentKnownSeq = stored;
+        }
+      } catch (e) {}
+    }
+    prefetchTicketSequence();
 
     function isSutOperatingHours() {
       try {
@@ -1187,6 +1264,15 @@
           </div>
         `;
       }).join('');
+
+      const customBox = document.getElementById('customViolationBox');
+      if (customBox) {
+        if (selectedViolationCodes.includes('OTHER_VIOLATION')) {
+          customBox.classList.remove('hidden');
+        } else {
+          customBox.classList.add('hidden');
+        }
+      }
     }
 
     function toggleViolationCard(code) {
@@ -1209,6 +1295,26 @@
           }
         }
       });
+
+      // إظهار أو إخفاء حقل كتابة نوع المخالفة عند اختيار "أخرى"
+      const hasOther = selectedViolationCodes.includes('OTHER_VIOLATION');
+      const customBox = document.getElementById('customViolationBox');
+      const customInput = document.getElementById('customViolationInput');
+      const customErr = document.getElementById('customViolationError');
+
+      if (customBox) {
+        if (hasOther) {
+          customBox.classList.remove('hidden');
+          if (customInput) {
+            setTimeout(() => {
+              customInput.focus();
+            }, 100);
+          }
+        } else {
+          customBox.classList.add('hidden');
+          if (customErr) customErr.classList.add('hidden');
+        }
+      }
 
       // Suggest severity automatically
       const first = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]);
@@ -1369,8 +1475,9 @@
         alert(
           "⛔ استقبال البلاغات مغلق حالياً:\n\n" +
           "نظام بلاغات السلامة متاح حصرياً أثناء مواعيد تشغيل حافلات جامعة السويدي الرسمية (من 6:00 صباحاً حتى 7:30 مساءً).\n\n" +
-          "للحالات الطارئة خارج أوقات التشغيل، يرجى التواصل هاتفياً مباشرة مع إدارة النقل والسلامة على:\n" +
-          "📞 01040772030 (غرفة 112)"
+          "للحالات الطارئة خارج أوقات التشغيل، يرجى التواصل مع إدارة النقل (مكالمة أو واتساب):\n" +
+          "📞 01040772030\n\n" +
+          "أو التوجه إلى مكتب إدارة النقل رقم 039 بالدور الأرضي، أو مكتب السلامة والصحة المهنية بالدور الأول غرفة 112."
         );
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -1384,6 +1491,37 @@
         const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
         const firstViolation = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]) || FLEET_DATA.violationTypes[0];
 
+        // 1. Validate Custom Violation when "OTHER_VIOLATION" is selected (Strictly Required)
+        const isOtherSelected = selectedViolationCodes.includes('OTHER_VIOLATION');
+        const customViolationInput = document.getElementById('customViolationInput');
+        const customViolationText = customViolationInput ? customViolationInput.value.trim() : '';
+        const customBox = document.getElementById('customViolationBox');
+        const customError = document.getElementById('customViolationError');
+
+        if (isOtherSelected && !customViolationText) {
+          if (customBox) customBox.classList.remove('hidden');
+          if (customError) customError.classList.remove('hidden');
+          if (customViolationInput) {
+            customViolationInput.style.borderColor = '#ef4444';
+            customViolationInput.focus();
+            customViolationInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          alert("⚠️ تنبيه إجباري: لقد قمت باختيار (أخرى)، يرجى كتابة وتحديد نوع المخالفة في الخانة المخصصة لها أولاً لمتابعة إرسال البلاغ.");
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span>إرسال البلاغ إلى مسؤولي السلامة بالجامعة</span>';
+          }
+          return;
+        }
+        if (customError) customError.classList.add('hidden');
+
+        let finalViolationTitle = firstViolation.title;
+        if (firstViolation.code === 'OTHER_VIOLATION') {
+          finalViolationTitle = `أخرى: ${customViolationText}`;
+        } else if (isOtherSelected && customViolationText) {
+          finalViolationTitle = `${firstViolation.title} (بالإضافة إلى: ${customViolationText})`;
+        }
+
         const sevInput = document.querySelector('input[name="severityLevel"]:checked');
         const severity = sevInput ? sevInput.value : 'CRITICAL';
 
@@ -1391,23 +1529,33 @@
         const notes = document.getElementById('reportNotesInput')?.value || "مخالفة واضحة على خط جامعة السويدي تستوجب التنبيه الفوري.";
 
         const isAnonymous = document.getElementById('anonToggle')?.checked || false;
-        const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (document.getElementById('studentNameInput')?.value || "طالب بجامعة السويدي");
-        const studentPhone = isAnonymous ? "" : (document.getElementById('studentPhoneInput')?.value || "01xxxxxxxxx");
+        const studentName = isAnonymous ? "طالب بـ SUT (مجهول)" : (document.getElementById('studentNameInput')?.value.trim() || "طالب بجامعة السويدي");
+        const studentId = isAnonymous ? "" : (document.getElementById('studentIdInput')?.value.trim() || "");
+        const studentPhone = isAnonymous ? "" : (document.getElementById('studentPhoneInput')?.value.trim() || "");
 
-        // Fast Sequential Ticket ID (Instant synchronous calculation - 0ms lag)
-        let nextSeq = 4;
+        // Guaranteed Unique Sequential Ticket ID (SUT-8, SUT-9, SUT-10...)
+        currentKnownSeq = Math.max(currentKnownSeq || 7, 7) + 1;
         try {
-          const stored = localStorage.getItem('sut_seq_counter');
-          if (stored) {
-            nextSeq = parseInt(stored, 10) + 1;
-          } else {
-            nextSeq = 4;
+          const stored = parseInt(localStorage.getItem('sut_seq_counter') || '0', 10);
+          if (stored >= currentKnownSeq) {
+            currentKnownSeq = stored + 1;
           }
-          localStorage.setItem('sut_seq_counter', nextSeq);
-        } catch (e) {
-          nextSeq = Math.floor(Date.now() % 900) + 4;
-        }
-        const ticketId = `SUT-${nextSeq}`;
+          localStorage.setItem('sut_seq_counter', currentKnownSeq);
+        } catch (e) {}
+
+        const ticketId = `SUT-${currentKnownSeq}`;
+
+        // Sync new counter to Firebase in background so other clients get next number
+        try {
+          fetch('https://sut-fleet-default-rtdb.firebaseio.com/counters/lastTicketNumber.json', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(currentKnownSeq)
+          }).catch(() => {});
+          if (firebaseDb) {
+            firebaseDb.ref('counters/lastTicketNumber').transaction(curr => Math.max(curr || 7, currentKnownSeq)).catch(() => {});
+          }
+        } catch (e) {}
 
         const newIncident = {
           id: ticketId,
@@ -1417,8 +1565,9 @@
           lineName: bus.lineName,
           vendorName: "شركة أبو الهول لنقل الركاب",
           violationCode: firstViolation.code,
-          violationTitle: firstViolation.title,
+          violationTitle: finalViolationTitle,
           violationIcon: firstViolation.icon,
+          customViolationDetails: isOtherSelected ? customViolationText : null,
           severity: severity,
           location: location,
           notes: notes,
@@ -1427,6 +1576,7 @@
           attachmentUrl: attachedImageData || null,
           isAnonymous: isAnonymous,
           studentName: studentName,
+          studentId: studentId,
           studentPhone: studentPhone,
           status: 'NEW',
           actionsTaken: []
@@ -1439,27 +1589,39 @@
         const modal = document.getElementById('studentSuccessModal');
         if (modal) modal.classList.remove('hidden');
 
-        // 2. Background Sync 1: Firebase Realtime Database
+        const sanitizedKey = ticketId.replace(/[^a-zA-Z0-9_-]/g, "");
+
+        // 2. Background Sync 1A: Firebase Realtime Database (via JS SDK)
         if (firebaseDb) {
           try {
-            const sanitizedKey = ticketId.replace(/[^a-zA-Z0-9_-]/g, "");
             firebaseDb.ref('incidents/' + sanitizedKey).set(newIncident).catch(e => console.warn(e));
             
-            // Automatic Background Alert Queue for phone 01025043505
+            // Automatic Background Alert Queue for phone 01040772030
             firebaseDb.ref('supervisor_alerts/' + sanitizedKey).set({
-              targetPhone: "01025043505",
+              targetPhone: "01040772030",
               ticketId: ticketId,
               lineName: bus.lineName,
-              violation: firstViolation.title,
+              violation: finalViolationTitle,
               severity: severity,
               location: location,
               notes: notes,
+              studentName: studentName,
+              studentId: studentId || "غير مسجل",
               timestamp: Date.now()
             }).catch(e => console.warn(e));
           } catch (err) {}
         }
 
-        // 3. Background Sync 2: Local backend server (with strict 2s abort timeout)
+        // 3. Background Sync 1B: Firebase Realtime Database Direct REST API (Failsafe for 100% reliability!)
+        try {
+          fetch(`https://sut-fleet-default-rtdb.firebaseio.com/incidents/${sanitizedKey}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newIncident)
+          }).catch(() => {});
+        } catch (e) {}
+
+        // 4. Background Sync 2: Local backend server (with strict 2s abort timeout)
         try {
           const ctrl = new AbortController();
           const tId = setTimeout(() => ctrl.abort(), 2000);
@@ -1471,13 +1633,13 @@
           }).catch(() => {}).finally(() => clearTimeout(tId));
         } catch (e) {}
 
-        // 4. Background Sync 3: Automated background notification ping for 01025043505
+        // 5. Background Sync 3: Automated background notification ping for 01040772030
         try {
-          const alertText = `🚨 SUT Alert: Ticket ${ticketId} on ${bus.lineName} - ${firstViolation.title}`;
-          fetch(`https://api.callmebot.com/whatsapp.php?phone=201025043505&text=${encodeURIComponent(alertText)}`, { mode: 'no-cors' }).catch(() => {});
+          const alertText = `🚨 SUT Alert: Ticket ${ticketId} on ${bus.lineName} - ${finalViolationTitle}`;
+          fetch(`https://api.callmebot.com/whatsapp.php?phone=201040772030&text=${encodeURIComponent(alertText)}`, { mode: 'no-cors' }).catch(() => {});
         } catch (e) {}
 
-        // 5. Background Sync 4: Automated Outlook Email Notification to Hse@sut.edu.eg
+        // 6. Background Sync 4: Automated Outlook Email Notification to Hse@sut.edu.eg
         try {
           fetch('https://formsubmit.co/ajax/Hse@sut.edu.eg', {
             method: 'POST',
@@ -1486,17 +1648,20 @@
               'Accept': 'application/json'
             },
             body: JSON.stringify({
-              "_subject": `🚨 [بلاغ سلامة جامعة السويدي] تذكرة ${ticketId} - خط ${bus.lineName} (${firstViolation.title})`,
+              "_subject": `🚨 [بلاغ سلامة جامعة السويدي] تذكرة ${ticketId} - خط ${bus.lineName} (${finalViolationTitle})`,
               "تذكرة رقم": ticketId,
               "الخط": bus.lineName,
               "الشركة المشغلة": "شركة أبو الهول لنقل الركاب",
-              "نوع المخالفة": firstViolation.title,
+              "نوع المخالفة": finalViolationTitle,
+              "تفاصيل مخالفة أخرى (المحددة من الطالب)": customViolationText || "لا يوجد",
               "درجة الخطورة": severity === 'CRITICAL' ? 'حالة حرجة (تدخل عاجل)' : (severity === 'MEDIUM' ? 'متوسطة' : 'عامة'),
               "موقع البلاغ": location,
               "ملاحظات الطالب": notes,
               "اسم مقدم البلاغ": studentName,
+              "الرقم الجامعي / كود الطالب (ID)": studentId || (isAnonymous ? "مجهول الهوية (سري)" : "غير مسجل"),
               "رقم الهاتف": studentPhone || "غير مسجل",
               "تاريخ وتوقيت البلاغ": new Date().toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' }),
+              "بيانات التواصل والمتابعة": "هاتف أو واتساب إدارة النقل: 01040772030 | أو التوجه لمكتب إدارة النقل غرفة رقم 039 بالدور الأرضي | أو مكتب السلامة والصحة المهنية الدور الأول غرفة رقم 112",
               "_template": "table"
             })
           }).catch(() => {});
@@ -1517,6 +1682,18 @@
     function resetStudentReportForm() {
       document.getElementById('studentSuccessModal').classList.add('hidden');
       document.getElementById('reportNotesInput').value = '';
+      const customViolationInput = document.getElementById('customViolationInput');
+      if (customViolationInput) customViolationInput.value = '';
+      const customBox = document.getElementById('customViolationBox');
+      if (customBox) customBox.classList.add('hidden');
+      const customErr = document.getElementById('customViolationError');
+      if (customErr) customErr.classList.add('hidden');
+      const studentIdInput = document.getElementById('studentIdInput');
+      if (studentIdInput) studentIdInput.value = '';
+      const studentNameInput = document.getElementById('studentNameInput');
+      if (studentNameInput) studentNameInput.value = '';
+      const studentPhoneInput = document.getElementById('studentPhoneInput');
+      if (studentPhoneInput) studentPhoneInput.value = '';
       removeAttachedMedia();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }

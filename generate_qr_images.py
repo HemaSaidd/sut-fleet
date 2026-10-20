@@ -250,7 +250,7 @@ def generate_unified_qr():
       <img src="../assets/sutech-logo.png" alt="SUTech Logo" class="logo-img">
       <div class="dept-title">
         <h2>جامعة السويدي للتكنولوجيا</h2>
-        <p>إدارة السلامة والأمان والنقل الطلابي</p>
+        <p>إدارة السلامة والصحة المهنية والنقل الطلابي</p>
       </div>
     </div>
 
@@ -274,13 +274,13 @@ def generate_unified_qr():
         <strong>سري ومحمي لمسؤولي السيفتي</strong>
       </div>
       <div class="info-card">
-        <span>🚨 رقم إدارة النقل المباشر:</span>
+        <span>🚨 إدارة النقل (اتصال أو واتساب):</span>
         <strong class="hotline-highlight">01040772030</strong>
       </div>
     </div>
 
     <div class="room-notice">
-      🏢 في حالة وجود أي شكوى أو استفسار يخص السلامة.. احنا في روم 112 بالجامعة
+      🏢 في حالة وجود أي شكوى أو استفسار: مكتب إدارة النقل (غرفة رقم 039 بالدور الأرضي) أو مكتب السيفتي (الدور الأول غرفة رقم 112)
     </div>
 
     <div class="footer-bar">

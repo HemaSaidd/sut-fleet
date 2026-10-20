@@ -793,6 +793,18 @@ input:checked + .slider:before {
   gap: 0.5rem;
 }
 
+.input-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .input-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .field-label {
   font-size: 0.72rem;
   color: var(--text-secondary);

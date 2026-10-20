@@ -7,6 +7,6 @@ echo ======================================================================
 echo.
 echo جاري تشغيل خادم البث المباشر وقاعدة البيانات...
 echo.
-start http://localhost:8080/index.html?view=operations-center
+start http://localhost:8080/admin.html
 python server.py
 pause

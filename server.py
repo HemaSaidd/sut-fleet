@@ -447,7 +447,7 @@ def run():
     print("  🚀 خادم منظومة سلامة أسطول جامعة السويدي للتكنولوجيا (SUT)")
     print("  Elsewedy University of Technology - Fleet Safety Live Backend")
     print("=" * 68)
-    print(f"  🟢 شاشة غرفة العمليات (الكمبيوتر):   http://localhost:{PORT}/index.html?view=operations-center")
+    print(f"  🟢 شاشة غرفة العمليات (الكمبيوتر):   http://localhost:{PORT}/admin.html")
     print(f"  📱 رابط تليفونات الطلاب (نفس الشبكة): http://{LOCAL_IP}:{PORT}/index.html")
     print(f"  💾 قاعدة البيانات:                    fleet_safety.db (SQLite)")
     print(f"  ⚡ البث المباشر الفوري:               Server-Sent Events (SSE) جاهز ونشط")
