@@ -187,25 +187,37 @@ def generate_unified_qr():
       color: #334155;
       margin-bottom: 1rem;
     }}
-    .info-grid {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-      text-align: right;
+    .reassure-box {{
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border: 1.5px solid #86efac;
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      text-align: center;
     }}
-    .info-card {{
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 0.75rem;
-      font-size: 0.85rem;
-    }}
-    .info-card strong {{
-      display: block;
-      color: #1e3a8a;
+    .reassure-badge {{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #16a34a;
+      color: #ffffff;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 800;
       font-size: 0.92rem;
-      margin-top: 2px;
+      margin-bottom: 8px;
+    }}
+    .reassure-text {{
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #14532d;
+      margin-bottom: 6px;
+      line-height: 1.6;
+    }}
+    .reassure-sub {{
+      font-size: 0.84rem;
+      color: #15803d;
+      font-weight: 700;
     }}
     .room-notice {{
       background: #fef3c7;
@@ -226,11 +238,6 @@ def generate_unified_qr():
       font-size: 0.85rem;
       color: #475569;
     }}
-    .hotline-highlight {{
-      font-weight: 800;
-      color: #dc2626;
-      font-size: 0.95rem;
-    }}
     @media print {{
       body {{ background: #fff; padding: 0; }}
       .print-actions {{ display: none; }}
@@ -250,13 +257,13 @@ def generate_unified_qr():
       <img src="../assets/sutech-logo.png" alt="SUTech Logo" class="logo-img">
       <div class="dept-title">
         <h2>جامعة السويدي للتكنولوجيا</h2>
-        <p>إدارة السلامة والصحة المهنية والنقل الطلابي</p>
+        <p>إدارة السلامة والصحة المهنية</p>
       </div>
     </div>
 
     <div class="cta-banner">
-      <h3>لحمايتك.. أبلغ فوراً عن أي تجاوز أو مخالفة بالباص</h3>
-      <p>يتابع مسؤولو السلامة بالجامعة بلاغك لحظياً لضمان سلامتك طوال الطريق</p>
+      <h3>سلامتك تهمنا</h3>
+      <p>برجاء الإبلاغ عن أي مخالفة تراها خطراً على سلامتك.. لو في أي حاجة بلغنا فوراً</p>
     </div>
 
     <div class="company-badge">
@@ -265,22 +272,23 @@ def generate_unified_qr():
 
     <div class="qr-container">
       <img src="الباركود_الموحد_لحافلات_السويدي.png" alt="Unified QR Code" class="qr-img">
-      <div class="scan-hint">📷 وجّه كاميرا الموبايل للمسح الفوري</div>
+      <div class="scan-hint">📷 وجّه كاميرا الموبايل للمسح المباشر والإبلاغ</div>
     </div>
 
-    <div class="info-grid">
-      <div class="info-card">
-        <span>🔒 خصوصية البلاغ:</span>
-        <strong>سري ومحمي لمسؤولي السيفتي</strong>
+    <div class="reassure-box">
+      <div class="reassure-badge">
+        <span>⚡</span> <span>بلاغك بيوصلنا فوراً</span>
       </div>
-      <div class="info-card">
-        <span>🚨 إدارة النقل (اتصال أو واتساب):</span>
-        <strong class="hotline-highlight">01040772030</strong>
+      <p class="reassure-text">
+        يصل إشعارك مباشرة ولحظياً لمسؤولي السلامة والصحة المهنية بالجامعة لاتخاذ اللازم.
+      </p>
+      <div class="reassure-sub">
+        🤝 هدفنا راحتك وسلامتك طوال الطريق.. لا تتردد في الإبلاغ لمساعدتنا في حمايتك وحماية زملائك
       </div>
     </div>
 
     <div class="room-notice">
-      🏢 في حالة وجود أي شكوى أو استفسار: مكتب إدارة النقل (غرفة رقم 039 بالدور الأرضي) أو مكتب السيفتي (الدور الأول غرفة رقم 112)
+      🏢 مقرات المتابعة بالجامعة: مكتب إدارة النقل (غرفة رقم 039 بالدور الأرضي) • مكتب السلامة والصحة المهنية (الدور الأول غرفة رقم 112)
     </div>
 
     <div class="footer-bar">
