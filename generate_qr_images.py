@@ -266,10 +266,6 @@ def generate_unified_qr():
       <p>برجاء الإبلاغ عن أي مخالفة تراها خطراً على سلامتك.. لو في أي حاجة بلغنا فوراً</p>
     </div>
 
-    <div class="company-badge">
-      الشركة المشغلة المعتمدة: <strong>شركة أبو الهول لنقل الركاب</strong>
-    </div>
-
     <div class="qr-container">
       <img src="الباركود_الموحد_لحافلات_السويدي.png" alt="Unified QR Code" class="qr-img">
       <div class="scan-hint">📷 وجّه كاميرا الموبايل للمسح المباشر والإبلاغ</div>
