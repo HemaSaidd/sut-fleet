@@ -16,19 +16,23 @@
 
   <style>
     /* ========================================================
-       MODERN UNIFIED ADMIN DASHBOARD STYLES (CLEAN & MINIMALIST)
+       MODERN UNIFIED ADMIN DASHBOARD STYLES (CLEAN & NON-OVERLAPPING)
        ======================================================== */
     :root {
-      --admin-bg: #0b1120;
-      --admin-card: rgba(15, 23, 42, 0.75);
-      --admin-card-hover: rgba(30, 41, 59, 0.85);
-      --admin-border: rgba(255, 255, 255, 0.08);
-      --admin-border-focus: rgba(56, 189, 248, 0.5);
+      --admin-bg: #090e1a;
+      --admin-card: rgba(15, 23, 42, 0.85);
+      --admin-card-hover: rgba(30, 41, 59, 0.95);
+      --admin-border: rgba(255, 255, 255, 0.1);
+      --admin-border-focus: rgba(56, 189, 248, 0.6);
       --admin-text-main: #f8fafc;
       --admin-text-sub: #94a3b8;
       --admin-text-muted: #64748b;
-      --admin-primary: #3b82f6;
-      --admin-primary-glow: rgba(59, 130, 246, 0.25);
+      --admin-primary: #2563eb;
+      --admin-primary-glow: rgba(37, 99, 235, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
@@ -36,6 +40,8 @@
       color: var(--admin-text-main);
       font-family: 'Cairo', system-ui, -apple-system, sans-serif;
       min-height: 100vh;
+      margin: 0;
+      padding: 0;
       overflow-x: hidden;
     }
 
@@ -47,10 +53,10 @@
 
     /* Top Global Header */
     .admin-header {
-      background: rgba(15, 23, 42, 0.92);
+      background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--admin-border);
-      padding: 0.65rem 1.5rem;
+      padding: 0.65rem 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -64,6 +70,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-shrink: 0;
     }
 
     .sut-logo-badge {
@@ -97,13 +104,19 @@
       margin: 0;
     }
 
-    /* Central Quick Filter Pills */
+    /* Central Filter & View Switcher Strip */
+    .nav-center-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .filter-pills-nav {
       display: flex;
       align-items: center;
-      gap: 6px;
-      background: rgba(0, 0, 0, 0.35);
-      padding: 4px;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 3px 5px;
       border-radius: 30px;
       border: 1px solid var(--admin-border);
     }
@@ -115,7 +128,7 @@
       font-family: inherit;
       font-size: 0.78rem;
       font-weight: 700;
-      padding: 5px 14px;
+      padding: 5px 12px;
       border-radius: 20px;
       cursor: pointer;
       display: inline-flex;
@@ -126,7 +139,7 @@
 
     .filter-pill-btn:hover {
       color: #ffffff;
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .filter-pill-btn.active {
@@ -136,10 +149,47 @@
     }
 
     .pill-counter {
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.35);
       padding: 1px 7px;
       border-radius: 12px;
       font-size: 0.72rem;
+    }
+
+    /* View Mode Switcher (Cards vs Table) */
+    .view-mode-pill {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 3px;
+      border-radius: 10px;
+      border: 1px solid var(--admin-border);
+      gap: 3px;
+    }
+
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--admin-text-sub);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .mode-btn:hover {
+      color: #fff;
+    }
+
+    .mode-btn.active {
+      background: #1e3a8a;
+      color: #93c5fd;
+      border: 1px solid #3b82f6;
     }
 
     /* Header Actions */
@@ -147,6 +197,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-shrink: 0;
     }
 
     .btn-header-action {
@@ -164,6 +215,7 @@
       gap: 6px;
       text-decoration: none;
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     .btn-header-action:hover {
@@ -183,6 +235,7 @@
       border: 1px solid rgba(16, 185, 129, 0.3);
       padding: 5px 12px;
       border-radius: 20px;
+      white-space: nowrap;
     }
 
     .live-dot {
@@ -200,23 +253,29 @@
       100% { opacity: 1; transform: scale(1); }
     }
 
-    /* Main Container (Split Columns) */
+    /* Main Container */
     .admin-main-wrap {
-      max-width: 1720px;
+      max-width: 1760px;
       margin: 0 auto;
       padding: 1rem 1.25rem;
       height: calc(100vh - 65px);
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
     }
 
+    /* ========================================================
+       MODE 1: SPLIT 2-COLUMN VIEW (CARDS + WORKSPACE)
+       ======================================================== */
     .admin-grid-layout {
       display: grid;
-      grid-template-columns: 430px 1fr;
+      grid-template-columns: 460px 1fr;
       gap: 1.25rem;
       height: 100%;
+      min-height: 0; /* REQUIRED FOR INNER SCROLL */
     }
 
-    @media (max-width: 1024px) {
+    @media (max-width: 1080px) {
       .admin-main-wrap {
         height: auto;
       }
@@ -236,12 +295,14 @@
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       height: 100%;
+      min-height: 0; /* CRITICAL FOR FLEX OVERFLOW */
     }
 
     .feed-header {
       padding: 1rem 1.15rem 0.85rem 1.15rem;
       border-bottom: 1px solid var(--admin-border);
-      background: rgba(15, 23, 42, 0.4);
+      background: rgba(15, 23, 42, 0.6);
+      flex-shrink: 0;
     }
 
     .feed-title-row {
@@ -273,7 +334,7 @@
 
     .feed-search-input {
       width: 100%;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.35);
       border: 1px solid var(--admin-border);
       border-radius: 8px;
       padding: 8px 12px;
@@ -287,48 +348,54 @@
 
     .feed-search-input:focus {
       border-color: var(--admin-border-focus);
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0, 0, 0, 0.5);
     }
 
+    /* SCROLLABLE INCIDENTS LIST - NEVER SQUASHED */
     .incidents-list-scroll {
-      flex: 1;
+      flex: 1 1 0;
+      min-height: 0; /* CRITICAL: Enables overflow scrolling */
       overflow-y: auto;
-      padding: 0.75rem;
+      padding: 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 0.65rem;
+      gap: 0.75rem;
     }
 
     .incidents-list-scroll::-webkit-scrollbar {
       width: 6px;
     }
     .incidents-list-scroll::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 4px;
     }
 
-    /* Single Incident Card in Feed */
+    /* Single Incident Card in Feed (Clean, Spacious, Un-squashed) */
     .inc-card {
-      background: rgba(30, 41, 59, 0.45);
+      background: rgba(30, 41, 59, 0.65);
       border: 1px solid var(--admin-border);
-      border-radius: 10px;
-      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      padding: 0.95rem 1.15rem;
       cursor: pointer;
       transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
+      flex-shrink: 0; /* PREVENT SQUASHING AT ALL COSTS */
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     .inc-card:hover {
-      background: var(--admin-card-hover);
-      border-color: rgba(255, 255, 255, 0.16);
-      transform: translateX(-2px);
+      background: rgba(30, 41, 59, 0.95);
+      border-color: rgba(255, 255, 255, 0.22);
+      transform: translateX(-3px);
     }
 
     .inc-card.active-card {
-      background: rgba(59, 130, 246, 0.15);
-      border-color: #3b82f6;
-      box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+      background: rgba(30, 58, 138, 0.45);
+      border-color: #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
     }
 
     .inc-card::before {
@@ -337,7 +404,7 @@
       right: 0;
       top: 0;
       bottom: 0;
-      width: 4px;
+      width: 5px;
       background: #64748b;
     }
 
@@ -349,40 +416,39 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 5px;
+      width: 100%;
     }
 
     .card-id-tag {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       font-weight: 800;
       color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
+      background: rgba(56, 189, 248, 0.12);
       border: 1px solid rgba(56, 189, 248, 0.25);
-      padding: 1px 6px;
-      border-radius: 4px;
+      padding: 2px 7px;
+      border-radius: 5px;
       letter-spacing: 0.5px;
     }
 
     .card-time {
       font-size: 0.72rem;
-      color: var(--admin-text-muted);
+      color: var(--admin-text-sub);
     }
 
     .card-title-line {
-      font-size: 0.88rem;
+      font-size: 0.92rem;
       font-weight: 700;
       color: #f8fafc;
-      margin-bottom: 4px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
+      margin: 2px 0;
     }
 
     .card-route-line {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       color: #60a5fa;
       font-weight: 600;
-      margin-bottom: 6px;
     }
 
     .card-bottom {
@@ -390,9 +456,9 @@
       justify-content: space-between;
       align-items: center;
       font-size: 0.72rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
       padding-top: 6px;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .status-pill {
@@ -400,11 +466,12 @@
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 12px;
+      white-space: nowrap;
     }
-    .status-pill.st-new { background: rgba(239, 68, 68, 0.18); color: #f87171; }
-    .status-pill.st-investigating { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
-    .status-pill.st-fined { background: rgba(168, 85, 247, 0.18); color: #c084fc; }
-    .status-pill.st-resolved { background: rgba(16, 185, 129, 0.18); color: #34d399; }
+    .status-pill.st-new { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .status-pill.st-investigating { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .status-pill.st-fined { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+    .status-pill.st-resolved { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
 
     /* Column 2: Incident Workspace (Left Side in RTL) */
     .workspace-panel {
@@ -416,13 +483,14 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      min-height: 0;
     }
 
     .workspace-panel::-webkit-scrollbar {
       width: 6px;
     }
     .workspace-panel::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 4px;
     }
 
@@ -434,7 +502,7 @@
       color: var(--admin-text-sub);
     }
     .empty-workspace-view .empty-icon {
-      font-size: 3rem;
+      font-size: 3.2rem;
       margin-bottom: 0.75rem;
       opacity: 0.5;
     }
@@ -454,10 +522,10 @@
 
     /* Header Bar of Active Incident */
     .ws-top-banner {
-      background: rgba(30, 41, 59, 0.6);
+      background: rgba(30, 41, 59, 0.65);
       border: 1px solid var(--admin-border);
       border-radius: 12px;
-      padding: 1rem 1.25rem;
+      padding: 1.1rem 1.35rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -466,17 +534,17 @@
     }
 
     .ws-main-meta h2 {
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       font-weight: 800;
       color: #ffffff;
-      margin: 0 0 4px 0;
+      margin: 0 0 5px 0;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
     .ws-sub-meta {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--admin-text-sub);
       display: flex;
       align-items: center;
@@ -495,7 +563,7 @@
       background: #25D366;
       color: #ffffff;
       border: none;
-      padding: 8px 14px;
+      padding: 8px 16px;
       border-radius: 8px;
       font-family: inherit;
       font-size: 0.82rem;
@@ -537,28 +605,28 @@
       gap: 1rem;
     }
 
-    @media (max-width: 860px) {
+    @media (max-width: 900px) {
       .ws-info-grid {
         grid-template-columns: 1fr;
       }
     }
 
     .ws-info-card {
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15, 23, 42, 0.65);
       border: 1px solid var(--admin-border);
-      border-radius: 10px;
-      padding: 1rem 1.15rem;
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
     }
 
     .ws-info-card-title {
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       font-weight: 700;
       color: #93c5fd;
-      margin: 0 0 0.75rem 0;
+      margin: 0 0 0.85rem 0;
       display: flex;
       align-items: center;
       gap: 6px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       padding-bottom: 0.5rem;
     }
 
@@ -567,7 +635,7 @@
       justify-content: space-between;
       align-items: baseline;
       font-size: 0.82rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.55rem;
     }
     .ws-detail-label {
       color: var(--admin-text-sub);
@@ -578,13 +646,13 @@
     }
 
     .student-quote-box {
-      background: rgba(0, 0, 0, 0.35);
+      background: rgba(0, 0, 0, 0.4);
       border-right: 3px solid #3b82f6;
-      padding: 0.65rem 0.85rem;
+      padding: 0.75rem 0.95rem;
       border-radius: 6px;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       color: #e2e8f0;
-      line-height: 1.5;
+      line-height: 1.6;
       margin-top: 0.5rem;
     }
 
@@ -612,7 +680,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      max-height: 140px;
+      max-height: 150px;
       overflow-y: auto;
       padding-left: 4px;
     }
@@ -632,15 +700,15 @@
 
     /* Admin Action Execution Ribbon */
     .ws-action-ribbon {
-      background: rgba(30, 41, 59, 0.5);
+      background: rgba(30, 41, 59, 0.55);
       border: 1px solid var(--admin-border);
       border-radius: 12px;
-      padding: 1rem 1.25rem;
+      padding: 1.1rem 1.25rem;
       margin-top: auto;
     }
 
     .action-ribbon-title {
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       font-weight: 700;
       color: #cbd5e1;
       margin-bottom: 0.75rem;
@@ -648,7 +716,7 @@
 
     .action-buttons-row {
       display: flex;
-      gap: 0.65rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
     }
 
@@ -694,6 +762,78 @@
     .btn-act-resolve:hover {
       background: #10b981;
       color: #fff;
+    }
+
+    /* ========================================================
+       MODE 2: FULL DATA TABLE VIEW (WIDE & COMPREHENSIVE)
+       ======================================================== */
+    .table-view-panel {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .table-header-controls {
+      padding: 1rem 1.35rem;
+      border-bottom: 1px solid var(--admin-border);
+      background: rgba(15, 23, 42, 0.6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+
+    .table-responsive-wrap {
+      flex: 1 1 0;
+      overflow: auto;
+      padding: 0;
+    }
+
+    .table-responsive-wrap::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .table-responsive-wrap::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    .sut-admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      white-space: nowrap;
+    }
+
+    .sut-admin-table th {
+      background: #0f172a;
+      color: #94a3b8;
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--admin-border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .sut-admin-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.15s;
+    }
+
+    .sut-admin-table tr:hover td {
+      background: rgba(30, 41, 59, 0.65);
     }
 
     /* Modal: Statistics & Analytics */
@@ -769,7 +909,6 @@
       gap: 1.25rem;
     }
 
-    /* Modal KPI Grid */
     .modal-kpi-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -811,9 +950,11 @@
 <body>
 
   <!-- ========================================== -->
-  <!-- TOP GLOBAL HEADER (CLEAN & MINIMALIST)     -->
+  <!-- TOP GLOBAL HEADER (CLEAN & NON-OVERLAPPING)-->
   <!-- ========================================== -->
   <header class="admin-header" id="mainHeader">
+    
+    <!-- Brand -->
     <div class="brand-section">
       <div class="sut-logo-badge">
         <img src="assets/sutech-logo.png" alt="SUTech Logo">
@@ -824,27 +965,42 @@
       </div>
     </div>
 
-    <!-- Quick Status Filter Pills (Center) -->
-    <div class="filter-pills-nav" role="tablist">
-      <button class="filter-pill-btn active" id="filterBtnAll" onclick="applyQuickFilter('ALL')">
-        <span>الكل</span>
-        <span class="pill-counter" id="cntAll">0</span>
-      </button>
-      <button class="filter-pill-btn" id="filterBtnCritical" onclick="applyQuickFilter('CRITICAL')">
-        <span>🚨 حرجة</span>
-        <span class="pill-counter" id="cntCritical" style="color:#f87171">0</span>
-      </button>
-      <button class="filter-pill-btn" id="filterBtnPending" onclick="applyQuickFilter('PENDING')">
-        <span>🟡 قيد المتابعة</span>
-        <span class="pill-counter" id="cntPending" style="color:#fbbf24">0</span>
-      </button>
-      <button class="filter-pill-btn" id="filterBtnResolved" onclick="applyQuickFilter('RESOLVED')">
-        <span>🟢 تم الحل</span>
-        <span class="pill-counter" id="cntResolved" style="color:#34d399">0</span>
-      </button>
+    <!-- Center Navigation Strip: Filters + View Mode Switcher -->
+    <div class="nav-center-strip">
+      
+      <!-- Quick Status Filter Pills -->
+      <div class="filter-pills-nav" role="tablist">
+        <button class="filter-pill-btn active" id="filterBtnAll" onclick="applyQuickFilter('ALL')">
+          <span>الكل</span>
+          <span class="pill-counter" id="cntAll">0</span>
+        </button>
+        <button class="filter-pill-btn" id="filterBtnCritical" onclick="applyQuickFilter('CRITICAL')">
+          <span>🚨 حرجة</span>
+          <span class="pill-counter" id="cntCritical" style="color:#f87171">0</span>
+        </button>
+        <button class="filter-pill-btn" id="filterBtnPending" onclick="applyQuickFilter('PENDING')">
+          <span>🟡 قيد المتابعة</span>
+          <span class="pill-counter" id="cntPending" style="color:#fbbf24">0</span>
+        </button>
+        <button class="filter-pill-btn" id="filterBtnResolved" onclick="applyQuickFilter('RESOLVED')">
+          <span>🟢 تم الحل</span>
+          <span class="pill-counter" id="cntResolved" style="color:#34d399">0</span>
+        </button>
+      </div>
+
+      <!-- View Mode Switcher (Cards vs Table) -->
+      <div class="view-mode-pill">
+        <button class="mode-btn active" id="btnModeSplit" onclick="switchDisplayMode('split')" title="عرض الكروت ومساحة التحقيق الجانبية">
+          <span>🗂️ عرض الكروت</span>
+        </button>
+        <button class="mode-btn" id="btnModeTable" onclick="switchDisplayMode('table')" title="عرض جدول البيانات الشامل والمفصل">
+          <span>📋 جدول شامل</span>
+        </button>
+      </div>
+
     </div>
 
-    <!-- Action Shortcuts (Left in RTL) -->
+    <!-- Action Shortcuts -->
     <div class="header-actions">
       <button class="btn-header-action" onclick="openStatsAnalyticsModal()" title="إحصائيات وتحليل المخالفات">
         <span>📊</span>
@@ -875,10 +1031,14 @@
   <div id="liveToastContainer" class="live-toast-container"></div>
 
   <!-- ========================================== -->
-  <!-- MAIN WORKSPACE CONTAINER (2 COLUMNS)       -->
+  <!-- MAIN WORKSPACE CONTAINER                   -->
   <!-- ========================================== -->
   <main class="admin-main-wrap" id="appMainViewport">
-    <div class="admin-grid-layout">
+    
+    <!-- ========================================== -->
+    <!-- VIEW MODE 1: SPLIT 2-COLUMN (CARDS + WORKSPACE) -->
+    <!-- ========================================== -->
+    <div class="admin-grid-layout" id="splitViewContainer">
       
       <!-- COLUMN 1: LIVE INCIDENT STREAM (RIGHT SIDE IN RTL) -->
       <section class="incidents-feed-panel">
@@ -893,11 +1053,11 @@
           <input type="text" 
                  id="incidentSearchInput" 
                  class="feed-search-input" 
-                 placeholder="بحث برقم البلاغ، اسم الخط، أو نوع المشكلة..." 
+                 placeholder="بحث برقم البلاغ، اسم الخط، كود الطالب، أو نوع المخالفة..." 
                  oninput="handleIncidentSearch(this.value)">
         </div>
 
-        <!-- Incidents List -->
+        <!-- Scrollable Cards Stream (Cards NEVER shrink) -->
         <div class="incidents-list-scroll" id="incidentsList">
           <!-- Dynamically populated via JS -->
         </div>
@@ -921,6 +1081,53 @@
       </section>
 
     </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW MODE 2: FULL DATA TABLE VIEW (WIDE)   -->
+    <!-- ========================================== -->
+    <section class="table-view-panel hidden" id="tableViewContainer">
+      <div class="table-header-controls">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <h2 style="margin:0; font-size:1.05rem; font-weight:800; color:#fff;">📋 جدول البلاغات الشامل</h2>
+          <span class="stream-count-pill" id="tableCountPill">0 بلاغات</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <input type="text" 
+                 id="tableSearchInput" 
+                 class="feed-search-input" 
+                 style="width:280px;" 
+                 placeholder="بحث في الجدول (خط، طالب، مخالفة)..." 
+                 oninput="handleIncidentSearch(this.value)">
+          <button type="button" class="btn-header-action" onclick="exportIncidentsToCSV()" title="تنزيل جدول البلاغات بتنسيق Excel CSV">
+            <span>📥 تصدير Excel</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive-wrap">
+        <table class="sut-admin-table">
+          <thead>
+            <tr>
+              <th>رقم البلاغ</th>
+              <th>الوقت</th>
+              <th>مستوى الأمان</th>
+              <th>نوع المخالفة</th>
+              <th>خط السير</th>
+              <th>الطالب المُبلّغ</th>
+              <th>كود الطالب</th>
+              <th>رقم الهاتف</th>
+              <th>الموقع</th>
+              <th>الحالة</th>
+              <th style="text-align:center;">إجراءات سريعة</th>
+            </tr>
+          </thead>
+          <tbody id="incidentsTableBody">
+            <!-- Dynamically populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
   </main>
 
   <!-- ========================================== -->

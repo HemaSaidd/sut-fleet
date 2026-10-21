@@ -8,6 +8,7 @@ const AppState = {
   selectedIncidentId: null,
   activeFilter: 'ALL',
   searchQuery: '',
+  displayMode: 'split', // 'split' (cards + workspace) or 'table' (full data table)
   audioAlertsEnabled: true,
   audioContext: null,
   currentIncidents: [...FLEET_DATA.initialIncidents],
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMiniViolationsBreakdown();
 
   if (AppState.currentIncidents.length > 0) {
-    selectIncidentForDetails(AppState.currentIncidents[0].id);
+    selectIncidentForDetails(AppState.currentIncidents[0].id, false);
   }
 });
 
@@ -116,6 +117,32 @@ function handleAdminLogout() {
   sessionStorage.removeItem('sut_admin_authorized');
   document.getElementById('adminLogoutBtn')?.classList.add('hidden');
   openAdminPinModal();
+}
+
+// ==========================================
+// VIEW MODE SWITCHER (SPLIT CARDS VS TABLE)
+// ==========================================
+function switchDisplayMode(mode) {
+  AppState.displayMode = mode;
+
+  const splitWrap = document.getElementById('splitViewContainer');
+  const tableWrap = document.getElementById('tableViewContainer');
+  const btnSplit = document.getElementById('btnModeSplit');
+  const btnTable = document.getElementById('btnModeTable');
+
+  if (mode === 'split') {
+    if (splitWrap) splitWrap.classList.remove('hidden');
+    if (tableWrap) tableWrap.classList.add('hidden');
+    if (btnSplit) btnSplit.classList.add('active');
+    if (btnTable) btnTable.classList.remove('active');
+  } else {
+    if (splitWrap) splitWrap.classList.add('hidden');
+    if (tableWrap) tableWrap.classList.remove('hidden');
+    if (btnSplit) btnSplit.classList.remove('active');
+    if (btnTable) btnTable.classList.add('active');
+  }
+
+  renderIncidentsList();
 }
 
 // ==========================================
@@ -214,7 +241,7 @@ function handleIncomingLiveIncident(incident, isInitialLoad = false) {
   renderMiniViolationsBreakdown();
 
   if (!AppState.selectedIncidentId || !isInitialLoad) {
-    selectIncidentForDetails(incident.id);
+    selectIncidentForDetails(incident.id, false);
   }
 }
 
@@ -384,6 +411,13 @@ function applyQuickFilter(filterType) {
 
 function handleIncidentSearch(query) {
   AppState.searchQuery = query.trim().toLowerCase();
+
+  // Keep both search inputs synchronized
+  const input1 = document.getElementById('incidentSearchInput');
+  const input2 = document.getElementById('tableSearchInput');
+  if (input1 && input1.value !== query) input1.value = query;
+  if (input2 && input2.value !== query) input2.value = query;
+
   renderIncidentsList();
 }
 
@@ -420,11 +454,11 @@ function updateKpiSummary() {
 }
 
 // ==========================================
-// RENDER INCIDENTS LIST (RIGHT STREAM)
+// RENDER INCIDENTS LIST (CARDS + TABLE)
 // ==========================================
 function renderIncidentsList() {
-  const container = document.getElementById('incidentsList');
-  if (!container) return;
+  const cardsContainer = document.getElementById('incidentsList');
+  const tableContainer = document.getElementById('incidentsTableBody');
 
   const filtered = AppState.currentIncidents.filter(inc => {
     if (AppState.activeFilter === 'CRITICAL' && inc.severity !== 'CRITICAL') return false;
@@ -445,91 +479,213 @@ function renderIncidentsList() {
   });
 
   const countPill = document.getElementById('streamCountPill');
+  const tableCountPill = document.getElementById('tableCountPill');
   if (countPill) countPill.textContent = `${filtered.length} بلاغات`;
+  if (tableCountPill) tableCountPill.textContent = `${filtered.length} بلاغات`;
 
-  if (filtered.length === 0) {
-    container.innerHTML = `
-      <div style="padding: 3rem 1rem; text-align: center; color: #64748b;">
-        <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;">🔍</span>
-        <p style="margin: 0; font-size: 0.85rem;">لا توجد بلاغات مطابقة للتصفية</p>
-      </div>
-    `;
-    return;
+  // 1. POPULATE CARDS FEED
+  if (cardsContainer) {
+    if (filtered.length === 0) {
+      cardsContainer.innerHTML = `
+        <div style="padding: 3rem 1rem; text-align: center; color: #64748b;">
+          <span style="font-size: 2.2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;">🔍</span>
+          <p style="margin: 0; font-size: 0.85rem;">لا توجد بلاغات مطابقة لخيارات التصفية</p>
+        </div>
+      `;
+    } else {
+      cardsContainer.innerHTML = filtered.map(inc => {
+        const isSelected = inc.id === AppState.selectedIncidentId;
+        
+        let sevClass = 'low';
+        let sevBadge = `<span style="background:rgba(59,130,246,0.18); color:#93c5fd; font-size:0.7rem; font-weight:700; padding:2px 7px; border-radius:4px; border:1px solid rgba(59,130,246,0.3)">عامة</span>`;
+        
+        if (inc.severity === 'CRITICAL') {
+          sevClass = 'crit';
+          sevBadge = `<span style="background:rgba(239,68,68,0.22); color:#f87171; font-size:0.7rem; font-weight:700; padding:2px 7px; border-radius:4px; border:1px solid rgba(239,68,68,0.35)">🚨 حرجة</span>`;
+        } else if (inc.severity === 'MEDIUM') {
+          sevClass = 'med';
+          sevBadge = `<span style="background:rgba(245,158,11,0.22); color:#fbbf24; font-size:0.7rem; font-weight:700; padding:2px 7px; border-radius:4px; border:1px solid rgba(245,158,11,0.35)">🟡 متوسطة</span>`;
+        }
+
+        let statusText = 'جديد';
+        let statusClass = 'st-new';
+        if (inc.status === 'INVESTIGATING') {
+          statusText = 'قيد المتابعة';
+          statusClass = 'st-investigating';
+        } else if (inc.status === 'FINED') {
+          statusText = 'إجراء معتمد';
+          statusClass = 'st-fined';
+        } else if (inc.status === 'RESOLVED') {
+          statusText = 'تم الحل';
+          statusClass = 'st-resolved';
+        }
+
+        return `
+          <div class="inc-card ${sevClass} ${isSelected ? 'active-card' : ''}" 
+               id="card_${inc.id.replace(/[^a-zA-Z0-9]/g, '')}" 
+               onclick="selectIncidentForDetails('${inc.id}', false)">
+            
+            <div class="card-top">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="card-id-tag">#${inc.id}</span>
+                ${sevBadge}
+              </div>
+              <span class="card-time">🕒 ${inc.timestamp || 'الآن'}</span>
+            </div>
+
+            <div class="card-title-line">
+              <span style="font-size:1.15rem;">${inc.violationIcon || '⚠️'}</span>
+              <span style="color:#ffffff; font-weight:700;">${inc.violationTitle}</span>
+            </div>
+
+            <div class="card-route-line">
+              <span>🚌 ${inc.lineName}</span>
+            </div>
+
+            <div class="card-bottom">
+              <span style="color:#94a3b8; font-size:0.75rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:210px;">
+                👤 ${inc.studentName || 'طالب SUT'} ${inc.studentId ? `(${inc.studentId})` : ''}
+              </span>
+              <span class="status-pill ${statusClass}">${statusText}</span>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
   }
 
-  container.innerHTML = filtered.map(inc => {
-    const isSelected = inc.id === AppState.selectedIncidentId;
-    
-    let sevClass = 'low';
-    let sevBadge = `<span style="background:rgba(59,130,246,0.15); color:#93c5fd; font-size:0.68rem; font-weight:700; padding:1px 6px; border-radius:4px; border:1px solid rgba(59,130,246,0.25)">عامة</span>`;
-    
-    if (inc.severity === 'CRITICAL') {
-      sevClass = 'crit';
-      sevBadge = `<span style="background:rgba(239,68,68,0.18); color:#f87171; font-size:0.68rem; font-weight:700; padding:1px 6px; border-radius:4px; border:1px solid rgba(239,68,68,0.3)">حرجة</span>`;
-    } else if (inc.severity === 'MEDIUM') {
-      sevClass = 'med';
-      sevBadge = `<span style="background:rgba(245,158,11,0.18); color:#fbbf24; font-size:0.68rem; font-weight:700; padding:1px 6px; border-radius:4px; border:1px solid rgba(245,158,11,0.3)">متوسطة</span>`;
+  // 2. POPULATE FULL DATA TABLE
+  if (tableContainer) {
+    if (filtered.length === 0) {
+      tableContainer.innerHTML = `
+        <tr>
+          <td colspan="11" style="text-align: center; padding: 3rem; color: #64748b;">
+            لا توجد بلاغات مطابقة للتصفية
+          </td>
+        </tr>
+      `;
+    } else {
+      tableContainer.innerHTML = filtered.map(inc => {
+        let sevBadge = `<span style="background:rgba(59,130,246,0.18); color:#93c5fd; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:4px; border:1px solid rgba(59,130,246,0.3)">عامة</span>`;
+        if (inc.severity === 'CRITICAL') {
+          sevBadge = `<span style="background:rgba(239,68,68,0.22); color:#f87171; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:4px; border:1px solid rgba(239,68,68,0.35)">🚨 حرجة</span>`;
+        } else if (inc.severity === 'MEDIUM') {
+          sevBadge = `<span style="background:rgba(245,158,11,0.22); color:#fbbf24; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:4px; border:1px solid rgba(245,158,11,0.35)">🟡 متوسطة</span>`;
+        }
+
+        let statusText = 'جديد';
+        let statusClass = 'st-new';
+        if (inc.status === 'INVESTIGATING') {
+          statusText = 'قيد المتابعة';
+          statusClass = 'st-investigating';
+        } else if (inc.status === 'FINED') {
+          statusText = 'إجراء معتمد';
+          statusClass = 'st-fined';
+        } else if (inc.status === 'RESOLVED') {
+          statusText = 'تم الحل';
+          statusClass = 'st-resolved';
+        }
+
+        return `
+          <tr style="cursor: pointer;" onclick="selectIncidentForDetails('${inc.id}', true)">
+            <td><strong style="color:#38bdf8; font-family:monospace;">#${inc.id}</strong></td>
+            <td style="color:#94a3b8; font-size:0.78rem;">${inc.timestamp || '-'}</td>
+            <td>${sevBadge}</td>
+            <td>
+              <span style="display:flex; align-items:center; gap:6px;">
+                <span>${inc.violationIcon || '⚠️'}</span>
+                <strong>${inc.violationTitle}</strong>
+              </span>
+            </td>
+            <td><strong style="color:#60a5fa">${inc.lineName}</strong></td>
+            <td>${inc.studentName || 'غير مسجل'}</td>
+            <td style="color:#38bdf8; font-family:monospace;">${inc.studentId || '-'}</td>
+            <td>
+              ${inc.studentPhone ? `
+                <a href="tel:${inc.studentPhone}" style="color:#38bdf8; text-decoration:none;" onclick="event.stopPropagation()">
+                  📞 ${inc.studentPhone}
+                </a>
+              ` : '<span style="color:#64748b">-</span>'}
+            </td>
+            <td style="color:#cbd5e1; font-size:0.78rem;">${inc.location}</td>
+            <td><span class="status-pill ${statusClass}">${statusText}</span></td>
+            <td style="text-align: center;">
+              <div style="display:inline-flex; gap:6px;" onclick="event.stopPropagation()">
+                <button type="button" class="btn-header-action" style="padding:4px 8px; font-size:0.75rem;" onclick="selectIncidentForDetails('${inc.id}', true)">
+                  <span>🔍 عرض التفاصيل</span>
+                </button>
+                <button type="button" class="btn-ws-whatsapp" style="padding:4px 8px; font-size:0.75rem;" onclick="sendWhatsAppSupervisorAlert('${inc.id}')">
+                  <span>📲 المشرف</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
+  }
+}
 
-    let statusText = 'جديد';
-    let statusClass = 'st-new';
-    if (inc.status === 'INVESTIGATING') {
-      statusText = 'قيد المتابعة';
-      statusClass = 'st-investigating';
-    } else if (inc.status === 'FINED') {
-      statusText = 'إجراء معتمد';
-      statusClass = 'st-fined';
-    } else if (inc.status === 'RESOLVED') {
-      statusText = 'تم الحل';
-      statusClass = 'st-resolved';
-    }
+// ==========================================
+// EXPORT INCIDENTS TO CSV (EXCEL)
+// ==========================================
+function exportIncidentsToCSV() {
+  const headers = ["رقم البلاغ", "وقت البلاغ", "مستوى الأمان", "نوع المخالفة", "خط السير", "الشركة المشغلة", "اسم الطالب", "كود الطالب", "هاتف الطالب", "الموقع", "ملاحظات الطالب", "الحالة"];
+  
+  const rows = AppState.currentIncidents.map(inc => [
+    inc.id,
+    inc.timestamp || "",
+    inc.severity === 'CRITICAL' ? 'حرجة' : inc.severity === 'MEDIUM' ? 'متوسطة' : 'عامة',
+    inc.violationTitle,
+    inc.lineName,
+    "شركة أبو الهول",
+    inc.studentName || "",
+    inc.studentId || "",
+    inc.studentPhone || "",
+    inc.location || "",
+    (inc.notes || "").replace(/"/g, '""'),
+    getIncidentStatusArabic(inc.status)
+  ]);
 
-    return `
-      <div class="inc-card ${sevClass} ${isSelected ? 'active-card' : ''}" 
-           id="card_${inc.id.replace(/[^a-zA-Z0-9]/g, '')}" 
-           onclick="selectIncidentForDetails('${inc.id}')">
-        
-        <div class="card-top">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span class="card-id-tag">${inc.id}</span>
-            ${sevBadge}
-          </div>
-          <span class="card-time">${inc.timestamp || ''}</span>
-        </div>
+  let csvContent = "\uFEFF"; // UTF-8 BOM for Arabic support in Excel
+  csvContent += headers.map(h => `"${h}"`).join(",") + "\r\n";
 
-        <div class="card-title-line">
-          <span>${inc.violationIcon || '⚠️'}</span>
-          <span>${inc.violationTitle}</span>
-        </div>
+  rows.forEach(row => {
+    csvContent += row.map(v => `"${v}"`).join(",") + "\r\n";
+  });
 
-        <div class="card-route-line">
-          <span>🚌 ${inc.lineName}</span>
-        </div>
-
-        <div class="card-bottom">
-          <span style="color:#94a3b8; font-size:0.72rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">
-            ${inc.studentName ? `👤 ${inc.studentName}` : 'شركة أبو الهول'}
-          </span>
-          <span class="status-pill ${statusClass}">${statusText}</span>
-        </div>
-
-      </div>
-    `;
-  }).join('');
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `SUT_Incidents_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ==========================================
 // SELECT & RENDER INCIDENT WORKSPACE
 // ==========================================
-function selectIncidentForDetails(incidentId) {
+function selectIncidentForDetails(incidentId, shouldSwitchToSplit = false) {
   AppState.selectedIncidentId = incidentId;
 
   // Highlight selected card
   document.querySelectorAll('.inc-card').forEach(c => c.classList.remove('active-card'));
   const card = document.getElementById(`card_${incidentId.replace(/[^a-zA-Z0-9]/g, '')}`);
-  if (card) card.classList.add('active-card');
+  if (card) {
+    card.classList.add('active-card');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 
   renderSelectedIncidentDetails(incidentId);
+
+  // If invoked from table view and requested, switch to split view so the user can take action
+  if (shouldSwitchToSplit && AppState.displayMode === 'table') {
+    switchDisplayMode('split');
+  }
 }
 
 function renderSelectedIncidentDetails(incidentId) {
@@ -547,11 +703,11 @@ function renderSelectedIncidentDetails(incidentId) {
   if (emptyState) emptyState.classList.add('hidden');
   content.classList.remove('hidden');
 
-  let sevBadge = `<span style="background:rgba(239,68,68,0.18); color:#f87171; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:6px; border:1px solid rgba(239,68,68,0.3)">حالة حرجة</span>`;
+  let sevBadge = `<span style="background:rgba(239,68,68,0.22); color:#f87171; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:6px; border:1px solid rgba(239,68,68,0.35)">🚨 حالة حرجة</span>`;
   if (incident.severity === 'MEDIUM') {
-    sevBadge = `<span style="background:rgba(245,158,11,0.18); color:#fbbf24; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.3)">حالة متوسطة</span>`;
+    sevBadge = `<span style="background:rgba(245,158,11,0.22); color:#fbbf24; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.35)">🟡 حالة متوسطة</span>`;
   } else if (incident.severity === 'LOW') {
-    sevBadge = `<span style="background:rgba(59,130,246,0.18); color:#93c5fd; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:6px; border:1px solid rgba(59,130,246,0.3)">حالة عامة</span>`;
+    sevBadge = `<span style="background:rgba(59,130,246,0.18); color:#93c5fd; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:6px; border:1px solid rgba(59,130,246,0.3)">🔵 حالة عامة</span>`;
   }
 
   const actionsLogHTML = (!incident.actionsTaken || incident.actionsTaken.length === 0)
@@ -573,7 +729,7 @@ function renderSelectedIncidentDetails(incidentId) {
           ${sevBadge}
         </h2>
         <div class="ws-sub-meta">
-          <span style="color:#38bdf8; font-weight:700;">تذكرة: ${incident.id}</span>
+          <span style="color:#38bdf8; font-weight:800; font-size:0.85rem;">تذكرة: #${incident.id}</span>
           <span>•</span>
           <span>${incident.timestamp || 'اليوم'}</span>
           <span>•</span>
@@ -799,7 +955,7 @@ function formatSupervisorAlertMessage(incident) {
   return `🚨 *جامعة السويدي للتكنولوجيا (SUT) - إدارة السلامة والصحة المهنية*
 --------------------------------------------------
 ⚠️ *إشعار أمان عاجل لمشرف تشغيل شركة أبو الهول*
-📋 *رقم التذكرة:* ${ticket}
+📋 *رقم التذكرة:* #${ticket}
 🚌 *الخط الميداني:* ${line}
 🏢 *الشركة المشغلة:* شركة أبو الهول لنقل الركاب
 🚨 *نوع المخالفة:* ${violation}
