@@ -882,7 +882,7 @@
             <span class="line-badge-lg" id="studentBusLine">خط العاشر من رمضان 1</span>
           </div>
           <div class="bus-meta-row">
-            <span class="meta-item">الشركة المشغلة: <strong id="studentBusVendor">شركة أبو الهول</strong></span>
+            <span class="meta-item">الشركة المشغلة: <strong id="studentBusVendor">شركة النقل</strong></span>
           </div>
         </div>
         <button type="button" class="change-bus-btn" onclick="openBusSelectorModal()" title="تغيير خط السير">
@@ -1205,7 +1205,7 @@
       const lineEl = document.getElementById('studentBusLine');
       const vendorEl = document.getElementById('studentBusVendor');
       if (lineEl) lineEl.textContent = bus.lineName;
-      if (vendorEl) vendorEl.textContent = "شركة أبو الهول";
+      if (vendorEl) vendorEl.textContent = "شركة النقل";
     }
 
     function initViolationsGrid() {
@@ -1416,7 +1416,7 @@
         <div class="bus-option-item" onclick="selectBusFromModal('${b.id}')">
           <div>
             <strong>${b.lineName}</strong>
-            <p style="font-size:0.7rem; color:#94a3b8">شركة أبو الهول لنقل الركاب</p>
+            <p style="font-size:0.7rem; color:#94a3b8">شركة النقل المعتمدة</p>
           </div>
           <span style="font-size:0.8rem; color:#60a5fa">اختيار هذا الخط ←</span>
         </div>
