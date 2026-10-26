@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استيكر السلامة الموحد (نسخة استعراضية) | جامعة السويدي للتكنولوجيا</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --navy: #0f172a;
+      --card-bg: #1e293b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', system-ui, sans-serif;
+      background: #0b1120;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    .print-actions {
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+    }
+    .btn {
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-print {
+      background: #3b82f6;
+      color: #fff;
+    }
+    .btn-print:hover {
+      background: #2563eb;
+    }
+    .sticker-sheet {
+      width: 100%;
+      max-width: 580px;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 20px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+      border: 3px solid #1e40af;
+      text-align: center;
+      position: relative;
+    }
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .logo-img {
+      height: 48px;
+      max-width: 170px;
+      object-fit: contain;
+    }
+    .dept-title {
+      text-align: left;
+    }
+    .dept-title h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #1e3a8a;
+    }
+    .dept-title p {
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .cta-banner {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .cta-banner h3 {
+      font-size: 1.15rem;
+      color: #1d4ed8;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .cta-banner p {
+      font-size: 0.82rem;
+      color: #475569;
+    }
+    .qr-container {
+      background: #f8fafc;
+      border: 2px dashed #94a3b8;
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: inline-block;
+      margin-bottom: 1.25rem;
+    }
+    .qr-img {
+      width: 250px;
+      height: 250px;
+      display: block;
+      margin: 0 auto;
+      border-radius: 8px;
+    }
+    .scan-hint {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #1e40af;
+      margin-top: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .reassure-box {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border: 1.5px solid #86efac;
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+    .reassure-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #16a34a;
+      color: #ffffff;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+    }
+    .reassure-text {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #14532d;
+      margin-bottom: 6px;
+      line-height: 1.6;
+    }
+    .reassure-sub {
+      font-size: 0.84rem;
+      color: #15803d;
+      font-weight: 700;
+    }
+    .room-notice {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 1.25rem;
+    }
+    .footer-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 2px solid #e2e8f0;
+      padding-top: 1rem;
+      font-size: 0.85rem;
+      color: #475569;
+    }
+    @media print {
+      html, body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0.8cm !important;
+      }
+      .print-actions {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-actions">
+    <button class="btn btn-print" onclick="window.print()">🖨️ طباعة أو حفظ كـ PDF</button>
+  </div>
+
+  <div class="sticker-sheet">
+    <div class="sheet-header">
+      <img src="../assets/sutech-logo.png" alt="SUTech Logo" class="logo-img">
+      <div class="dept-title">
+        <h2>جامعة السويدي للتكنولوجيا</h2>
+        <p>إدارة السلامة والصحة المهنية</p>
+      </div>
+    </div>
+
+    <div class="cta-banner">
+      <h3>سلامتك تهمنا</h3>
+      <p>برجاء الإبلاغ عن أي مخالفة تراها خطراً على سلامتك.. لو في أي حاجة بلغنا فوراً</p>
+    </div>
+
+    <div class="qr-container">
+      <img src="باركود_مشفر_للعرض_لينكد_إن.png" alt="Scrambled Demo QR Code" class="qr-img">
+      <div class="scan-hint">
+        <span>🔒</span>
+        <span>رمز استعراضي • للتجربة يرجى استخدام الرابط في المنشور</span>
+      </div>
+    </div>
+
+    <div class="reassure-box">
+      <div class="reassure-badge">
+        <span>⚡</span> <span>بلاغك بيوصلنا فوراً</span>
+      </div>
+      <p class="reassure-text">
+        يصل إشعارك مباشرة ولحظياً لمسؤولي السلامة والصحة المهنية بالجامعة لاتخاذ اللازم.
+      </p>
+      <div class="reassure-sub">
+        🤝 هدفنا راحتك وسلامتك طوال الطريق.. لا تتردد في الإبلاغ لمساعدتنا في حمايتك وحماية زملائك
+      </div>
+    </div>
+
+    <div class="room-notice">
+      🏢 منظومة السلامة والتشغيل الذكي لأسطول النقل الطلابي • جامعة السويدي للتكنولوجيا
+    </div>
+
+    <div class="footer-bar">
+      <span>جامعة السويدي للتكنولوجيا - مصر</span>
+      <span>Elsewedy University of Technology</span>
+    </div>
+  </div>
+
+</body>
+</html>

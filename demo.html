@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>جامعة السويدي للتكنولوجيا - تجربة بلاغ سلامة الحافلات (Demo)</title>
+  <meta name="description" content="منظومة سلامة النقل الطلابي بجامعة السويدي للتكنولوجيا (SUT) - نموذج البلاغ الفوري المباشر">
+  <meta name="theme-color" content="#0b0f19">
+
+  <!-- Google Fonts: Cairo & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-card: rgba(18, 24, 38, 0.95);
+      --bg-subtle: rgba(255, 255, 255, 0.04);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --accent-primary: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --color-danger: #ef4444;
+      --color-danger-glow: rgba(239, 68, 68, 0.3);
+      --color-warning: #f59e0b;
+      --color-warning-glow: rgba(245, 158, 11, 0.25);
+      --color-success: #10b981;
+      --text-main: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --font-arabic: 'Cairo', system-ui, -apple-system, sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-arabic);
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 15% 15%, rgba(59, 130, 246, 0.12) 0px, transparent 55%),
+        radial-gradient(at 85% 85%, rgba(239, 68, 68, 0.08) 0px, transparent 55%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .report-app-container {
+      width: 100%;
+      max-width: 540px;
+      min-height: 100vh;
+      background: #0d1322;
+      border-left: 1px solid var(--border-glass);
+      border-right: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Header */
+    .student-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border-glass);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .uni-emblem-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .sut-logo-pill {
+      background: #ffffff;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .sut-header-logo {
+      height: 36px;
+      max-width: 135px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .line-badge-lg {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #93c5fd;
+    }
+
+    .room-notice-box {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px dashed rgba(59, 130, 246, 0.35);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      margin-top: 0.9rem;
+      font-size: 0.78rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .room-notice-box strong {
+      color: #60a5fa;
+    }
+
+    .uni-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: block;
+      line-height: 1.2;
+    }
+
+    .uni-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .sos-chip {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      animation: pulseSos 2s infinite;
+    }
+
+    @keyframes pulseSos {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    }
+
+    /* Scrollable form body */
+    .form-scroll-body {
+      flex: 1;
+      padding: 1.25rem 1.25rem 2.5rem;
+    }
+
+    /* Bus Detected Card */
+    .bus-detected-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: var(--radius-md);
+      padding: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      background: rgba(59, 130, 246, 0.15);
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-details {
+      flex: 1;
+    }
+
+    .bus-header-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .bus-badge {
+      background: var(--accent-primary);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 0.15rem 0.6rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .line-badge {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #93c5fd;
+    }
+
+    .bus-meta-row {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .meta-separator {
+      margin: 0 4px;
+      opacity: 0.5;
+    }
+
+    .change-bus-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      font-family: var(--font-arabic);
+      font-weight: 700;
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .change-bus-btn:hover {
+      background: var(--accent-primary);
+      color: #fff;
+    }
+
+    /* Form Sections */
+    .form-section {
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-label {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #e2e8f0;
+      display: block;
+    }
+
+    .required-star {
+      color: var(--color-danger);
+    }
+
+    .helper-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Violations Grid */
+    .violations-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+    }
+
+    .violation-card-radio {
+      display: flex;
+      flex-direction: column;
+      padding: 0.75rem 0.65rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      position: relative;
+    }
+
+    .violation-card-radio:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .violation-card-radio.selected {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: var(--color-danger);
+      box-shadow: 0 0 14px var(--color-danger-glow);
+    }
+
+    .v-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.35rem;
+    }
+
+    .v-icon {
+      font-size: 1.4rem;
+    }
+
+    .v-checkbox-circle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: transparent;
+      transition: all 0.2s;
+    }
+
+    .violation-card-radio.selected .v-checkbox-circle {
+      background: var(--color-danger);
+      border-color: var(--color-danger);
+      color: #fff;
+    }
+
+    .v-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .v-risk-tag {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Severity Selector */
+    .severity-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .severity-option input[type="radio"] {
+      display: none;
+    }
+
+    .severity-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0.65rem 0.35rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .severity-option input[type="radio"]:checked + .severity-card {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: var(--color-danger);
+      box-shadow: 0 0 12px var(--color-danger-glow);
+    }
+
+    .opt-medium input[type="radio"]:checked + .severity-card {
+      background: rgba(245, 158, 11, 0.18);
+      border-color: var(--color-warning);
+      box-shadow: 0 0 12px var(--color-warning-glow);
+    }
+
+    .opt-low input[type="radio"]:checked + .severity-card {
+      background: rgba(59, 130, 246, 0.18);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .sev-icon {
+      font-size: 1.2rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .sev-title {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .sev-desc {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    /* Inputs */
+    .custom-input, .custom-textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 0.85rem;
+      font-family: var(--font-arabic);
+      font-size: 0.84rem;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .custom-input:focus, .custom-textarea:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .btn-location-gps {
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      font-family: var(--font-arabic);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-location-gps:hover {
+      background: var(--accent-primary);
+      color: #fff;
+    }
+
+    /* Media Upload */
+    .media-upload-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1.5px dashed rgba(255, 255, 255, 0.16);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .media-upload-box:hover {
+      border-color: var(--accent-primary);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .upload-icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .upload-text {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      display: block;
+    }
+
+    .upload-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .attached-preview {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 0.65rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .attached-preview img {
+      width: 55px;
+      height: 55px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .preview-info {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+    }
+
+    .remove-img-btn {
+      background: rgba(239, 68, 68, 0.25);
+      color: #f87171;
+      border: none;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* Anonymous Section */
+    .student-id-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      padding: 0.9rem;
+      border-radius: var(--radius-md);
+    }
+
+    .anon-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: .3s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent-primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    .anon-text strong {
+      font-size: 0.82rem;
+      color: var(--text-main);
+      display: block;
+    }
+
+    .anon-text p {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .student-contact-fields {
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .input-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .input-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    @media (max-width: 680px) {
+      .input-grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field-label {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Submit Button */
+    .form-submit-row {
+      margin-top: 1.5rem;
+    }
+
+    .btn-primary-send {
+      width: 100%;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0.95rem;
+      font-family: var(--font-arabic);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+      transition: all 0.2s;
+    }
+
+    .btn-primary-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-primary-send:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .safety-pledge-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 0.9rem;
+      padding: 0 0.5rem;
+      line-height: 1.4;
+    }
+
+    /* Modal / Popup for Bus Selector */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      z-index: 100;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 480px;
+      background: #1e293b;
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-glass);
+      margin-bottom: 0.85rem;
+    }
+
+    .modal-head h3 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #93c5fd;
+    }
+
+    .modal-close-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .buses-select-list {
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-right: 4px;
+    }
+
+    .bus-option-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .bus-option-item:hover {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--accent-primary);
+    }
+
+    /* Success Overlay */
+    .success-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(11, 15, 25, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      z-index: 150;
+    }
+
+    .success-card {
+      text-align: center;
+      background: #182235;
+      border: 1.5px solid rgba(16, 185, 129, 0.5);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+      max-width: 440px;
+      width: 100%;
+      animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .success-checkmark-circle {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.2);
+      border: 2px solid #10b981;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      color: #10b981;
+      font-size: 2.2rem;
+      font-weight: 900;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.35);
+    }
+
+    .success-card h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .ticket-number {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+
+    .ticket-number span {
+      color: #60a5fa;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+
+    .success-summary {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.85rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1.5rem;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .success-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .btn-close-modal {
+      background: var(--accent-primary);
+      color: #fff;
+      border: none;
+      padding: 0.85rem;
+      border-radius: var(--radius-md);
+      font-family: var(--font-arabic);
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-call-desk {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.75rem;
+      border-radius: var(--radius-md);
+      font-family: var(--font-arabic);
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: block;
+      transition: all 0.2s;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="report-app-container">
+    
+    <!-- Top Bar with SUT Branding -->
+    <header class="student-header">
+      <div class="uni-emblem-badge">
+        <div class="sut-logo-pill">
+          <img src="assets/sutech-logo.png" alt="SUTech Logo" class="sut-header-logo">
+        </div>
+        <div>
+          <span class="uni-title">جامعة السويدي للتكنولوجيا</span>
+          <p class="uni-subtitle">منظومة السلامة والصحة المهنية • النقل الطلابي</p>
+        </div>
+      </div>
+      <div>
+        <div class="sos-chip" style="cursor: default; background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.4);" title="نسخة استعراضية تجريبية">
+          <span>🛡️ سلامتك تهمنا (Demo)</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Form Scroll Area -->
+    <div class="form-scroll-body">
+
+      <!-- Bus Identification Banner (Auto-detected via QR) -->
+      <div class="bus-detected-card" id="busDetectedCard">
+        <div class="card-icon">🚌</div>
+        <div class="card-details">
+          <div class="bus-header-row">
+            <span class="line-badge-lg" id="studentBusLine">خط العاشر من رمضان 1</span>
+          </div>
+          <div class="bus-meta-row">
+            <span class="meta-item">الشركة المشغلة: <strong id="studentBusVendor">شركة أبو الهول</strong></span>
+          </div>
+        </div>
+        <button type="button" class="change-bus-btn" onclick="openBusSelectorModal()" title="تغيير خط السير">
+          <span>تغيير الخط</span>
+        </button>
+      </div>
+
+      <!-- Operating Hours Notice (Active 6:00 AM - 7:30 PM Cairo Time) -->
+      
+
+        <!-- Section 2: Severity Level -->
+        <div class="form-section">
+          <label class="section-label">٢. مستوى الخطورة الحالي</label>
+          <div class="severity-selector">
+            <label class="severity-option opt-critical">
+              <input type="radio" name="severityLevel" value="CRITICAL" id="sevCritical" checked>
+              <span class="severity-card">
+                <span class="sev-icon">🔴</span>
+                <span class="sev-title">خطر داهم</span>
+                <span class="sev-desc">يهدد السلامة فوراً</span>
+              </span>
+            </label>
+            <label class="severity-option opt-medium">
+              <input type="radio" name="severityLevel" value="MEDIUM" id="sevMedium">
+              <span class="severity-card">
+                <span class="sev-icon">🟠</span>
+                <span class="sev-title">مخالفة متوسطة</span>
+                <span class="sev-desc">سلوك أو قيادة غير منضبطة</span>
+              </span>
+            </label>
+            <label class="severity-option opt-low">
+              <input type="radio" name="severityLevel" value="LOW" id="sevLow">
+              <span class="severity-card">
+                <span class="sev-icon">🔵</span>
+                <span class="sev-title">ملاحظة عامة</span>
+                <span class="sev-desc">نظافة، تكييف، أو تأخير</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Section 3: Location on Road -->
+        <div class="form-section">
+          <div class="section-title-row">
+            <label class="section-label" for="reportLocationInput">٣. موقع الأتوبيس الآن</label>
+            <button type="button" class="btn-location-gps" id="btnGpsAuto" onclick="detectUserLocation()">
+              <span>تحديد الموقع الحالي (GPS)</span>
+            </button>
+          </div>
+          <div class="input-with-icon">
+            <input type="text" id="reportLocationInput" class="custom-input" placeholder="مثال: طريق الإسماعيلية الصحراوي أمام بوابة العاشر" required>
+          </div>
+        </div>
+
+        <!-- Section 4: Details & Notes -->
+        <div class="form-section">
+          <label class="section-label" for="reportNotesInput">٤. تفاصيل إضافية عن الواقعة</label>
+          <textarea id="reportNotesInput" class="custom-textarea" rows="3" placeholder="اشرح باختصار ما حدث لمساعدة مسؤولي السلامة بالجامعة في المتابعة واتخاذ الإجراء..."></textarea>
+        </div>
+
+        <!-- Section 5: Media Evidence Attachment -->
+        <div class="form-section">
+          <label class="section-label">٥. إرفاق صورة أو فيديو (اختياري)</label>
+          <input type="file" id="realFileInput" accept="image/*,video/*" capture="environment" style="display:none" onchange="handleRealFileSelected(event)">
+          <div class="media-upload-box" id="mediaUploadZone" onclick="triggerFileUpload()">
+            <div class="upload-content" id="uploadPlaceholder">
+              <span class="upload-icon">📷</span>
+              <span class="upload-text">اضغط لالتقاط أو إرفاق صورة/فيديو كدليل</span>
+              <span class="upload-sub">يدعم الكاميرا المباشرة وملفات الصور حتى 25 ميجابايت</span>
+            </div>
+            <div class="attached-preview hidden" id="attachedPreview">
+              <img id="previewImage" src="" alt="دليل المخالفة">
+              <div class="preview-info">
+                <span id="previewName">evidence.jpg</span>
+                <button type="button" class="remove-img-btn" onclick="removeAttachedMedia(event)">✕ إزالة</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 6: Student Identity (Anonymous or Identifiable) -->
+        <div class="form-section student-id-box">
+          <div class="anon-toggle-row">
+            <label class="toggle-switch">
+              <input type="checkbox" id="anonToggle" onchange="toggleAnonymousMode(this.checked)">
+              <span class="slider"></span>
+            </label>
+            <div class="anon-text">
+              <strong>إرسال البلاغ بهوية سرية (مجهول)</strong>
+              <p>لن يتم كشف اسمك للسائق أو لأي جهة خارجية</p>
+            </div>
+          </div>
+
+          <div class="student-contact-fields" id="studentContactFields">
+            <div class="input-grid-3">
+              <div>
+                <label class="field-label" for="studentNameInput">اسم الطالب (اختياري)</label>
+                <input type="text" id="studentNameInput" class="custom-input" placeholder="مثال: عمر خيري">
+              </div>
+              <div>
+                <label class="field-label" for="studentIdInput">الرقم الجامعي / كود الطالب (ID)</label>
+                <input type="text" id="studentIdInput" class="custom-input" placeholder="مثال: 20230123">
+              </div>
+              <div>
+                <label class="field-label" for="studentPhoneInput">رقم الموبايل (لتلقي الرد)</label>
+                <input type="tel" id="studentPhoneInput" class="custom-input" placeholder="01xxxxxxxxx">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-submit-row">
+          <button type="submit" class="btn-primary-send" id="btnSubmitReport">
+            <span>إرسال البلاغ إلى مسؤولي السلامة بالجامعة</span>
+          </button>
+        </div>
+
+        <div class="safety-pledge-note">
+          <span>🔒 بلاغك يصل مباشرة وبسرية تامة لمسؤولي السيفتي بالجامعة.</span>
+        </div>
+
+        <div class="room-notice-box" style="margin-top:1.25rem; padding:14px; background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:10px; text-align:center;">
+          <p style="font-size:0.84rem; font-weight:700; color:#f8fafc; margin:0 0 4px 0;">
+            🏢 <strong>إدارة النقل والسلامة والصحة المهنية:</strong>
+          </p>
+          <p style="font-size:0.8rem; color:#cbd5e1; margin:0; line-height:1.6;">
+            جامعة السويدي للتكنولوجيا (SUT) • قطاع التشغيل والخدمات الطلابية
+          </p>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+  <!-- Bus Selector Modal -->
+  <div class="modal-backdrop hidden" id="busSelectorModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>🚌 اختر خط السير</h3>
+        <button type="button" class="modal-close-btn" onclick="closeBusSelectorModal()">✕</button>
+      </div>
+      <div class="buses-select-list" id="modalBusesList">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="success-modal hidden" id="studentSuccessModal">
+    <div class="success-card">
+      <div class="success-checkmark-circle">✓</div>
+      <h3 style="margin-bottom:6px;">تم الإبلاغ واستلام تذكرتك بنجاح!</h3>
+      <div style="display:inline-block; background:rgba(34, 197, 94, 0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); padding:4px 14px; border-radius:20px; font-weight:700; font-size:0.85rem; margin:4px auto 10px auto;">
+        🛡️ سلامتك تهمنا دائماً
+      </div>
+      <p class="ticket-number" style="font-size:1.18rem; font-weight:800; color:#38bdf8; margin:4px 0 10px 0;">رقم التذكرة: <span id="successTicketId">SUT-8</span></p>
+      
+      <div class="success-summary" style="background:rgba(255, 255, 255, 0.03); border:1px solid rgba(255, 255, 255, 0.07); padding:1rem; border-radius:12px; margin:0.8rem 0; text-align:center;">
+        <p style="font-size:0.85rem; color:#cbd5e1; margin:0 0 12px 0; line-height:1.6;">
+          تم إشعار مسؤولي السلامة والصحة المهنية بجامعة السويدي للتكنولوجيا فوراً لاتخاذ اللازم.
+        </p>
+
+        <div style="background:rgba(15, 23, 42, 0.75); border:1px solid rgba(59, 130, 246, 0.35); border-radius:10px; padding:12px; margin-bottom:8px; text-align:center;">
+          <p style="font-size:0.84rem; font-weight:700; color:#93c5fd; margin:0;">
+            🏢 <strong>إدارة النقل والسلامة والصحة المهنية</strong> • جامعة السويدي للتكنولوجيا
+          </p>
+        </div>
+      </div>
+
+      <div class="success-actions" style="margin-top:16px;">
+        <button type="button" class="btn-close-modal" onclick="resetStudentReportForm()" style="width:100%;">
+          إرسال بلاغ آخر
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Cloud SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="js/data.js"></script>
+
+  <!-- Dedicated Student Reporting Controller -->
+  <script>
+    let selectedBusId = '101';
+    let selectedViolationCodes = ['PHONE_USAGE'];
+    let attachedImageData = null;
+    let firebaseDb = null;
+    let currentKnownSeq = 7;
+
+    // Check if opened with view=operations-center or view=admin and redirect to admin.html
+    const initialParams = new URLSearchParams(window.location.search);
+    const viewParam = initialParams.get('view');
+    if (viewParam === 'operations-center' || viewParam === 'admin') {
+      window.location.replace('admin.html' + window.location.search);
+    }
+
+    // Initialize Firebase
+    if (typeof FLEET_DATA !== 'undefined' && FLEET_DATA.firebaseConfig && FLEET_DATA.firebaseConfig.enabled && typeof firebase !== 'undefined') {
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(FLEET_DATA.firebaseConfig);
+        }
+        firebaseDb = firebase.database();
+        console.log("Student reporting: Firebase Realtime Database connected!");
+      } catch (err) {
+        console.warn("Firebase init error:", err);
+      }
+    }
+
+    // Pre-fetch latest ticket sequence from Firebase & localStorage to prevent ID collisions
+    function prefetchTicketSequence() {
+      // 1. Check Firebase RTDB counter
+      fetch('https://sut-fleet-default-rtdb.firebaseio.com/counters/lastTicketNumber.json')
+        .then(r => r.json())
+        .then(val => {
+          if (typeof val === 'number' && val >= currentKnownSeq) {
+            currentKnownSeq = val;
+          }
+        }).catch(() => {});
+
+      // 2. Check localStorage
+      try {
+        const stored = parseInt(localStorage.getItem('sut_seq_counter') || '0', 10);
+        if (stored > currentKnownSeq) {
+          currentKnownSeq = stored;
+        }
+      } catch (e) {}
+    }
+    prefetchTicketSequence();
+
+    function sanitizeInput(str, maxLength = 250) {
+      if (!str || typeof str !== 'string') return '';
+      return str.replace(/[<>]/g, '').trim().slice(0, maxLength);
+    }
+
+    function isSutOperatingHours() {
+      try {
+        const now = new Date();
+        const parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Africa/Cairo',
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: false
+        }).formatToParts(now);
+
+        let hour = 12, minute = 0;
+        parts.forEach(p => {
+          if (p.type === 'hour') hour = parseInt(p.value, 10);
+          if (p.type === 'minute') minute = parseInt(p.value, 10);
+        });
+
+        const totalMinutes = hour * 60 + minute;
+        const startMinutes = 6 * 60; // 06:00 AM (360)
+        const endMinutes = 19 * 60 + 30; // 07:30 PM (1170)
+
+        return true; // Demo 24/7
+      } catch (e) {
+        return true;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Detect bus from URL parameter (?bus=105)
+      const urlParams = new URLSearchParams(window.location.search);
+      const busParam = urlParams.get('bus');
+      if (busParam && FLEET_DATA.buses.some(b => b.id === busParam)) {
+        selectedBusId = busParam;
+      }
+
+      // 2. Check operating schedule (6:00 AM - 7:30 PM Cairo Time)
+      if (!isSutOperatingHours()) {
+        const warnBanner = document.getElementById('scheduleWarningBanner');
+        if (warnBanner) warnBanner.classList.remove('hidden');
+
+        const submitBtn = document.getElementById('btnSubmitReport');
+        if (submitBtn) {
+          submitBtn.style.opacity = '0.85';
+          submitBtn.innerHTML = '<span>🔒 استقبال البلاغات مغلق حالياً (6:00 ص - 7:30 م)</span>';
+        }
+      }
+
+      updateBusHeader();
+      initViolationsGrid();
+      populateBusesListModal();
+    });
+
+    function updateBusHeader() {
+      const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
+      const lineEl = document.getElementById('studentBusLine');
+      const vendorEl = document.getElementById('studentBusVendor');
+      if (lineEl) lineEl.textContent = bus.lineName;
+      if (vendorEl) vendorEl.textContent = "شركة أبو الهول";
+    }
+
+    function initViolationsGrid() {
+      const grid = document.getElementById('violationsGrid');
+      if (!grid) return;
+
+      grid.innerHTML = FLEET_DATA.violationTypes.map(v => {
+        const isSelected = selectedViolationCodes.includes(v.code);
+        return `
+          <div class="violation-card-radio ${isSelected ? 'selected' : ''}" 
+               id="vcard_${v.code}" 
+               onclick="toggleViolationCard('${v.code}')">
+            <div class="v-card-top">
+              <span class="v-icon">${v.icon}</span>
+              <span class="v-checkbox-circle">✓</span>
+            </div>
+            <span class="v-title">${v.title}</span>
+            <span class="v-risk-tag">${v.riskLabel}</span>
+          </div>
+        `;
+      }).join('');
+
+      const customBox = document.getElementById('customViolationBox');
+      if (customBox) {
+        if (selectedViolationCodes.includes('OTHER_VIOLATION')) {
+          customBox.classList.remove('hidden');
+        } else {
+          customBox.classList.add('hidden');
+        }
+      }
+    }
+
+    function toggleViolationCard(code) {
+      const idx = selectedViolationCodes.indexOf(code);
+      if (idx > -1) {
+        if (selectedViolationCodes.length > 1) {
+          selectedViolationCodes.splice(idx, 1);
+        }
+      } else {
+        selectedViolationCodes.push(code);
+      }
+
+      FLEET_DATA.violationTypes.forEach(v => {
+        const el = document.getElementById(`vcard_${v.code}`);
+        if (el) {
+          if (selectedViolationCodes.includes(v.code)) {
+            el.classList.add('selected');
+          } else {
+            el.classList.remove('selected');
+          }
+        }
+      });
+
+      // إظهار أو إخفاء حقل كتابة نوع المخالفة عند اختيار "أخرى"
+      const hasOther = selectedViolationCodes.includes('OTHER_VIOLATION');
+      const customBox = document.getElementById('customViolationBox');
+      const customInput = document.getElementById('customViolationInput');
+      const customErr = document.getElementById('customViolationError');
+
+      if (customBox) {
+        if (hasOther) {
+          customBox.classList.remove('hidden');
+          if (customInput) {
+            setTimeout(() => {
+              customInput.focus();
+            }, 100);
+          }
+        } else {
+          customBox.classList.add('hidden');
+          if (customErr) customErr.classList.add('hidden');
+        }
+      }
+
+      // Suggest severity automatically
+      const first = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]);
+      if (first) {
+        if (first.defaultSeverity === 'CRITICAL') {
+          document.getElementById('sevCritical').checked = true;
+        } else if (first.defaultSeverity === 'MEDIUM') {
+          document.getElementById('sevMedium').checked = true;
+        } else {
+          document.getElementById('sevLow').checked = true;
+        }
+      }
+    }
+
+    function detectUserLocation() {
+      const locInput = document.getElementById('reportLocationInput');
+      const btn = document.getElementById('btnGpsAuto');
+      if (!locInput) return;
+
+      if (btn) btn.innerHTML = '<span>⏳ جارٍ التحديد بدقة عبر الـ GPS...</span>';
+
+      if (!navigator.geolocation) {
+        alert("خاصية تحديد الموقع غير مدعومة بالمتصفح، يرجى كتابة موقعك يدوياً.");
+        if (btn) btn.innerHTML = '<span>📍 تحديد مكاني تلقائياً</span>';
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const acc = Math.round(pos.coords.accuracy || 15);
+
+          // Default fallback to GPS Coordinates
+          locInput.value = `إحداثيات حية: ${lat.toFixed(5)}, ${lon.toFixed(5)} (دقة ${acc}م)`;
+          if (btn) btn.innerHTML = '<span>📍 تم التحديد بدقة ✓</span>';
+
+          // Attempt Reverse Geocoding to get real road and city
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ar`, {
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.address) {
+                const a = data.address;
+                const road = a.road || a.pedestrian || a.suburb || a.neighbourhood || '';
+                const city = a.city || a.town || a.county || a.state || 'مصر';
+                const place = road ? `${road}، ${city}` : data.display_name.split(',').slice(0, 3).join('، ');
+                locInput.value = `${place} (GPS: ${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+              }
+            }
+          } catch (e) {
+            // Keep the GPS coordinates
+          }
+        },
+        (err) => {
+          console.warn("GPS error:", err);
+          let errText = "يرجى تشغيل الـ GPS بالهاتف والسماح للمتصفح بالوصول للموقع.";
+          if (err.code === 1) errText = "تم رفض إذن الموقع. يرجى تفعيله من إعدادات المتصفح أو كتابة موقعك يدوياً.";
+          alert(errText);
+          if (btn) btn.innerHTML = '<span>📍 تحديد مكاني تلقائياً</span>';
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    function triggerFileUpload() {
+      const fileInput = document.getElementById('realFileInput');
+      if (fileInput) fileInput.click();
+    }
+
+    function handleRealFileSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        attachedImageData = e.target.result;
+        const placeholder = document.getElementById('uploadPlaceholder');
+        const preview = document.getElementById('attachedPreview');
+        const previewImg = document.getElementById('previewImage');
+        const previewName = document.getElementById('previewName');
+
+        if (placeholder) placeholder.classList.add('hidden');
+        if (preview) preview.classList.remove('hidden');
+        if (previewImg) previewImg.src = attachedImageData;
+        if (previewName) previewName.textContent = file.name;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeAttachedMedia(event) {
+      if (event) event.stopPropagation();
+      attachedImageData = null;
+      const fileInput = document.getElementById('realFileInput');
+      if (fileInput) fileInput.value = '';
+
+      const placeholder = document.getElementById('uploadPlaceholder');
+      const preview = document.getElementById('attachedPreview');
+      if (placeholder) placeholder.classList.remove('hidden');
+      if (preview) preview.classList.add('hidden');
+    }
+
+    function toggleAnonymousMode(isAnon) {
+      const fields = document.getElementById('studentContactFields');
+      if (fields) {
+        fields.style.display = isAnon ? 'none' : 'block';
+      }
+    }
+
+    function openBusSelectorModal() {
+      const modal = document.getElementById('busSelectorModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeBusSelectorModal() {
+      const modal = document.getElementById('busSelectorModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function selectBusFromModal(busId) {
+      selectedBusId = busId;
+      updateBusHeader();
+      closeBusSelectorModal();
+    }
+
+    function populateBusesListModal() {
+      const list = document.getElementById('modalBusesList');
+      if (!list) return;
+
+      list.innerHTML = FLEET_DATA.buses.map(b => `
+        <div class="bus-option-item" onclick="selectBusFromModal('${b.id}')">
+          <div>
+            <strong>${b.lineName}</strong>
+            <p style="font-size:0.7rem; color:#94a3b8">شركة أبو الهول لنقل الركاب</p>
+          </div>
+          <span style="font-size:0.8rem; color:#60a5fa">اختيار هذا الخط ←</span>
+        </div>
+      `).join('');
+    }
+
+    async function handleStudentReportSubmit(event) {
+      if (event) event.preventDefault();
+
+      const submitBtn = document.getElementById('btnSubmitReport');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>⏳ جارٍ حفظ البلاغ...</span>';
+      }
+
+      // Check required inputs
+      const isOtherSelected = selectedViolationCodes.includes('OTHER_VIOLATION');
+      const customViolationInput = document.getElementById('customViolationInput');
+      const customViolationText = sanitizeInput(customViolationInput ? customViolationInput.value : '', 200);
+      const customBox = document.getElementById('customViolationBox');
+      const customError = document.getElementById('customViolationError');
+
+      if (isOtherSelected && !customViolationText) {
+        if (customBox) customBox.classList.remove('hidden');
+        if (customError) customError.classList.remove('hidden');
+        if (customViolationInput) {
+          customViolationInput.style.borderColor = '#ef4444';
+          customViolationInput.focus();
+          customViolationInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        alert("⚠️ تنبيه إجباري: لقد قمت باختيار (أخرى)، يرجى كتابة وتحديد نوع المخالفة في الخانة المخصصة لها أولاً لمتابعة إرسال البلاغ.");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لمسؤولي السلامة بالجامعة</span>';
+        }
+        return;
+      }
+      if (customError) customError.classList.add('hidden');
+
+      // Simulate a small network delay for realism (400ms)
+      await new Promise(r => setTimeout(r, 400));
+
+      // Generate a realistic random Ticket ID (e.g. SUT-18, SUT-25)
+      const randomSeq = Math.floor(12 + Math.random() * 35);
+      const ticketId = `SUT-${randomSeq}`;
+
+      // Update and show success modal
+      const ticketDisplay = document.getElementById('successTicketId');
+      if (ticketDisplay) ticketDisplay.textContent = ticketId;
+
+      const modal = document.getElementById('studentSuccessModal');
+      if (modal) modal.classList.remove('hidden');
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لمسؤولي السلامة بالجامعة</span>';
+      }
+    }
+
+    function resetStudentReportForm() {
+      document.getElementById('studentSuccessModal').classList.add('hidden');
+      document.getElementById('reportNotesInput').value = '';
+      const customViolationInput = document.getElementById('customViolationInput');
+      if (customViolationInput) customViolationInput.value = '';
+      const customBox = document.getElementById('customViolationBox');
+      if (customBox) customBox.classList.add('hidden');
+      const customErr = document.getElementById('customViolationError');
+      if (customErr) customErr.classList.add('hidden');
+      const studentIdInput = document.getElementById('studentIdInput');
+      if (studentIdInput) studentIdInput.value = '';
+      const studentNameInput = document.getElementById('studentNameInput');
+      if (studentNameInput) studentNameInput.value = '';
+      const studentPhoneInput = document.getElementById('studentPhoneInput');
+      if (studentPhoneInput) studentPhoneInput.value = '';
+      removeAttachedMedia();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
