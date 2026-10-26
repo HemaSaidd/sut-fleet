@@ -866,7 +866,7 @@
       </div>
       <div>
         <div class="sos-chip" style="cursor: default; background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.4);" title="نسخة استعراضية تجريبية">
-          <span>🛡️ سلامتك تهمنا (Demo)</span>
+          <span>🛡️ سلامتك تهمنا</span>
         </div>
       </div>
     </header>
@@ -891,7 +891,34 @@
       </div>
 
       <!-- Operating Hours Notice (Active 6:00 AM - 7:30 PM Cairo Time) -->
-      
+      <!-- Operating Hours Notice: 24/7 Demo Mode Enabled -->
+
+      <!-- Student Incident Form -->
+      <form id="studentReportForm" onsubmit="handleStudentReportSubmit(event)">
+        
+        <!-- Section 1: Violation Category Selection -->
+        <div class="form-section">
+          <div class="section-title-row">
+            <label class="section-label">١. ما المخالفة التي لاحظتها؟ <span class="required-star">*</span></label>
+            <span class="helper-hint">اختر سبباً أو أكثر</span>
+          </div>
+          <div class="violations-grid" id="violationsGrid">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Custom Violation Box (يفتح تلقائياً عند اختيار "أخرى") -->
+          <div id="customViolationBox" class="hidden" style="margin-top: 14px; padding: 14px 16px; background: rgba(239, 68, 68, 0.08); border: 1.5px solid #ef4444; border-radius: 12px; transition: all 0.3s ease;">
+            <label for="customViolationInput" style="display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #fca5a5; margin-bottom: 8px;">
+              <span>✍️ يرجى كتابة وتحديد نوع المخالفة بالتفصيل:</span>
+              <span style="background: #ef4444; color: #fff; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; font-weight: 800;">إجباري ومطلوب *</span>
+            </label>
+            <input type="text" id="customViolationInput" class="custom-input" placeholder="اكتب نوع المخالفة التي لاحظتها بالتفصيل هنا..." style="background: rgba(15, 23, 42, 0.95); border-color: rgba(239, 68, 68, 0.5); font-size: 0.9rem; padding: 10px 14px; width: 100%; box-sizing: border-box;" oninput="document.getElementById('customViolationError')?.classList.add('hidden'); this.style.borderColor='rgba(239,68,68,0.5)';">
+            <div id="customViolationError" class="hidden" style="color: #f87171; font-size: 0.8rem; font-weight: 700; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+              <span>⚠️</span>
+              <span>يرجى كتابة نوع المخالفة بالتفصيل في هذا الحقل لمتابعة إرسال البلاغ.</span>
+            </div>
+          </div>
+        </div>
 
         <!-- Section 2: Severity Level -->
         <div class="form-section">
@@ -933,7 +960,7 @@
             </button>
           </div>
           <div class="input-with-icon">
-            <input type="text" id="reportLocationInput" class="custom-input" placeholder="مثال: طريق الإسماعيلية الصحراوي أمام بوابة العاشر" required>
+            <input type="text" id="reportLocationInput" class="custom-input" placeholder="مثال: طريق الإسماعيلية الصحراوي أمام بوابة العاشر">
           </div>
         </div>
 
@@ -996,7 +1023,7 @@
 
         <!-- Submit Button -->
         <div class="form-submit-row">
-          <button type="submit" class="btn-primary-send" id="btnSubmitReport">
+          <button type="button" class="btn-primary-send" id="btnSubmitReport" onclick="handleStudentReportSubmit(event)">
             <span>إرسال البلاغ إلى مسؤولي السلامة بالجامعة</span>
           </button>
         </div>
@@ -1142,7 +1169,7 @@
         const startMinutes = 6 * 60; // 06:00 AM (360)
         const endMinutes = 19 * 60 + 30; // 07:30 PM (1170)
 
-        return true; // Demo 24/7
+        return true; // Demo Mode 24/7
       } catch (e) {
         return true;
       }
@@ -1397,16 +1424,20 @@
     }
 
     async function handleStudentReportSubmit(event) {
-      if (event) event.preventDefault();
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
 
+      console.log("Demo report submit clicked!");
       const submitBtn = document.getElementById('btnSubmitReport');
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>⏳ جارٍ حفظ البلاغ...</span>';
+        submitBtn.innerHTML = '<span>⏳ جارٍ إرسال البلاغ...</span>';
       }
 
-      // Check required inputs
-      const isOtherSelected = selectedViolationCodes.includes('OTHER_VIOLATION');
+      // Check required inputs if 'OTHER_VIOLATION' is selected
+      const isOtherSelected = selectedViolationCodes && selectedViolationCodes.includes('OTHER_VIOLATION');
       const customViolationInput = document.getElementById('customViolationInput');
       const customViolationText = sanitizeInput(customViolationInput ? customViolationInput.value : '', 200);
       const customBox = document.getElementById('customViolationBox');
@@ -1418,39 +1449,44 @@
         if (customViolationInput) {
           customViolationInput.style.borderColor = '#ef4444';
           customViolationInput.focus();
-          customViolationInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        alert("⚠️ تنبيه إجباري: لقد قمت باختيار (أخرى)، يرجى كتابة وتحديد نوع المخالفة في الخانة المخصصة لها أولاً لمتابعة إرسال البلاغ.");
+        alert("⚠️ يرجى كتابة نوع المخالفة في خانة (أخرى) أولاً.");
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لمسؤولي السلامة بالجامعة</span>';
+          submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ إلى مسؤولي السلامة بالجامعة</span>';
         }
         return;
       }
       if (customError) customError.classList.add('hidden');
 
-      // Simulate a small network delay for realism (400ms)
-      await new Promise(r => setTimeout(r, 400));
+      // Realistic micro-delay
+      await new Promise(r => setTimeout(r, 450));
 
-      // Generate a realistic random Ticket ID (e.g. SUT-18, SUT-25)
+      // Generate a realistic random Ticket ID (e.g. SUT-18, SUT-24)
       const randomSeq = Math.floor(12 + Math.random() * 35);
       const ticketId = `SUT-${randomSeq}`;
 
-      // Update and show success modal
       const ticketDisplay = document.getElementById('successTicketId');
       if (ticketDisplay) ticketDisplay.textContent = ticketId;
 
       const modal = document.getElementById('studentSuccessModal');
-      if (modal) modal.classList.remove('hidden');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+      }
 
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ لمسؤولي السلامة بالجامعة</span>';
+        submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ إلى مسؤولي السلامة بالجامعة</span>';
       }
     }
 
     function resetStudentReportForm() {
-      document.getElementById('studentSuccessModal').classList.add('hidden');
+      const modal = document.getElementById('studentSuccessModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
       document.getElementById('reportNotesInput').value = '';
       const customViolationInput = document.getElementById('customViolationInput');
       if (customViolationInput) customViolationInput.value = '';
