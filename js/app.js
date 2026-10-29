@@ -7,7 +7,7 @@
 const AppState = {
   currentView: 'operations-center',
   selectedBusId: '101', // Default: خط العاشر 1
-  selectedViolationCodes: ['PHONE_USAGE'],
+  selectedViolationCodes: [],
   currentIncidents: [...FLEET_DATA.initialIncidents],
   activeFilter: 'ALL',
   searchQuery: '',
@@ -262,9 +262,7 @@ function initStudentViolationsGrid() {
 function toggleViolationCard(code) {
   const idx = AppState.selectedViolationCodes.indexOf(code);
   if (idx > -1) {
-    if (AppState.selectedViolationCodes.length > 1) {
-      AppState.selectedViolationCodes.splice(idx, 1);
-    }
+    AppState.selectedViolationCodes.splice(idx, 1);
   } else {
     AppState.selectedViolationCodes.push(code);
   }
@@ -282,17 +280,19 @@ function toggleViolationCard(code) {
   });
 
   // Suggest severity automatically
-  const firstViolation = FLEET_DATA.violationTypes.find(v => v.code === AppState.selectedViolationCodes[0]);
-  if (firstViolation) {
-    if (firstViolation.defaultSeverity === 'CRITICAL') {
-      const radio = document.getElementById('sevCritical');
-      if (radio) radio.checked = true;
-    } else if (firstViolation.defaultSeverity === 'MEDIUM') {
-      const radio = document.getElementById('sevMedium');
-      if (radio) radio.checked = true;
-    } else {
-      const radio = document.getElementById('sevLow');
-      if (radio) radio.checked = true;
+  if (AppState.selectedViolationCodes.length > 0) {
+    const firstViolation = FLEET_DATA.violationTypes.find(v => v.code === AppState.selectedViolationCodes[0]);
+    if (firstViolation) {
+      if (firstViolation.defaultSeverity === 'CRITICAL') {
+        const radio = document.getElementById('sevCritical');
+        if (radio) radio.checked = true;
+      } else if (firstViolation.defaultSeverity === 'MEDIUM') {
+        const radio = document.getElementById('sevMedium');
+        if (radio) radio.checked = true;
+      } else {
+        const radio = document.getElementById('sevLow');
+        if (radio) radio.checked = true;
+      }
     }
   }
 }
@@ -718,6 +718,16 @@ async function handleStudentReportSubmit(event) {
     submitBtn.innerHTML = '<span>⏳ جاري إرسال البلاغ لغرفة العمليات...</span>';
   }
 
+  // Mandatory validation: check if violation is selected
+  if (!AppState.selectedViolationCodes || AppState.selectedViolationCodes.length === 0) {
+    alert("⚠️ تنبيه إلزامي: يرجى تحديد نوع المخالفة أولاً (أو اختيار 'أخرى') قبل إرسال البلاغ.");
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHTML;
+    }
+    return;
+  }
+
   const bus = FLEET_DATA.buses.find(b => b.id === AppState.selectedBusId) || FLEET_DATA.buses[0];
   const firstViolation = FLEET_DATA.violationTypes.find(v => v.code === AppState.selectedViolationCodes[0]) || FLEET_DATA.violationTypes[0];
   
@@ -820,7 +830,7 @@ function resetStudentReportForm() {
   const form = document.getElementById('studentReportForm');
   if (form) form.reset();
   removeAttachedMedia();
-  AppState.selectedViolationCodes = ['PHONE_USAGE'];
+  AppState.selectedViolationCodes = [];
   initStudentViolationsGrid();
   toggleAnonymousMode(false);
 }

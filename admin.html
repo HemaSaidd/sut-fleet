@@ -332,6 +332,75 @@
       border-radius: 20px;
     }
 
+    .btn-clear-feed {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      padding: 2px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .btn-clear-feed:hover {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #ef4444;
+      transform: translateY(-1px);
+    }
+
+    .btn-card-delete {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 0.76rem;
+      width: 25px;
+      height: 25px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      opacity: 0.7;
+    }
+    .btn-card-delete:hover {
+      color: #ffffff;
+      background: #ef4444;
+      border-color: #ef4444;
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .btn-card-delete-badge {
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-family: inherit;
+    }
+    .btn-card-delete-badge:hover {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #ef4444;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+
     .feed-search-input {
       width: 100%;
       background: rgba(0, 0, 0, 0.35);
@@ -596,6 +665,28 @@
     .btn-ws-call:hover {
       background: #334155;
       color: #ffffff;
+    }
+
+    .btn-ws-delete {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      font-family: inherit;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-ws-delete:hover {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #ef4444;
+      transform: translateY(-1px);
     }
 
     /* Structured Details 2-Column Grid */
@@ -1048,7 +1139,13 @@
               <span>📥</span>
               <span>سجل البلاغات الواردة</span>
             </h2>
-            <span class="stream-count-pill" id="streamCountPill">0 بلاغات</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="stream-count-pill" id="streamCountPill">0 بلاغات</span>
+              <button type="button" class="btn-clear-feed" onclick="handleClearAllTestIncidents()" title="مسح كافة البلاغات التجريبية القديمة">
+                <span>🗑️</span>
+                <span>مسح البلاغات القديمة</span>
+              </button>
+            </div>
           </div>
           <input type="text" 
                  id="incidentSearchInput" 
@@ -1222,7 +1319,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
-  <script src="js/data.js"></script>
-  <script src="js/admin.js"></script>
+  <script src="js/data.js?v=3.5"></script>
+  <script src="js/admin.js?v=3.5"></script>
 </body>
 </html>

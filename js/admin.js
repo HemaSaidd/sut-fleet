@@ -4,6 +4,24 @@
  * تصميم عصري ومنظم وبسيط لإدارة ومتابعة البلاغات
  */
 
+function getDeletedIncidentIds() {
+  try {
+    return JSON.parse(localStorage.getItem('sut_deleted_incident_ids') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function markIncidentDeleted(id) {
+  try {
+    const list = getDeletedIncidentIds();
+    if (!list.includes(id)) {
+      list.push(id);
+      localStorage.setItem('sut_deleted_incident_ids', JSON.stringify(list));
+    }
+  } catch (e) {}
+}
+
 const AppState = {
   selectedIncidentId: null,
   activeFilter: 'ALL',
@@ -11,7 +29,7 @@ const AppState = {
   displayMode: 'split', // 'split' (cards + workspace) or 'table' (full data table)
   audioAlertsEnabled: true,
   audioContext: null,
-  currentIncidents: [...FLEET_DATA.initialIncidents],
+  currentIncidents: FLEET_DATA.initialIncidents.filter(i => !getDeletedIncidentIds().includes(i.id)),
   isLiveConnected: false
 };
 
@@ -21,6 +39,9 @@ let firebaseDb = null;
 // INITIALIZATION ON DOM LOAD
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+  // Ensure deleted items are filtered out
+  const deletedIds = getDeletedIncidentIds();
+  AppState.currentIncidents = AppState.currentIncidents.filter(i => !deletedIds.includes(i.id));
   // Check Admin PIN Auth
   const isAuth = sessionStorage.getItem('sut_admin_authorized') === 'true';
   if (!isAuth) {
@@ -166,9 +187,10 @@ function initFirebaseCloud() {
 
       let isInitialLoad = true;
 
-      // Seed with initial incidents if empty
+      // Seed with initial incidents if empty and not cleared
       firebaseDb.ref('incidents').once('value', snapshot => {
-        if (!snapshot.exists()) {
+        const deletedIds = getDeletedIncidentIds();
+        if (!snapshot.exists() && deletedIds.length === 0) {
           const initialMap = {};
           FLEET_DATA.initialIncidents.forEach(inc => {
             const key = inc.id.replace(/[^a-zA-Z0-9_-]/g, "");
@@ -192,6 +214,8 @@ function initFirebaseCloud() {
       firebaseDb.ref('incidents').on('child_changed', (snap) => {
         const item = snap.val();
         if (item && item.id) {
+          const deletedIds = getDeletedIncidentIds();
+          if (deletedIds.includes(item.id)) return;
           const existing = AppState.currentIncidents.find(i => i.id === item.id);
           if (existing && existing.isoDate === item.isoDate && 
               (existing.status !== item.status || JSON.stringify(existing.actionsTaken || []) !== JSON.stringify(item.actionsTaken || []))) {
@@ -205,6 +229,15 @@ function initFirebaseCloud() {
           }
         }
       });
+
+      // Listen for deleted incidents from other sessions / devices
+      firebaseDb.ref('incidents').on('child_removed', (snap) => {
+        const item = snap.val();
+        const id = (item && item.id) ? item.id : snap.key;
+        if (id) {
+          handleIncomingIncidentDeleted(id);
+        }
+      });
     } catch (e) {
       console.warn("Firebase Init Error:", e);
     }
@@ -212,6 +245,9 @@ function initFirebaseCloud() {
 }
 
 function handleIncomingLiveIncident(incident, isInitialLoad = false) {
+  if (!incident || !incident.id) return;
+  const deletedIds = getDeletedIncidentIds();
+  if (deletedIds.includes(incident.id)) return;
   const existingIdx = AppState.currentIncidents.findIndex(i => i.id === incident.id);
   if (existingIdx > -1) {
     AppState.currentIncidents[existingIdx] = incident;
@@ -271,7 +307,9 @@ function initLocalBackendSync() {
     })
     .then(data => {
       if (data && data.success && Array.isArray(data.incidents)) {
+        const deletedIds = getDeletedIncidentIds();
         data.incidents.forEach(inc => {
+          if (deletedIds.includes(inc.id)) return;
           const idx = AppState.currentIncidents.findIndex(i => i.id === inc.id);
           if (idx === -1) {
             AppState.currentIncidents.push(inc);
@@ -304,6 +342,19 @@ function initLocalBackendSync() {
         try {
           const updateData = JSON.parse(e.data);
           handleIncomingIncidentUpdate(updateData);
+        } catch (err) {}
+      });
+      evtSource.addEventListener('incident_deleted', (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data && data.incidentId) {
+            handleIncomingIncidentDeleted(data.incidentId);
+          }
+        } catch (err) {}
+      });
+      evtSource.addEventListener('all_incidents_cleared', () => {
+        try {
+          handleIncomingAllIncidentsCleared();
         } catch (err) {}
       });
     }
@@ -530,7 +581,15 @@ function renderIncidentsList() {
                 <span class="card-id-tag">#${inc.id}</span>
                 ${sevBadge}
               </div>
-              <span class="card-time">🕒 ${inc.timestamp || 'الآن'}</span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span class="card-time">🕒 ${inc.timestamp || 'الآن'}</span>
+                <button type="button" 
+                        class="btn-card-delete" 
+                        onclick="deleteIncidentPrompt(event, '${inc.id}')" 
+                        title="حذف هذا البلاغ نهائياً">
+                  🗑️
+                </button>
+              </div>
             </div>
 
             <div class="card-title-line">
@@ -543,10 +602,18 @@ function renderIncidentsList() {
             </div>
 
             <div class="card-bottom">
-              <span style="color:#94a3b8; font-size:0.75rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:210px;">
+              <span style="color:#94a3b8; font-size:0.75rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">
                 👤 ${inc.studentName || 'طالب SUT'} ${inc.studentId ? `(${inc.studentId})` : ''}
               </span>
-              <span class="status-pill ${statusClass}">${statusText}</span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span class="status-pill ${statusClass}">${statusText}</span>
+                <button type="button" 
+                        class="btn-card-delete-badge" 
+                        onclick="deleteIncidentPrompt(event, '${inc.id}')" 
+                        title="حذف هذا البلاغ نهائياً">
+                  🗑️ مسح
+                </button>
+              </div>
             </div>
 
           </div>
@@ -617,6 +684,9 @@ function renderIncidentsList() {
                 </button>
                 <button type="button" class="btn-ws-whatsapp" style="padding:4px 8px; font-size:0.75rem;" onclick="sendWhatsAppSupervisorAlert('${inc.id}')">
                   <span>📲 المشرف</span>
+                </button>
+                <button type="button" class="btn-ws-delete" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteIncidentPrompt(event, '${inc.id}')" title="حذف هذا البلاغ">
+                  <span>🗑️ حذف</span>
                 </button>
               </div>
             </td>
@@ -744,6 +814,9 @@ function renderSelectedIncidentDetails(incidentId) {
         <a href="tel:01040772030" class="btn-ws-call">
           <span>📞 اتصال</span>
         </a>
+        <button type="button" class="btn-ws-delete" onclick="deleteIncidentPrompt(event, '${incident.id}')" title="حذف هذا البلاغ نهائياً من النظام">
+          <span>🗑️ حذف البلاغ</span>
+        </button>
       </div>
     </div>
 
@@ -1065,3 +1138,191 @@ function renderMiniViolationsBreakdown() {
     `;
   }).join('');
 }
+
+// ==========================================
+// INCIDENT DELETION LOGIC (SINGLE & BULK)
+// ==========================================
+async function deleteIncidentPrompt(event, incidentId) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  const inc = AppState.currentIncidents.find(i => i.id === incidentId);
+  const title = inc ? inc.violationTitle : incidentId;
+
+  const confirmed = confirm(
+    `🗑️ تأكيد حذف البلاغ نهائياً:\n\n` +
+    `• رقم البلاغ: #${incidentId}\n` +
+    `• المخالفة: ${title}\n\n` +
+    `هل تريد بالتأكيد حذف هذا البلاغ بشكل دائم من سجل البلاغات وقاعدة البيانات؟\n` +
+    `هذا الإجراء لا يمكن التراجع عنه.`
+  );
+
+  if (!confirmed) return;
+
+  await executeDeleteIncident(incidentId);
+}
+
+async function executeDeleteIncident(incidentId) {
+  // 1. Mark in localStorage so it never re-appears
+  markIncidentDeleted(incidentId);
+
+  // 2. Remove from AppState
+  AppState.currentIncidents = AppState.currentIncidents.filter(i => i.id !== incidentId);
+
+  // 3. Remove from Firebase Realtime Database
+  const key = incidentId.replace(/[^a-zA-Z0-9_-]/g, "");
+  if (firebaseDb) {
+    try {
+      await firebaseDb.ref('incidents/' + key).remove();
+    } catch (e) {
+      console.warn("Firebase delete error:", e);
+    }
+  }
+  try {
+    fetch(`https://sut-fleet-default-rtdb.firebaseio.com/incidents/${key}.json`, {
+      method: 'DELETE'
+    }).catch(() => {});
+  } catch (e) {}
+
+  // 4. Delete from local Python backend if active
+  try {
+    fetch(`/api/incidents/${encodeURIComponent(incidentId)}`, {
+      method: 'DELETE'
+    }).catch(() => {});
+    fetch('/api/incidents/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ incidentId: incidentId })
+    }).catch(() => {});
+  } catch (e) {}
+
+  // 5. Update workspace selection if needed
+  if (AppState.selectedIncidentId === incidentId) {
+    if (AppState.currentIncidents.length > 0) {
+      selectIncidentForDetails(AppState.currentIncidents[0].id, false);
+    } else {
+      AppState.selectedIncidentId = null;
+      const emptyState = document.getElementById('emptyWorkspaceState');
+      const content = document.getElementById('activeWorkspaceContent');
+      if (emptyState) emptyState.classList.remove('hidden');
+      if (content) content.classList.add('hidden');
+    }
+  }
+
+  // 6. Refresh UI
+  updateKpiSummary();
+  renderIncidentsList();
+  renderMiniViolationsBreakdown();
+
+  // 7. Feedback toast
+  showAdminActionToast(`تم حذف البلاغ #${incidentId} بنجاح من النظام.`);
+}
+
+async function handleClearAllTestIncidents() {
+  if (!AppState.currentIncidents || AppState.currentIncidents.length === 0) {
+    alert("سجل البلاغات فارغ بالفعل، لا توجد كروت لحذفها.");
+    return;
+  }
+
+  const count = AppState.currentIncidents.length;
+  const confirmed = confirm(
+    `🚨 تحذير: مسح كافة البلاغات (${count} بلاغ)\n\n` +
+    `هل تريد بالتأكيد حذف كافة البلاغات المسجلة حالياً من المنظومة وقاعدة البيانات بالكامل؟\n\n` +
+    `هذا الإجراء سيقوم بمسح كافة الكروت التجريبية نهائياً لتنظيف السجل.`
+  );
+
+  if (!confirmed) return;
+
+  const ids = AppState.currentIncidents.map(i => i.id);
+  ids.forEach(id => markIncidentDeleted(id));
+
+  // Firebase wipe
+  if (firebaseDb) {
+    try {
+      await firebaseDb.ref('incidents').remove();
+    } catch (e) {}
+  }
+  try {
+    fetch('https://sut-fleet-default-rtdb.firebaseio.com/incidents.json', {
+      method: 'DELETE'
+    }).catch(() => {});
+  } catch (e) {}
+
+  // Python server clear
+  try {
+    fetch('/api/incidents/clear-all', {
+      method: 'POST'
+    }).catch(() => {});
+  } catch (e) {}
+
+  AppState.currentIncidents = [];
+  AppState.selectedIncidentId = null;
+
+  const emptyState = document.getElementById('emptyWorkspaceState');
+  const content = document.getElementById('activeWorkspaceContent');
+  if (emptyState) emptyState.classList.remove('hidden');
+  if (content) content.classList.add('hidden');
+
+  updateKpiSummary();
+  renderIncidentsList();
+  renderMiniViolationsBreakdown();
+
+  showAdminActionToast(`تم مسح جميع البلاغات (${count} بلاغ) بنجاح.`);
+}
+
+function handleIncomingIncidentDeleted(incidentId) {
+  markIncidentDeleted(incidentId);
+  const existingIdx = AppState.currentIncidents.findIndex(i => i.id === incidentId || i.id.replace(/[^a-zA-Z0-9_-]/g, "") === incidentId);
+  if (existingIdx > -1) {
+    AppState.currentIncidents.splice(existingIdx, 1);
+    if (AppState.selectedIncidentId === incidentId) {
+      if (AppState.currentIncidents.length > 0) {
+        selectIncidentForDetails(AppState.currentIncidents[0].id, false);
+      } else {
+        AppState.selectedIncidentId = null;
+        const emptyState = document.getElementById('emptyWorkspaceState');
+        const content = document.getElementById('activeWorkspaceContent');
+        if (emptyState) emptyState.classList.remove('hidden');
+        if (content) content.classList.add('hidden');
+      }
+    }
+    updateKpiSummary();
+    renderIncidentsList();
+    renderMiniViolationsBreakdown();
+  }
+}
+
+function handleIncomingAllIncidentsCleared() {
+  AppState.currentIncidents = [];
+  AppState.selectedIncidentId = null;
+  const emptyState = document.getElementById('emptyWorkspaceState');
+  const content = document.getElementById('activeWorkspaceContent');
+  if (emptyState) emptyState.classList.remove('hidden');
+  if (content) content.classList.add('hidden');
+  updateKpiSummary();
+  renderIncidentsList();
+  renderMiniViolationsBreakdown();
+}
+
+function showAdminActionToast(message, icon = '🗑️') {
+  const container = document.getElementById('liveToastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'live-push-toast';
+  toast.innerHTML = `
+    <div class="toast-icon">${icon}</div>
+    <div class="toast-body">
+      <h4 style="margin:0; font-size:0.85rem; color:#fff;">إدارة أسطول السويدي SUT</h4>
+      <p style="margin:2px 0 0 0; font-size:0.78rem; color:#cbd5e1;">${message}</p>
+    </div>
+    <button class="toast-close-btn" onclick="this.parentElement.remove()">✕</button>
+  `;
+  container.prepend(toast);
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    setTimeout(() => toast.remove(), 400);
+  }, 4000);
+}
+

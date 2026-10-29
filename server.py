@@ -429,6 +429,80 @@ class FleetSafetyHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(500, f"Failed to update incident: {str(e)}")
                 return
 
+        # 3. Delete Single Incident via POST
+        if parsed.path == "/api/incidents/delete":
+            try:
+                incident_id = payload.get("incidentId")
+                if not incident_id:
+                    self.send_error(400, "Missing incidentId")
+                    return
+
+                conn = sqlite3.connect(DB_PATH)
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM incidents WHERE id = ?", (incident_id,))
+                conn.commit()
+                conn.close()
+
+                broadcast_sse("incident_deleted", {"incidentId": incident_id})
+
+                response_body = json.dumps({"success": True, "deletedId": incident_id}).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(response_body)))
+                self.end_headers()
+                self.wfile.write(response_body)
+                return
+            except Exception as e:
+                self.send_error(500, f"Failed to delete incident: {str(e)}")
+                return
+
+        # 4. Clear All Incidents via POST
+        if parsed.path == "/api/incidents/clear-all":
+            try:
+                conn = sqlite3.connect(DB_PATH)
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM incidents")
+                conn.commit()
+                conn.close()
+
+                broadcast_sse("all_incidents_cleared", {})
+
+                response_body = json.dumps({"success": True}).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(response_body)))
+                self.end_headers()
+                self.wfile.write(response_body)
+                return
+            except Exception as e:
+                self.send_error(500, f"Failed to clear incidents: {str(e)}")
+                return
+
+        self.send_error(404, "Endpoint not found")
+
+    def do_DELETE(self):
+        parsed = urlparse(self.path)
+        if parsed.path.startswith("/api/incidents/"):
+            try:
+                incident_id = urllib.parse.unquote(parsed.path.split("/")[-1])
+                conn = sqlite3.connect(DB_PATH)
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM incidents WHERE id = ?", (incident_id,))
+                conn.commit()
+                conn.close()
+
+                broadcast_sse("incident_deleted", {"incidentId": incident_id})
+
+                response_body = json.dumps({"success": True, "deletedId": incident_id}).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(response_body)))
+                self.end_headers()
+                self.wfile.write(response_body)
+                return
+            except Exception as e:
+                self.send_error(500, f"Failed to delete incident: {str(e)}")
+                return
         self.send_error(404, "Endpoint not found")
 
 # ==========================================================

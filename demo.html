@@ -906,6 +906,12 @@
             <!-- Populated via JS -->
           </div>
 
+          <!-- Mandatory Validation Error Notice -->
+          <div id="violationSelectionError" class="hidden" style="margin-top: 12px; padding: 11px 16px; background: rgba(239, 68, 68, 0.12); border: 1.5px solid #ef4444; border-radius: 12px; color: #fca5a5; font-size: 0.86rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.1rem;">⚠️</span>
+            <span>تنبيه إلزامي: يرجى تحديد نوع المخالفة التي لاحظتها من الخيارات أعلاه (أو اختيار "أخرى") لمتابعة إرسال البلاغ.</span>
+          </div>
+
           <!-- Custom Violation Box (يفتح تلقائياً عند اختيار "أخرى") -->
           <div id="customViolationBox" class="hidden" style="margin-top: 14px; padding: 14px 16px; background: rgba(239, 68, 68, 0.08); border: 1.5px solid #ef4444; border-radius: 12px; transition: all 0.3s ease;">
             <label for="customViolationInput" style="display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #fca5a5; margin-bottom: 8px;">
@@ -1098,7 +1104,7 @@
   <!-- Dedicated Student Reporting Controller -->
   <script>
     let selectedBusId = '101';
-    let selectedViolationCodes = ['PHONE_USAGE'];
+    let selectedViolationCodes = [];
     let attachedImageData = null;
     let firebaseDb = null;
     let currentKnownSeq = 7;
@@ -1241,11 +1247,20 @@
     function toggleViolationCard(code) {
       const idx = selectedViolationCodes.indexOf(code);
       if (idx > -1) {
-        if (selectedViolationCodes.length > 1) {
-          selectedViolationCodes.splice(idx, 1);
-        }
+        selectedViolationCodes.splice(idx, 1);
       } else {
         selectedViolationCodes.push(code);
+      }
+
+      // Hide validation error when user selects an option
+      const errEl = document.getElementById('violationSelectionError');
+      const grid = document.getElementById('violationsGrid');
+      if (errEl && selectedViolationCodes.length > 0) {
+        errEl.classList.add('hidden');
+      }
+      if (grid && selectedViolationCodes.length > 0) {
+        grid.style.border = 'none';
+        grid.style.padding = '0';
       }
 
       FLEET_DATA.violationTypes.forEach(v => {
@@ -1279,15 +1294,17 @@
         }
       }
 
-      // Suggest severity automatically
-      const first = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]);
-      if (first) {
-        if (first.defaultSeverity === 'CRITICAL') {
-          document.getElementById('sevCritical').checked = true;
-        } else if (first.defaultSeverity === 'MEDIUM') {
-          document.getElementById('sevMedium').checked = true;
-        } else {
-          document.getElementById('sevLow').checked = true;
+      // Suggest severity automatically if option is selected
+      if (selectedViolationCodes.length > 0) {
+        const first = FLEET_DATA.violationTypes.find(v => v.code === selectedViolationCodes[0]);
+        if (first) {
+          if (first.defaultSeverity === 'CRITICAL') {
+            document.getElementById('sevCritical').checked = true;
+          } else if (first.defaultSeverity === 'MEDIUM') {
+            document.getElementById('sevMedium').checked = true;
+          } else {
+            document.getElementById('sevLow').checked = true;
+          }
         }
       }
     }
@@ -1436,6 +1453,25 @@
         submitBtn.innerHTML = '<span>⏳ جارٍ إرسال البلاغ...</span>';
       }
 
+      // MANDATORY CHECK: User must pick at least one violation or "OTHER_VIOLATION"
+      if (!selectedViolationCodes || selectedViolationCodes.length === 0) {
+        const errEl = document.getElementById('violationSelectionError');
+        const grid = document.getElementById('violationsGrid');
+        if (errEl) errEl.classList.remove('hidden');
+        if (grid) {
+          grid.style.border = '2px solid #ef4444';
+          grid.style.borderRadius = '12px';
+          grid.style.padding = '8px';
+          grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        alert("⚠️ تنبيه إلزامي: يرجى تحديد نوع المخالفة التي لاحظتها من الخيارات أعلاه (أو اختيار 'أخرى' وتحديدها) قبل إرسال البلاغ.");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ إلى مسؤولي السلامة بالجامعة</span>';
+        }
+        return;
+      }
+
       // Check required inputs if 'OTHER_VIOLATION' is selected
       const isOtherSelected = selectedViolationCodes && selectedViolationCodes.includes('OTHER_VIOLATION');
       const customViolationInput = document.getElementById('customViolationInput');
@@ -1501,6 +1537,18 @@
       const studentPhoneInput = document.getElementById('studentPhoneInput');
       if (studentPhoneInput) studentPhoneInput.value = '';
       removeAttachedMedia();
+
+      // Reset violation selection to empty
+      selectedViolationCodes = [];
+      initViolationsGrid();
+      const errNotice = document.getElementById('violationSelectionError');
+      if (errNotice) errNotice.classList.add('hidden');
+      const grid = document.getElementById('violationsGrid');
+      if (grid) {
+        grid.style.border = 'none';
+        grid.style.padding = '0';
+      }
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
