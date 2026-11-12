@@ -127,6 +127,27 @@
       font-weight: 700;
     }
 
+    .whatsapp-header-chip {
+      background: #25D366;
+      color: #ffffff;
+      padding: 0.35rem 0.8rem;
+      border-radius: var(--radius-full);
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 12px rgba(37, 211, 102, 0.4);
+      transition: all 0.2s;
+    }
+
+    .whatsapp-header-chip:hover {
+      background: #20ba59;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(37, 211, 102, 0.55);
+    }
+
     .hse-chip {
       background: rgba(220, 38, 38, 0.16);
       color: #fca5a5;
@@ -892,12 +913,12 @@
         </div>
         <div class="corp-title-box">
           <span class="corp-title">مصنع يوتوبيا للأدوية</span>
-          <span class="corp-subtitle">إدارة الحركة والسلامة المهنية (HSE)</span>
+          <span class="corp-subtitle">إدارة السلامة والصحة المهنية (HSE)</span>
         </div>
       </div>
-      <a href="tel:01040772030" class="hse-chip" title="غرفة طوارئ وعمليات أسطول النقل">
-        <span>🚨</span>
-        <span>طوارئ الحركة</span>
+      <a href="https://api.whatsapp.com/send?phone=201095510811&text=السلام%20عليكم%20إدارة%20السلامة%20والصحة%20المهنية%20بمصنع%20يوتوبيا" target="_blank" class="whatsapp-header-chip" title="تواصل عبر واتساب مع إدارة السلامة والصحة المهنية">
+        <span>💬</span>
+        <span>واتساب السلامة</span>
       </a>
     </header>
 
@@ -1027,7 +1048,7 @@
         <div class="section-title-row">
           <span class="section-label">تفاصيل وملاحظات إضافية</span>
         </div>
-        <textarea id="reportNotesInput" class="custom-textarea" rows="3" placeholder="اكتب أي تفاصيل توضيحية تساعد فريق الحركة والسلامة في سرعة التدخل واتخاذ الإجراء..."></textarea>
+        <textarea id="reportNotesInput" class="custom-textarea" rows="3" placeholder="اكتب أي تفاصيل توضيحية تساعد فريق السلامة والصحة المهنية في سرعة التدخل واتخاذ الإجراء..."></textarea>
       </div>
 
       <!-- Attachment Photo / Document -->
@@ -1084,10 +1105,30 @@
         </div>
       </div>
 
+      <!-- HSE WhatsApp & Direct Hotline Card -->
+      <div style="margin-bottom: 1.25rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 0.95rem; text-align: center;">
+        <div style="font-size: 0.82rem; font-weight: 800; color: #fca5a5; margin-bottom: 0.3rem;">
+          إدارة السلامة والصحة المهنية (HSE) - مصنع يوتوبيا للأدوية
+        </div>
+        <p style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 0.65rem;">
+          للحالات الطارئة أو الاستفسار المباشر بخصوص خطوط نقل العاملين
+        </p>
+        <div style="display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap;">
+          <a href="https://api.whatsapp.com/send?phone=201095510811&text=السلام%20عليكم%20إدارة%20السلامة%20والصحة%20المهنية%20بمصنع%20يوتوبيا" target="_blank" style="background: #25D366; color: #fff; text-decoration: none; padding: 6px 15px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 10px rgba(37, 211, 102, 0.35);">
+            <span>💬</span>
+            <span>واتساب: 01095510811</span>
+          </a>
+          <a href="tel:01095510811" style="background: rgba(255, 255, 255, 0.07); color: #fff; text-decoration: none; padding: 6px 15px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-glass);">
+            <span>📞</span>
+            <span>اتصال: 01095510811</span>
+          </a>
+        </div>
+      </div>
+
       <!-- Submit Button -->
       <div class="form-submit-row">
         <button type="button" class="btn-primary-send" id="btnSubmitReport" onclick="submitUtopiaReport()">
-          <span>🚀 إرسال البلاغ لغرفة عمليات الحركة والسلامة (HSE)</span>
+          <span>🚀 إرسال البلاغ لإدارة السلامة والصحة المهنية (HSE)</span>
         </button>
         <p class="safety-pledge-note">
           🔒 البلاغ موجه مباشرة لإدارة السلامة والصحة المهنية بمصنع يوتوبيا للأدوية لضمان سلامة الزملاء وانتظام خطوط الإنتاج.
@@ -1141,9 +1182,15 @@
           </div>
         </div>
 
-        <div style="background: rgba(220, 38, 38, 0.12); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: var(--radius-sm); padding: 0.75rem; margin-bottom: 1.1rem; font-size: 0.76rem; color: #fecaca; text-align: center;">
-          ⚡ تم إشعار مشرف الحركة وإدارة السلامة (HSE) بمصنع يوتوبيا لمتابعة الحافلة فوراً وتأمين انتظام الوردية.
+        <div style="background: rgba(220, 38, 38, 0.12); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: var(--radius-sm); padding: 0.75rem; margin-bottom: 0.85rem; font-size: 0.76rem; color: #fecaca; text-align: center;">
+          ⚡ تم إشعار إدارة السلامة والصحة المهنية (HSE) بمصنع يوتوبيا لمتابعة الحافلة فوراً وتأمين انتظام الوردية.
         </div>
+
+        <!-- Direct WhatsApp Action Button -->
+        <a id="whatsappFollowupBtn" href="https://api.whatsapp.com/send?phone=201095510811&text=السلام%20عليكم%20معي%20بلاغ%20سلامة%20بمصنع%20يوتوبيا" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; background:#25D366; color:#fff; text-decoration:none; padding:0.8rem; border-radius:var(--radius-sm); font-weight:800; font-size:0.88rem; margin-bottom:0.75rem; box-shadow:0 4px 15px rgba(37,211,102,0.35); transition:all 0.2s;">
+          <span>💬</span>
+          <span>متابعة البلاغ عبر واتساب (01095510811)</span>
+        </a>
 
         <button type="button" class="btn-new-report" onclick="resetUtopiaForm()">
           <span>تسجيل بلاغ آخر أو تجربة جديدة</span>
@@ -1158,7 +1205,7 @@
     const UTOPIA_FLEET = {
       companyName: "شركة ومصنع يوتوبيا للصناعات الدوائية",
       plantLocation: "العاشر من رمضان - المنطقة الصناعية",
-      hotlineHSE: "01040772030",
+      hotlineHSE: "01095510811",
       buses: [
         { id: "101", code: "باص 101", lineName: "خط العاشر من رمضان (الأردنية / الموقف الجديد)", vendor: "أسطول يوتوبيا لنقل العاملين" },
         { id: "102", code: "باص 102", lineName: "خط بلبيس ومشتول السوق", vendor: "أسطول يوتوبيا لنقل العاملين" },
@@ -1362,6 +1409,9 @@
 
         // Populate Success Card
         document.getElementById("successTicketId").textContent = ticketId;
+        const waMsg = encodeURIComponent(`السلام عليكم، تم تسجيل بلاغ سلامة بمصنع يوتوبيا برقم تذكرة: ${ticketId} - على ${bus.lineName} (${violationTitle})`);
+        const waBtn = document.getElementById("whatsappFollowupBtn");
+        if (waBtn) waBtn.href = `https://api.whatsapp.com/send?phone=201095510811&text=${waMsg}`;
         document.getElementById("summaryBusLine").textContent = bus.lineName;
         document.getElementById("summaryShift").textContent = shift.split(" (")[0];
         document.getElementById("summaryViolation").textContent = violationTitle;
@@ -1373,7 +1423,7 @@
         document.getElementById("utopiaSuccessModal").classList.remove("hidden");
 
         btn.disabled = false;
-        btn.innerHTML = '<span>🚀 إرسال البلاغ لغرفة عمليات الحركة والسلامة (HSE)</span>';
+        btn.innerHTML = '<span>🚀 إرسال البلاغ لإدارة السلامة والصحة المهنية (HSE)</span>';
       }, 500);
     }
 
