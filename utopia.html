@@ -1412,6 +1412,40 @@
         const sev = document.querySelector('input[name="severityLevel"]:checked')?.value || "CRITICAL";
         document.getElementById("summarySeverity").textContent = sev === "CRITICAL" ? "حالة حرجة (HSE Emergency)" : (sev === "MEDIUM" ? "متوسطة" : "ملاحظة عامة");
 
+        // Sync new report to Utopia Control Room in realtime
+        const newIncidentObj = {
+          id: ticketId,
+          lineName: bus.lineName,
+          busCode: bus.code,
+          shift: shift,
+          violation: violationTitle,
+          icon: UTOPIA_FLEET.violations.find(v => v.code === selectedViolationCodes[0])?.icon || "⚠️",
+          severity: sev,
+          location: document.getElementById("reportLocationInput").value || "طريق العاشر من رمضان",
+          notes: notes || "تم رفع البلاغ من الموظف لغرفة عمليات السلامة.",
+          employeeName: empName,
+          employeeId: isAnon ? "محمي وسري" : (document.getElementById("employeeIdInput").value || "غير مسجل"),
+          employeePhone: isAnon ? "غير مسجل" : (document.getElementById("employeePhoneInput").value || "غير مسجل"),
+          status: "جديد (لايف)",
+          time: "الآن (منذ لحظات)"
+        };
+
+        try {
+          const syncChan = new BroadcastChannel('utopia_fleet_sync');
+          syncChan.postMessage({ incident: newIncidentObj });
+          const stored = JSON.parse(localStorage.getItem('utopia_reports_list') || '[]');
+          stored.unshift(newIncidentObj);
+          localStorage.setItem('utopia_reports_list', JSON.stringify(stored.slice(0, 30)));
+        } catch (e) {}
+
+        try {
+          fetch(`https://sut-fleet-default-rtdb.firebaseio.com/utopia_incidents/${ticketId}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newIncidentObj)
+          }).catch(() => {});
+        } catch (e) {}
+
         // Show Success Modal
         document.getElementById("utopiaSuccessModal").classList.remove("hidden");
 
