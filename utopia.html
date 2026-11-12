@@ -950,25 +950,18 @@
         </button>
       </div>
 
-      <!-- Factory Specific: Shift & Department -->
-      <div class="factory-grid-row">
-        <div class="select-card">
-          <label><span>🕒</span> الوردية المستهدفة:</label>
+      <!-- Shift Selection Only -->
+      <div style="margin-bottom: 1.2rem;">
+        <div class="select-card" style="width: 100%;">
+          <label style="font-size: 0.8rem; font-weight: 800; color: #fca5a5; display: flex; align-items: center; gap: 6px; margin-bottom: 0.45rem;">
+            <span>🕒</span>
+            <span>الوردية المستهدفة للحافلة:</span>
+          </label>
           <select class="factory-select" id="shiftSelect">
             <option value="وردية أولى (صباحية 8 ص - 4 م)">الوردية الأولى (صباحية: 8 ص - 4 م)</option>
             <option value="وردية ثانية (مسائية 4 م - 12 ص)">الوردية الثانية (مسائية: 4 م - 12 ص)</option>
             <option value="وردية ثالثة (ليلية 12 ص - 8 ص)">الوردية الثالثة (ليلية: 12 ص - 8 ص)</option>
             <option value="الوردية الإدارية / يوم كامل">الوردية الإدارية (Day Shift)</option>
-          </select>
-        </div>
-        <div class="select-card">
-          <label><span>🏭</span> قطاع العمل / الإدارة:</label>
-          <select class="factory-select" id="deptSelect">
-            <option value="قطاع الإنتاج والتصنيع الدوائي">الإنتاج الدوائي (Production)</option>
-            <option value="رقابة وتوكيد الجودة (QC / QA)">الجودة والرقابة (QA / QC)</option>
-            <option value="المخازن واللوجستيات">المخازن وسلاسل الإمداد</option>
-            <option value="القطاع الهندسي والصيانة">الصيانة والخدمات الهندسية</option>
-            <option value="الإدارة العامة والموارد البشرية">الإدارة العامة والمبيعات</option>
           </select>
         </div>
       </div>
@@ -1391,7 +1384,7 @@
       setTimeout(() => {
         const bus = UTOPIA_FLEET.buses.find(b => b.id === selectedBusId) || UTOPIA_FLEET.buses[0];
         const shift = document.getElementById("shiftSelect").value;
-        const dept = document.getElementById("deptSelect").value;
+        
         const notes = document.getElementById("reportNotesInput").value;
         const isAnon = document.getElementById("anonToggle").checked;
         const empName = isAnon ? "موظف بمصنع يوتوبيا (هوية سرية)" : (document.getElementById("employeeNameInput").value || "زميل بالعمل");
