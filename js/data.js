@@ -13,6 +13,9 @@ const FLEET_DATA = {
     hotline: "01040772030 (إدارة النقل - واتساب ومكالمات)",
     officeTransport: "مكتب إدارة النقل - غرفة رقم 039 (الدور الأرضي)",
     officeSafety: "مكتب السلامة والصحة المهنية (السيفتي) بالجامعة - الدور الأول (غرفة رقم 112)",
+    emailTransport: "transportation@sut.edu.eg",
+    emailSafety: "Hse@sut.edu.eg",
+    emailWebhookUrl: "",
     campusLocation: "طريق مصر الإسماعيلية الصحراوي - العاشر من رمضان",
     defaultHost: (typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file')) 
       ? window.location.origin 

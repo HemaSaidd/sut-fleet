@@ -874,20 +874,26 @@
     <!-- Main Form Scroll Area -->
     <div class="form-scroll-body">
 
-      <!-- Bus Identification Banner (Auto-detected via QR) -->
-      <div class="bus-detected-card" id="busDetectedCard">
-        <div class="card-icon">🚌</div>
+      <!-- Bus Identification Banner (Auto-detected via QR or selected manually) -->
+      <div class="bus-detected-card" id="busDetectedCard" onclick="openBusSelectorModal()" style="cursor: pointer;" title="اضغط لاختيار أو تغيير خط السير">
+        <div class="card-icon" id="busCardIcon">🚌</div>
         <div class="card-details">
           <div class="bus-header-row">
             <span class="line-badge-lg" id="studentBusLine">خط العاشر من رمضان 1</span>
           </div>
           <div class="bus-meta-row">
-            <span class="meta-item">الشركة المشغلة: <strong id="studentBusVendor">شركة النقل</strong></span>
+            <span class="meta-item" id="studentBusVendor">الشركة المشغلة: <strong>شركة النقل</strong></span>
           </div>
         </div>
-        <button type="button" class="change-bus-btn" onclick="openBusSelectorModal()" title="تغيير خط السير">
-          <span>تغيير الخط</span>
+        <button type="button" class="change-bus-btn" onclick="event.stopPropagation(); openBusSelectorModal()" title="تغيير خط السير">
+          <span id="changeBusBtnText">تغيير الخط</span>
         </button>
+      </div>
+
+      <!-- Bus Selection Mandatory Validation Error Notice -->
+      <div id="busSelectionError" class="hidden" style="margin-top: -6px; margin-bottom: 14px; padding: 11px 16px; background: rgba(239, 68, 68, 0.12); border: 1.5px solid #ef4444; border-radius: 12px; color: #fca5a5; font-size: 0.86rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 1.1rem;">⚠️</span>
+        <span>تنبيه إلزامي: يرجى تحديد خط الأتوبيس الذي تستقله أولاً لمتابعة إرسال البلاغ.</span>
       </div>
 
       <!-- Operating Hours Notice (Active 6:00 AM - 7:30 PM Cairo Time) -->
@@ -1057,8 +1063,13 @@
   <div class="modal-backdrop hidden" id="busSelectorModal">
     <div class="modal-box">
       <div class="modal-head">
-        <h3>🚌 اختر خط السير</h3>
+        <h3>🚌 حدد خط الأتوبيس الذي تستقله</h3>
         <button type="button" class="modal-close-btn" onclick="closeBusSelectorModal()">✕</button>
+      </div>
+      <div style="padding: 0 0 10px 0;">
+        <input type="text" id="modalBusSearchInput" placeholder="🔍 اكتب اسم الخط أو المنطقة (مثال: العاشر، التجمع، مدينة نصر...)" 
+               oninput="filterModalBuses(this.value)"
+               style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(59, 130, 246, 0.4); border-radius: 10px; color: #fff; font-size: 0.88rem; font-family: inherit; outline: none; box-sizing: border-box;">
       </div>
       <div class="buses-select-list" id="modalBusesList">
         <!-- Populated via JS -->
@@ -1103,7 +1114,7 @@
 
   <!-- Dedicated Student Reporting Controller -->
   <script>
-    let selectedBusId = '101';
+    let selectedBusId = null;
     let selectedViolationCodes = [];
     let attachedImageData = null;
     let firebaseDb = null;
@@ -1156,29 +1167,7 @@
     }
 
     function isSutOperatingHours() {
-      try {
-        const now = new Date();
-        const parts = new Intl.DateTimeFormat('en-US', {
-          timeZone: 'Africa/Cairo',
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: false
-        }).formatToParts(now);
-
-        let hour = 12, minute = 0;
-        parts.forEach(p => {
-          if (p.type === 'hour') hour = parseInt(p.value, 10);
-          if (p.type === 'minute') minute = parseInt(p.value, 10);
-        });
-
-        const totalMinutes = hour * 60 + minute;
-        const startMinutes = 6 * 60; // 06:00 AM (360)
-        const endMinutes = 19 * 60 + 30; // 07:30 PM (1170)
-
-        return true; // Demo Mode 24/7
-      } catch (e) {
-        return true;
-      }
+      return true; // Demo Mode 24/7
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1187,6 +1176,12 @@
       const busParam = urlParams.get('bus');
       if (busParam && FLEET_DATA.buses.some(b => b.id === busParam)) {
         selectedBusId = busParam;
+      } else {
+        selectedBusId = null;
+        // Prompt user immediately to select line if opened directly without a bus param
+        setTimeout(() => {
+          openBusSelectorModal();
+        }, 400);
       }
 
       // 2. Check operating schedule (6:00 AM - 7:30 PM Cairo Time)
@@ -1207,11 +1202,51 @@
     });
 
     function updateBusHeader() {
-      const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
       const lineEl = document.getElementById('studentBusLine');
       const vendorEl = document.getElementById('studentBusVendor');
-      if (lineEl) lineEl.textContent = bus.lineName;
-      if (vendorEl) vendorEl.textContent = "شركة النقل";
+      const busCard = document.getElementById('busDetectedCard');
+      const changeBtnText = document.getElementById('changeBusBtnText');
+      const busIconEl = document.getElementById('busCardIcon');
+
+      if (!selectedBusId) {
+        if (lineEl) {
+          lineEl.textContent = "⚠️ اضغط هنا لتحديد خط الأتوبيس (إلزامي)";
+          lineEl.style.color = "#fca5a5";
+        }
+        if (vendorEl) {
+          vendorEl.innerHTML = '<span style="color:#f87171; font-weight:700;">لم يتم تحديد الخط بعد • يرجى الضغط للاختيار</span>';
+        }
+        if (changeBtnText) {
+          changeBtnText.textContent = "اختر الخط الآن ←";
+        }
+        if (busIconEl) {
+          busIconEl.textContent = "📍";
+        }
+        if (busCard) {
+          busCard.style.borderColor = "rgba(239, 68, 68, 0.45)";
+          busCard.style.background = "linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.95))";
+        }
+      } else {
+        const bus = FLEET_DATA.buses.find(b => b.id === selectedBusId) || FLEET_DATA.buses[0];
+        if (lineEl) {
+          lineEl.textContent = bus.lineName;
+          lineEl.style.color = "";
+        }
+        if (vendorEl) {
+          vendorEl.innerHTML = 'الشركة المشغلة: <strong>شركة النقل</strong> <span style="display:inline-block; margin-right:6px; color:#4ade80; font-size:0.75rem; font-weight:700;">✓ تم تحديد الخط</span>';
+        }
+        if (changeBtnText) {
+          changeBtnText.textContent = "تغيير الخط";
+        }
+        if (busIconEl) {
+          busIconEl.textContent = "🚌";
+        }
+        if (busCard) {
+          busCard.style.borderColor = "rgba(59, 130, 246, 0.3)";
+          busCard.style.background = "";
+          busCard.style.boxShadow = "";
+        }
+      }
     }
 
     function initViolationsGrid() {
@@ -1411,7 +1446,15 @@
 
     function openBusSelectorModal() {
       const modal = document.getElementById('busSelectorModal');
-      if (modal) modal.classList.remove('hidden');
+      if (modal) {
+        modal.classList.remove('hidden');
+        populateBusesListModal();
+        const searchInp = document.getElementById('modalBusSearchInput');
+        if (searchInp) {
+          searchInp.value = '';
+          setTimeout(() => searchInp.focus(), 150);
+        }
+      }
     }
 
     function closeBusSelectorModal() {
@@ -1423,21 +1466,49 @@
       selectedBusId = busId;
       updateBusHeader();
       closeBusSelectorModal();
+
+      const busErr = document.getElementById('busSelectionError');
+      const busCard = document.getElementById('busDetectedCard');
+      if (busErr) busErr.classList.add('hidden');
+      if (busCard) {
+        busCard.style.border = '';
+        busCard.style.boxShadow = '';
+      }
     }
 
-    function populateBusesListModal() {
+    function populateBusesListModal(filterText = '') {
       const list = document.getElementById('modalBusesList');
       if (!list) return;
 
-      list.innerHTML = FLEET_DATA.buses.map(b => `
-        <div class="bus-option-item" onclick="selectBusFromModal('${b.id}')">
-          <div>
-            <strong>${b.lineName}</strong>
-            <p style="font-size:0.7rem; color:#94a3b8">شركة النقل المعتمدة</p>
+      const filtered = FLEET_DATA.buses.filter(b => {
+        if (!filterText) return true;
+        const q = filterText.trim().toLowerCase();
+        return b.lineName.toLowerCase().includes(q) || (b.numberPlate && b.numberPlate.toLowerCase().includes(q));
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div style="text-align:center; padding:24px 10px; color:#94a3b8; font-size:0.88rem;">❌ لا توجد خطوط مطابقة للبحث</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(b => {
+        const isSelected = selectedBusId === b.id;
+        return `
+          <div class="bus-option-item ${isSelected ? 'selected' : ''}" onclick="selectBusFromModal('${b.id}')" style="${isSelected ? 'background: rgba(59, 130, 246, 0.25); border-color: #3b82f6;' : ''}">
+            <div>
+              <strong style="color: ${isSelected ? '#60a5fa' : '#fff'}; font-size: 0.95rem;">${b.lineName}</strong>
+              <p style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">${b.numberPlate || 'شركة النقل المعتمدة'}</p>
+            </div>
+            <span style="font-size:0.82rem; font-weight:700; color:${isSelected ? '#4ade80' : '#60a5fa'}">
+              ${isSelected ? '✓ الخط الحالي' : 'اختيار هذا الخط ←'}
+            </span>
           </div>
-          <span style="font-size:0.8rem; color:#60a5fa">اختيار هذا الخط ←</span>
-        </div>
-      `).join('');
+        `;
+      }).join('');
+    }
+
+    function filterModalBuses(val) {
+      populateBusesListModal(val);
     }
 
     async function handleStudentReportSubmit(event) {
@@ -1453,7 +1524,26 @@
         submitBtn.innerHTML = '<span>⏳ جارٍ إرسال البلاغ...</span>';
       }
 
-      // MANDATORY CHECK: User must pick at least one violation or "OTHER_VIOLATION"
+      // MANDATORY CHECK 1: User must select a bus line
+      if (!selectedBusId) {
+        const busErr = document.getElementById('busSelectionError');
+        const busCard = document.getElementById('busDetectedCard');
+        if (busErr) busErr.classList.remove('hidden');
+        if (busCard) {
+          busCard.style.border = '2px solid #ef4444';
+          busCard.style.boxShadow = '0 0 18px rgba(239, 68, 68, 0.45)';
+          busCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        alert("⚠️ تنبيه إلزامي:\n\nيرجى تحديد خط الأتوبيس الذي تستقله أولاً قبل إرسال البلاغ لضمان توجيهه لمسؤولي الخط وإدارة النقل.");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span class="send-icon">🚀</span><span>إرسال البلاغ إلى مسؤولي السلامة بالجامعة</span>';
+        }
+        openBusSelectorModal();
+        return;
+      }
+
+      // MANDATORY CHECK 2: User must pick at least one violation or "OTHER_VIOLATION"
       if (!selectedViolationCodes || selectedViolationCodes.length === 0) {
         const errEl = document.getElementById('violationSelectionError');
         const grid = document.getElementById('violationsGrid');

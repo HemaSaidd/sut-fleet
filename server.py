@@ -66,6 +66,54 @@ def cleanup_tunnel():
     pass
 
 # ==========================================================
+# AUTOMATED EMAIL DISPATCHER (HSE & TRANSPORTATION)
+# ==========================================================
+def send_email_alerts(incident):
+    """Background email alert dispatcher sending to Hse@sut.edu.eg & transportation@sut.edu.eg"""
+    def _worker():
+        try:
+            import urllib.request
+            payload = {
+                "_subject": f"🚨 [بلاغ سلامة جامعة السويدي] تذكرة {incident.get('id', '')} - خط {incident.get('lineName', '')} ({incident.get('violationTitle', '')})",
+                "_captcha": "false",
+                "_template": "table",
+                "_cc": "transportation@sut.edu.eg",
+                "تذكرة رقم": incident.get("id", ""),
+                "الخط": incident.get("lineName", ""),
+                "الشركة المشغلة": incident.get("vendorName", "شركة أبو الهول لنقل الركاب"),
+                "نوع المخالفة": incident.get("violationTitle", ""),
+                "تفاصيل مخالفة أخرى (المحددة من الطالب)": incident.get("customViolationDetails") or "لا يوجد",
+                "درجة الخطورة": "حالة حرجة (تدخل عاجل)" if incident.get("severity") == "CRITICAL" else ("متوسطة" if incident.get("severity") == "MEDIUM" else "عامة"),
+                "موقع البلاغ": incident.get("location", ""),
+                "ملاحظات الطالب": incident.get("notes", ""),
+                "اسم مقدم البلاغ": incident.get("studentName", ""),
+                "الرقم الجامعي / كود الطالب (ID)": incident.get("studentId") or ("مجهول الهوية (سري)" if incident.get("isAnonymous") else "غير مسجل"),
+                "رقم الهاتف": incident.get("studentPhone") or "غير مسجل",
+                "تاريخ وتوقيت البلاغ": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+                "بيانات التواصل والمتابعة": "هاتف أو واتساب إدارة النقل: 01040772030 | غرفة رقم 039 بالدور الأرضي | مكتب السلامة والصحة المهنية غرفة رقم 112"
+            }
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Origin": "https://fleett-sut.vercel.app",
+                "Referer": "https://fleett-sut.vercel.app/"
+            }
+            data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+            for target_email in ["Hse@sut.edu.eg", "transportation@sut.edu.eg"]:
+                try:
+                    req = urllib.request.Request(f"https://formsubmit.co/ajax/{target_email}", data=data, headers=headers)
+                    with urllib.request.urlopen(req, timeout=12) as resp:
+                        res_text = resp.read().decode("utf-8")
+                        print(f"  📧 [إشعار بريدي] تم إرسال البلاغ إلى {target_email} -> {res_text[:90]}")
+                except Exception as ex:
+                    print(f"  ⚠️ [تنبيه إرسال الإيميل] {target_email}: {ex}")
+        except Exception as e:
+            print(f"  ⚠️ [خطأ في تجهيز الإيميل]: {e}")
+
+    threading.Thread(target=_worker, daemon=True).start()
+
+# ==========================================================
 # DATABASE INITIALIZATION & MIGRATION
 # ==========================================================
 def init_db():
@@ -296,6 +344,10 @@ class FleetSafetyHandler(http.server.SimpleHTTPRequestHandler):
             self.path = "/admin.html"
             if parsed.query:
                 self.path += "?" + parsed.query
+        elif parsed.path == "/utopia":
+            self.path = "/utopia.html"
+            if parsed.query:
+                self.path += "?" + parsed.query
 
         # Default: Serve static HTML, CSS, JS files
         super().do_GET()
@@ -364,6 +416,9 @@ class FleetSafetyHandler(http.server.SimpleHTTPRequestHandler):
 
                 # Broadcast immediately to all connected admin dashboards!
                 broadcast_sse("new_incident", incident_obj)
+
+                # Automatic server-side email dispatch to SUT safety and transport teams
+                send_email_alerts(incident_obj)
 
                 response_body = json.dumps({"success": True, "ticketId": ticket_id}).encode("utf-8")
                 self.send_response(201)
