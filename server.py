@@ -352,6 +352,10 @@ class FleetSafetyHandler(http.server.SimpleHTTPRequestHandler):
             self.path = "/utopia-admin.html"
             if parsed.query:
                 self.path += "?" + parsed.query
+        elif parsed.path == "/utopia-qr":
+            self.path = "/utopia-qr.html"
+            if parsed.query:
+                self.path += "?" + parsed.query
 
         # Default: Serve static HTML, CSS, JS files
         super().do_GET()

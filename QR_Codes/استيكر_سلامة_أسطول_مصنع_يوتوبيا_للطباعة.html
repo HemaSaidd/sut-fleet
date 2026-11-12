@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استيكر السلامة الرسمي لحافلات مصنع يوتوبيا للأدوية (Utopia Fleet QR Sticker)</title>
+  <meta name="theme-color" content="#dc2626">
+
+  <!-- Google Fonts: Cairo & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #dc2626;
+      --navy: #0f172a;
+      --card-bg: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      background: #0b1120;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    .print-actions {
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .btn-print {
+      background: #dc2626;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-print:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+    }
+
+    .btn-download {
+      background: #10b981;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-download:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+
+    .btn-live-form {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-live-form:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    /* The Official Printable Sticker Sheet */
+    .sticker-sheet {
+      width: 100%;
+      max-width: 580px;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 24px;
+      padding: 2.2rem;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+      border: 4px solid #dc2626;
+      text-align: center;
+      position: relative;
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #fee2e2;
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-img {
+      height: 48px;
+      max-width: 175px;
+      object-fit: contain;
+    }
+
+    .dept-title {
+      text-align: left;
+    }
+
+    .dept-title h2 {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #991b1b;
+      line-height: 1.2;
+    }
+
+    .dept-title p {
+      font-size: 0.76rem;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .cta-banner {
+      background: #fef2f2;
+      border: 1.5px solid #fecaca;
+      border-radius: 14px;
+      padding: 0.95rem 1.1rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .cta-banner h3 {
+      font-size: 1.2rem;
+      color: #b91c1c;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .cta-banner p {
+      font-size: 0.85rem;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .qr-container {
+      background: #f8fafc;
+      border: 2.5px dashed #cbd5e1;
+      border-radius: 20px;
+      padding: 1.4rem;
+      display: inline-block;
+      margin-bottom: 1.3rem;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .qr-img {
+      width: 260px;
+      height: 260px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .scan-hint {
+      font-size: 0.96rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .reassure-box {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border: 1.5px solid #86efac;
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+
+    .reassure-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #16a34a;
+      color: #ffffff;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      margin-bottom: 6px;
+    }
+
+    .reassure-text {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #14532d;
+      margin-bottom: 4px;
+      line-height: 1.5;
+    }
+
+    .reassure-sub {
+      font-size: 0.8rem;
+      color: #15803d;
+      font-weight: 700;
+    }
+
+    .footer-support {
+      border-top: 2px dashed #e2e8f0;
+      padding-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .hotline-pill {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Print Specific Media Styles */
+    @media print {
+      body {
+        background: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .print-actions {
+        display: none !important;
+      }
+      .sticker-sheet {
+        box-shadow: none !important;
+        border: 3.5px solid #dc2626 !important;
+        margin: 0 auto !important;
+        page-break-inside: avoid;
+        max-width: 100% !important;
+        width: 170mm !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 15mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Controls (Hidden on Print) -->
+  <div class="print-actions">
+    <button class="btn btn-print" onclick="window.print()">
+      <span>🖨️ طباعة الاستيكر (Print A4)</span>
+    </button>
+    <a href="assets/utopia_qr.png" download="باركود_حافلات_مصنع_يوتوبيا.png" class="btn btn-download">
+      <span>💾 تحميل الباركود كصورة PNG</span>
+    </a>
+    <a href="utopia.html" target="_blank" class="btn btn-live-form">
+      <span>📱 تجربة فتح الرابط المباشر</span>
+    </a>
+  </div>
+
+  <!-- The Official Sticker Body -->
+  <div class="sticker-sheet">
+
+    <!-- Header with Utopia Logo -->
+    <div class="sheet-header">
+      <img src="assets/utopia_logo.png" alt="Utopia Pharmaceuticals" class="logo-img">
+      <div class="dept-title">
+        <h2>مصنع يوتوبيا للأدوية</h2>
+        <p>إدارة السلامة والصحة المهنية (HSE)</p>
+      </div>
+    </div>
+
+    <!-- Call to action headline -->
+    <div class="cta-banner">
+      <h3>سلامتك وسلامة زملائك أولويتنا الدائمة</h3>
+      <p>منظومة الرقابة التشاركية على أسطول نقل العاملين بمصنع العاشر من رمضان</p>
+    </div>
+
+    <!-- Central QR Container -->
+    <div class="qr-container">
+      <img src="assets/utopia_qr.png" alt="امسح الباركود للإبلاغ" class="qr-img">
+      <div class="scan-hint">
+        <span>📷</span>
+        <span>وجّه كاميرا هاتفك نحو الباركود لفتح استمارة البلاغ</span>
+      </div>
+    </div>
+
+    <!-- Reassurance Banner -->
+    <div class="reassure-box">
+      <div class="reassure-badge">
+        <span>🛡️</span>
+        <span>سرية تامة ومحمية 100%</span>
+      </div>
+      <div class="reassure-text">
+        يمكنك تقديم البلاغ بهوية سرية (بدون اسم) لحمايتك الكاملة.
+      </div>
+      <div class="reassure-sub">
+        البلاغ يوجه مباشرة لمسؤولي السلامة بالمصنع لاتخاذ الإجراء الفوري مع السائق.
+      </div>
+    </div>
+
+    <!-- Footer Support Details -->
+    <div class="footer-support">
+      <div>
+        <span>نقل العاملين • مصنع يوتوبيا</span>
+      </div>
+      <div class="hotline-pill">
+        <span>📞</span>
+        <span>واتساب / طوارئ السلامة: 01095510811</span>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

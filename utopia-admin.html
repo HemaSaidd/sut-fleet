@@ -472,6 +472,27 @@
       font-size: 0.7rem;
       font-weight: 800;
     }
+    /* Modal Styles for PIN Passcode */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(10, 14, 23, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      z-index: 999;
+    }
+
+    .modal-backdrop.hidden {
+      display: none !important;
+    }
+
+    .hidden {
+      display: none !important;
+    }
   </style>
   <!-- Firebase Realtime Cloud SDKs for Sub-second Realtime Push -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -604,6 +625,7 @@
     let selectedTicketId = null;
 
     document.addEventListener("DOMContentLoaded", () => {
+      checkAdminAuth();
       // 1. Initial render empty state
       renderIncidentsList();
       renderIncidentDetails(null);
@@ -653,6 +675,40 @@
       fetchLiveFirebaseReports();
       setInterval(fetchLiveFirebaseReports, 3000);
     });
+
+        function handleAdminPinSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById("adminPinInput");
+      const err = document.getElementById("pinErrorMessage");
+      if (input && input.value.trim() === "1234") {
+        sessionStorage.setItem("utopia_admin_authorized", "true");
+        document.getElementById("adminPinModal").classList.add("hidden");
+        if (err) err.style.display = "none";
+      } else {
+        if (err) err.style.display = "block";
+        if (input) {
+          input.style.borderColor = "#ef4444";
+          input.value = "";
+          input.focus();
+        }
+      }
+    }
+
+    function checkAdminAuth() {
+      const isAuth = sessionStorage.getItem("utopia_admin_authorized") === "true";
+      const modal = document.getElementById("adminPinModal");
+      if (modal) {
+        if (isAuth) {
+          modal.classList.add("hidden");
+        } else {
+          modal.classList.remove("hidden");
+          setTimeout(() => {
+            const inp = document.getElementById("adminPinInput");
+            if (inp) inp.focus();
+          }, 200);
+        }
+      }
+    }
 
     function fetchLiveFirebaseReports() {
       fetch('https://sut-fleet-default-rtdb.firebaseio.com/utopia_incidents.json')
@@ -913,6 +969,43 @@
       } catch (e) {}
     }
   </script>
+  <!-- MODAL: Admin PIN Passcode Protection (Password: 1234) -->
+  <div class="modal-backdrop" id="adminPinModal">
+    <div style="width: 100%; max-width: 440px; background: #111827; border: 1.5px solid rgba(220, 38, 38, 0.4); border-radius: var(--radius-lg); padding: 2rem 1.75rem; text-align: center; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85); animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+      
+      <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(220, 38, 38, 0.15); border: 1.5px solid var(--accent-utopia); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin: 0 auto 1.1rem; color: #f87171;">
+        🔒
+      </div>
+      
+      <h3 style="font-size: 1.18rem; font-weight: 800; color: #fff; margin-bottom: 0.35rem;">
+        تسجيل الدخول - إدارة السلامة (HSE)
+      </h3>
+      <p style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 1.35rem; line-height: 1.4;">
+        هذه الشاشة مخصصة لمسؤولي إدارة السلامة والصحة المهنية بمصنع يوتوبيا للأدوية.
+      </p>
+
+      <form onsubmit="handleAdminPinSubmit(event)">
+        <div style="margin-bottom: 1.1rem; text-align: right;">
+          <label for="adminPinInput" style="font-size: 0.78rem; font-weight: 700; color: #fca5a5; display: block; margin-bottom: 0.45rem;">
+            أدخل رمز المرور السري (Admin PIN):
+          </label>
+          <input type="password" id="adminPinInput" style="width: 100%; padding: 0.85rem 1rem; background: #0a0e17; border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: var(--radius-sm); color: #fff; font-size: 1.2rem; font-family: 'Outfit', sans-serif; letter-spacing: 5px; text-align: center; outline: none;" placeholder="••••" maxlength="10" required autofocus autocomplete="off">
+          <div id="pinErrorMessage" style="color: #ef4444; font-size: 0.76rem; font-weight: 700; margin-top: 0.45rem; display: none;">
+            ⚠️ رمز المرور غير صحيح! يرجى مراجعة إدارة السلامة.
+          </div>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 0.85rem; background: var(--accent-utopia); color: #fff; border: none; border-radius: var(--radius-sm); font-family: var(--font-arabic); font-size: 0.95rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 18px rgba(220, 38, 38, 0.45); transition: all 0.2s; margin-bottom: 1.1rem;">
+          دخول شاشة العمليات
+        </button>
+
+        <div style="background: rgba(220, 38, 38, 0.1); border: 1px dashed rgba(220, 38, 38, 0.35); border-radius: var(--radius-sm); padding: 0.7rem; font-size: 0.84rem; color: #fca5a5;">
+          💡 رمز الدخول المصرح به لإدارة السلامة (HSE): <strong style="color: #fff; font-family: 'Outfit', sans-serif; font-size: 1.05rem; letter-spacing: 2px;">1234</strong>
+        </div>
+      </form>
+    </div>
+  </div>
+
 </body>
 </html>
 
