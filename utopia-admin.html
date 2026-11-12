@@ -403,7 +403,79 @@
       color: var(--text-muted);
       font-size: 0.88rem;
     }
+    .btn-action-delete {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      padding: 0.7rem 1rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-arabic);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-action-delete:hover {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .btn-action-close {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 0.7rem 1rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-arabic);
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-action-close:hover {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .btn-action-reopen {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 0.7rem 1rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-arabic);
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .badge-resolved {
+      background: rgba(16, 185, 129, 0.2) !important;
+      color: #34d399 !important;
+      border: 1px solid rgba(16, 185, 129, 0.4) !important;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
   </style>
+  <!-- Firebase Realtime Cloud SDKs for Sub-second Realtime Push -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -511,27 +583,63 @@
   </main>
 
   <script>
-    // Utopia Incidents - Fresh Clean State
+    // Initialize Realtime Firebase Database for Sub-second Zero Delay Sync
+    let utopiaDb = null;
+    try {
+      const fbConfig = {
+        apiKey: "AIzaSyBkbZyU_-6-d-9csKu6FklUwHFbfQ3P0Q4",
+        authDomain: "sut-fleet.firebaseapp.com",
+        databaseURL: "https://sut-fleet-default-rtdb.firebaseio.com",
+        projectId: "sut-fleet"
+      };
+      if (!firebase.apps.length) {
+        firebase.initializeApp(fbConfig);
+      }
+      utopiaDb = firebase.database();
+    } catch(e) {
+      console.warn("Firebase SDK init error:", e);
+    }
+
     let utopiaIncidents = [];
     let selectedTicketId = null;
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Load any stored incidents from local storage demo
-      try {
-        const stored = JSON.parse(localStorage.getItem('utopia_reports_list') || '[]');
-        if (stored.length > 0) {
-          stored.forEach(item => {
-            if (!utopiaIncidents.some(u => u.id === item.id)) {
-              utopiaIncidents.unshift(item);
-            }
-          });
-        }
-      } catch (e) {}
-
+      // 1. Initial render empty state
       renderIncidentsList();
-      renderIncidentDetails(selectedTicketId);
+      renderIncidentDetails(null);
 
-      // Listen for Live incoming reports across tabs via BroadcastChannel
+      // 2. Realtime WebSocket listener via Firebase SDK (Instant Push <100ms)
+      if (utopiaDb) {
+        utopiaDb.ref('utopia_incidents').on('value', (snapshot) => {
+          const data = snapshot.val();
+          if (data && typeof data === 'object') {
+            const list = [];
+            Object.keys(data).forEach(key => {
+              if (data[key]) list.push(data[key]);
+            });
+            // Reverse so newest is first
+            list.reverse();
+            
+            // Check if there is a new incident to play chime
+            if (list.length > utopiaIncidents.length && utopiaIncidents.length > 0) {
+              playChime();
+            }
+            utopiaIncidents = list;
+            if (!selectedTicketId && utopiaIncidents.length > 0) {
+              selectedTicketId = utopiaIncidents[0].id;
+            }
+            renderIncidentsList();
+            renderIncidentDetails(selectedTicketId);
+          } else {
+            utopiaIncidents = [];
+            selectedTicketId = null;
+            renderIncidentsList();
+            renderIncidentDetails(null);
+          }
+        });
+      }
+
+      // 3. Listen for BroadcastChannel for same-device instant tabs
       try {
         const syncChannel = new BroadcastChannel('utopia_fleet_sync');
         syncChannel.onmessage = (event) => {
@@ -541,9 +649,9 @@
         };
       } catch (e) {}
 
-      // Polling Firebase Realtime Database for live cross-device sync
+      // 4. Fallback REST Polling (every 3 seconds)
       fetchLiveFirebaseReports();
-      setInterval(fetchLiveFirebaseReports, 5000);
+      setInterval(fetchLiveFirebaseReports, 3000);
     });
 
     function fetchLiveFirebaseReports() {
@@ -560,6 +668,9 @@
               }
             });
             if (hasNew) {
+              if (!selectedTicketId && utopiaIncidents.length > 0) {
+                selectedTicketId = utopiaIncidents[0].id;
+              }
               renderIncidentsList();
               renderIncidentDetails(selectedTicketId);
             }
@@ -580,12 +691,13 @@
 
     function renderIncidentsList() {
       const list = document.getElementById("incidentsList");
+      if (!list) return;
       list.innerHTML = "";
 
       document.getElementById("incidentsCountBadge").textContent = `${utopiaIncidents.length} بلاغات`;
       document.getElementById("kpiTotal").textContent = utopiaIncidents.length;
       
-      const criticalCount = utopiaIncidents.filter(i => i.severity === 'CRITICAL').length;
+      const criticalCount = utopiaIncidents.filter(i => i.severity === 'CRITICAL' && !i.status.includes('مغلق')).length;
       document.getElementById("kpiCritical").textContent = criticalCount;
 
       if (utopiaIncidents.length === 0) {
@@ -594,7 +706,7 @@
             <div style="font-size: 2.4rem; margin-bottom: 0.5rem;">📭</div>
             <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 0.35rem;">لا توجد بلاغات مسجلة حالياً</div>
             <p style="font-size: 0.76rem; color: #94a3b8; max-width: 320px; margin: 0 auto 1.25rem; line-height: 1.5;">
-              شاشة العمليات متصلة بالبث المباشر وبانتظار أول بلاغ تجريبي من الموظف ليظهر هنا لحظياً.
+              شاشة العمليات متصلة بالبث المباشر وبانتظار أول بلاغ تجريبي من الموظف ليظهر هنا لحظياً بدون أي تأخير.
             </p>
             <a href="utopia.html" target="_blank" class="btn-test-report" style="display: inline-flex; margin: 0 auto;">
               <span>📱 إرسال بلاغ تجريبي الآن</span>
@@ -615,8 +727,13 @@
           renderIncidentDetails(inc.id);
         };
 
-        const badgeClass = inc.severity === 'CRITICAL' ? 'badge-critical' : 'badge-medium';
-        const badgeText = inc.severity === 'CRITICAL' ? 'حالة حرجة 🚨' : 'ملاحظة متوسطة ⚠️';
+        const isResolved = inc.status && inc.status.includes('مغلق');
+        let badgeClass = inc.severity === 'CRITICAL' ? 'badge-critical' : 'badge-medium';
+        let badgeText = inc.severity === 'CRITICAL' ? 'حالة حرجة 🚨' : 'ملاحظة عامة ⚠️';
+        if (isResolved) {
+          badgeClass = 'badge-resolved';
+          badgeText = 'مغلق وتم الحل ✓';
+        }
 
         item.innerHTML = `
           <div class="incident-top">
@@ -638,6 +755,8 @@
 
     function renderIncidentDetails(id) {
       const detail = document.getElementById("incidentDetailContent");
+      if (!detail) return;
+
       if (!id || utopiaIncidents.length === 0) {
         detail.innerHTML = `
           <div class="empty-state" style="padding: 4rem 1rem; text-align: center;">
@@ -650,10 +769,11 @@
         `;
         return;
       }
+
       const inc = utopiaIncidents.find(i => i.id === id) || utopiaIncidents[0];
       if (!inc) return;
 
-      const detail = document.getElementById("incidentDetailContent");
+      const isResolved = inc.status && inc.status.includes('مغلق');
       const waText = encodeURIComponent(`السلام عليكم، بخصوص بلاغ السلامة بمصنع يوتوبيا تذكرة: ${inc.id} على ${inc.lineName}`);
 
       detail.innerHTML = `
@@ -662,7 +782,7 @@
             <h2 style="font-size: 1.15rem; font-weight: 900; color: #f87171; font-family: 'Outfit', sans-serif;">${inc.id}</h2>
             <div style="font-size: 0.74rem; color: #94a3b8;">توقيت الإرسال: ${inc.time || 'الآن'}</div>
           </div>
-          <span style="background: rgba(16, 185, 129, 0.15); color: #34d399; padding: 4px 10px; border-radius: 6px; font-size: 0.76rem; font-weight: 800;">
+          <span style="background: ${isResolved ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.15)'}; color: ${isResolved ? '#34d399' : '#fca5a5'}; border: 1px solid ${isResolved ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.3)'}; padding: 4px 10px; border-radius: 6px; font-size: 0.76rem; font-weight: 800;">
             ${inc.status || 'قيد المتابعة'}
           </span>
         </div>
@@ -699,21 +819,78 @@
           ${inc.employeePhone && inc.employeePhone !== 'غير مسجل' ? `<div style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">📞 هاتف: ${inc.employeePhone}</div>` : ''}
         </div>
 
-        <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+        <!-- Management Actions Buttons -->
+        <div style="margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.55rem;">
+          
+          <button type="button" class="${isResolved ? 'btn-action-reopen' : 'btn-action-close'}" onclick="toggleIncidentStatus('${inc.id}')">
+            <span>${isResolved ? '🔄 إعادة فتح البلاغ للمتابعة' : '✅ إغلاق البلاغ (تم حل المشكلة وتأمين الوردية)'}</span>
+          </button>
+
           <a href="https://api.whatsapp.com/send?phone=201095510811&text=${waText}" target="_blank" class="btn-action-whatsapp">
             <span>💬</span>
-            <span>توجيه إفادة فورية للسلامة عبر واتساب (01095510811)</span>
+            <span>توجيه إفادة فورية للسلامة عبر واتساب</span>
           </a>
+
+          <button type="button" class="btn-action-delete" onclick="deleteIncident('${inc.id}')">
+            <span>🗑️ حذف هذا البلاغ نهائياً من السجل</span>
+          </button>
         </div>
       `;
     }
 
-        function clearAllUtopiaIncidents() {
-      if (!confirm("هل أنت متأكد من تفريغ ومسح جميع بلاغات يوتوبيا المسجلة لبدء تجربة نظيفة؟")) return;
+    function toggleIncidentStatus(id) {
+      const inc = utopiaIncidents.find(i => i.id === id);
+      if (!inc) return;
+
+      const isResolved = inc.status && inc.status.includes('مغلق');
+      inc.status = isResolved ? "قيد المتابعة" : "مغلق وتم الحل ✓";
+
+      try {
+        if (utopiaDb) {
+          utopiaDb.ref('utopia_incidents/' + id).update({ status: inc.status });
+        }
+        fetch(`https://sut-fleet-default-rtdb.firebaseio.com/utopia_incidents/${id}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: inc.status })
+        }).catch(() => {});
+      } catch (e) {}
+
+      renderIncidentsList();
+      renderIncidentDetails(id);
+    }
+
+    function deleteIncident(id) {
+      if (!confirm("هل أنت متأكد من مسح هذا البلاغ نهائياً؟")) return;
+
+      utopiaIncidents = utopiaIncidents.filter(i => i.id !== id);
+
+      try {
+        if (utopiaDb) {
+          utopiaDb.ref('utopia_incidents/' + id).remove();
+        }
+        fetch(`https://sut-fleet-default-rtdb.firebaseio.com/utopia_incidents/${id}.json`, {
+          method: 'DELETE'
+        }).catch(() => {});
+
+        const stored = JSON.parse(localStorage.getItem('utopia_reports_list') || '[]');
+        localStorage.setItem('utopia_reports_list', JSON.stringify(stored.filter(i => i.id !== id)));
+      } catch (e) {}
+
+      selectedTicketId = utopiaIncidents.length > 0 ? utopiaIncidents[0].id : null;
+      renderIncidentsList();
+      renderIncidentDetails(selectedTicketId);
+    }
+
+    function clearAllUtopiaIncidents() {
+      if (!confirm("هل أنت متأكد من تفريغ ومسح جميع بلاغات يوتوبيا المسجلة لبدء تجربة نظيفة من الصفر؟")) return;
       utopiaIncidents = [];
       selectedTicketId = null;
       try {
         localStorage.removeItem('utopia_reports_list');
+        if (utopiaDb) {
+          utopiaDb.ref('utopia_incidents').remove();
+        }
         fetch('https://sut-fleet-default-rtdb.firebaseio.com/utopia_incidents.json', { method: 'DELETE' }).catch(() => {});
       } catch (e) {}
       renderIncidentsList();

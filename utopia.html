@@ -900,6 +900,9 @@
       display: none !important;
     }
   </style>
+  <!-- Firebase Cloud Realtime SDKs for Instant Push -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -1222,6 +1225,21 @@
       ]
     };
 
+        // Initialize Realtime Firebase Database
+    let utopiaDb = null;
+    try {
+      const fbConfig = {
+        apiKey: "AIzaSyBkbZyU_-6-d-9csKu6FklUwHFbfQ3P0Q4",
+        authDomain: "sut-fleet.firebaseapp.com",
+        databaseURL: "https://sut-fleet-default-rtdb.firebaseio.com",
+        projectId: "sut-fleet"
+      };
+      if (!firebase.apps.length) {
+        firebase.initializeApp(fbConfig);
+      }
+      utopiaDb = firebase.database();
+    } catch(e) {}
+
     let selectedBusId = "101";
     let selectedViolationCodes = ["SHIFT_DELAY"];
     let attachedImageData = null;
@@ -1430,6 +1448,23 @@
           time: "الآن (منذ لحظات)"
         };
 
+        // 1. Instant WebSocket Realtime Push to utopia-admin
+        try {
+          if (utopiaDb) {
+            utopiaDb.ref('utopia_incidents/' + ticketId).set(newIncidentObj).catch(()=>{});
+          }
+        } catch(e) {}
+
+        // 2. Failsafe REST API Push
+        try {
+          fetch(`https://sut-fleet-default-rtdb.firebaseio.com/utopia_incidents/${ticketId}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newIncidentObj)
+          }).catch(() => {});
+        } catch (e) {}
+
+        // 3. Local BroadcastChannel for open tabs
         try {
           const syncChan = new BroadcastChannel('utopia_fleet_sync');
           syncChan.postMessage({ incident: newIncidentObj });
@@ -1438,12 +1473,33 @@
           localStorage.setItem('utopia_reports_list', JSON.stringify(stored.slice(0, 30)));
         } catch (e) {}
 
+        // 4. Instant Email Notification to abdoo6555halem2@gmail.com
         try {
-          fetch(`https://sut-fleet-default-rtdb.firebaseio.com/utopia_incidents/${ticketId}.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newIncidentObj)
-          }).catch(() => {});
+          const emailData = {
+            "_subject": `🚨 [بلاغ أسطول مصنع يوتوبيا] تذكرة ${ticketId} - خط ${bus.lineName} (${violationTitle})`,
+            "_captcha": "false",
+            "_template": "table",
+            "تذكرة رقم": ticketId,
+            "الجهة": "مصنع يوتوبيا للأدوية - العاشر من رمضان",
+            "خط السير": bus.lineName,
+            "كود الحافلة": bus.code,
+            "الوردية": shift,
+            "نوع المخالفة": violationTitle,
+            "درجة الخطورة": sev === "CRITICAL" ? "حالة حرجة (HSE Emergency)" : (sev === "MEDIUM" ? "متوسطة" : "عامة"),
+            "موقع البلاغ": document.getElementById("reportLocationInput").value || "طريق العاشر من رمضان",
+            "ملاحظات الموظف": notes || "لا توجد ملاحظات إضافية",
+            "مقدم البلاغ": empName,
+            "الرقم الوظيفي (ID)": isAnon ? "محمي وسري" : (document.getElementById("employeeIdInput").value || "غير مسجل"),
+            "رقم الهاتف": isAnon ? "غير مسجل" : (document.getElementById("employeePhoneInput").value || "غير مسجل"),
+            "تاريخ وتوقيت البلاغ": new Date().toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' }),
+            "بيانات التواصل والمتابعة": "واتساب إدارة السلامة: 01095510811"
+          };
+
+          fetch('https://formsubmit.co/ajax/abdoo6555halem2@gmail.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(emailData)
+          }).then(res => res.json()).then(d => console.log('Email to abdoo sent:', d)).catch(e => console.warn(e));
         } catch (e) {}
 
         // Show Success Modal
