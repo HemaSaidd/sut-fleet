@@ -424,6 +424,9 @@
         <span class="live-pulse"></span>
         <span>بث مباشر لحظي</span>
       </div>
+      <button type="button" class="btn-test-report" onclick="clearAllUtopiaIncidents()" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border-glass);" title="مسح جميع البلاغات وبدء تجربة جديدة من الصفر">
+        <span>🗑️ تفريغ السجل</span>
+      </button>
       <a href="utopia.html" target="_blank" class="btn-test-report" title="فتح استمارة بلاغ الموظفين لتجربة إرسال بلاغ حي">
         <span>📱 تجربة إرسال بلاغ</span>
       </a>
@@ -439,7 +442,7 @@
         <div class="kpi-icon">📋</div>
         <div class="kpi-info">
           <h4>إجمالي البلاغات المسجلة</h4>
-          <div class="kpi-val" id="kpiTotal">14</div>
+          <div class="kpi-val" id="kpiTotal">0</div>
         </div>
       </div>
 
@@ -447,7 +450,7 @@
         <div class="kpi-icon">🚨</div>
         <div class="kpi-info">
           <h4>حالات حرجة (HSE Alerts)</h4>
-          <div class="kpi-val" id="kpiCritical" style="color: #f87171;">2</div>
+          <div class="kpi-val" id="kpiCritical" style="color: #f87171;">0</div>
         </div>
       </div>
 
@@ -508,59 +511,9 @@
   </main>
 
   <script>
-    // Sample Initial Showcase Incidents for Utopia Pharmaceuticals
-    let utopiaIncidents = [
-      {
-        id: "UTOPIA-103",
-        lineName: "خط العاشر من رمضان (الأردنية / الموقف)",
-        busCode: "باص 101",
-        shift: "الوردية الأولى (صباحية 8 ص - 4 م)",
-        violation: "تأخر الحافلة عن موعد بدء الوردية",
-        icon: "⏱️",
-        severity: "CRITICAL",
-        location: "طريق مصر الإسماعيلية الصحراوي أمام العاشر",
-        notes: "الأتوبيس متأخر 25 دقيقة بسبب عطل مفاجئ والسائق لم يخطر إدارة المصنع.",
-        employeeName: "أحمد تامر (قطاع الإنتاج الدوائي)",
-        employeeId: "UTO-3910",
-        employeePhone: "01095510811",
-        status: "قيد المتابعة",
-        time: "الآن (منذ لحظات)"
-      },
-      {
-        id: "UTOPIA-102",
-        lineName: "خط بلبيس ومشتول السوق",
-        busCode: "باص 102",
-        shift: "الوردية الثانية (مسائية 4 م - 12 ص)",
-        violation: "التدخين داخل الحافلة أثناء نقل الزملاء",
-        icon: "🚬",
-        severity: "MEDIUM",
-        location: "طريق بلبيس الزراعي",
-        notes: "السائق يقوم بالتدخين داخل الكابينة بالمخالفة لمعايير السلامة المهنية.",
-        employeeName: "موظف بمصنع يوتوبيا (هوية سرية)",
-        employeeId: "سري ومحمي",
-        employeePhone: "غير مسجل",
-        status: "تم توجيه إنذار",
-        time: "منذ 35 دقيقة"
-      },
-      {
-        id: "UTOPIA-101",
-        lineName: "خط الزقازيق وأبو حماد والشرقية",
-        busCode: "باص 103",
-        shift: "الوردية الإدارية (Day Shift)",
-        violation: "تعطل تكييف الحافلة وسوء النظافة",
-        icon: "❄️",
-        severity: "LOW",
-        location: "أمام مدخل مصنع يوتوبيا",
-        notes: "التكييف لا يعمل في المقاعد الخلفية وتم التنبيه للإصلاح.",
-        employeeName: "محمد شريف (رقابة الجودة QC)",
-        employeeId: "UTO-5120",
-        employeePhone: "01122334455",
-        status: "تمت المعالجة",
-        time: "منذ ساعتين"
-      }
-    ];
-
-    let selectedTicketId = "UTOPIA-103";
+    // Utopia Incidents - Fresh Clean State
+    let utopiaIncidents = [];
+    let selectedTicketId = null;
 
     document.addEventListener("DOMContentLoaded", () => {
       // Load any stored incidents from local storage demo
@@ -630,10 +583,27 @@
       list.innerHTML = "";
 
       document.getElementById("incidentsCountBadge").textContent = `${utopiaIncidents.length} بلاغات`;
-      document.getElementById("kpiTotal").textContent = utopiaIncidents.length + 11;
+      document.getElementById("kpiTotal").textContent = utopiaIncidents.length;
       
       const criticalCount = utopiaIncidents.filter(i => i.severity === 'CRITICAL').length;
       document.getElementById("kpiCritical").textContent = criticalCount;
+
+      if (utopiaIncidents.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state" style="padding: 3rem 1rem; text-align: center;">
+            <div style="font-size: 2.4rem; margin-bottom: 0.5rem;">📭</div>
+            <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 0.35rem;">لا توجد بلاغات مسجلة حالياً</div>
+            <p style="font-size: 0.76rem; color: #94a3b8; max-width: 320px; margin: 0 auto 1.25rem; line-height: 1.5;">
+              شاشة العمليات متصلة بالبث المباشر وبانتظار أول بلاغ تجريبي من الموظف ليظهر هنا لحظياً.
+            </p>
+            <a href="utopia.html" target="_blank" class="btn-test-report" style="display: inline-flex; margin: 0 auto;">
+              <span>📱 إرسال بلاغ تجريبي الآن</span>
+            </a>
+          </div>
+        `;
+        renderIncidentDetails(null);
+        return;
+      }
 
       utopiaIncidents.forEach(inc => {
         const isSelected = inc.id === selectedTicketId;
@@ -667,6 +637,19 @@
     }
 
     function renderIncidentDetails(id) {
+      const detail = document.getElementById("incidentDetailContent");
+      if (!id || utopiaIncidents.length === 0) {
+        detail.innerHTML = `
+          <div class="empty-state" style="padding: 4rem 1rem; text-align: center;">
+            <div style="font-size: 2.4rem; margin-bottom: 0.5rem;">🔍</div>
+            <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 0.35rem;">بانتظار تسجيل البلاغات الحية</div>
+            <p style="font-size: 0.76rem; color: #94a3b8; line-height: 1.5;">
+              بمجرد إرسال بلاغ من صفحة الموظف، ستظهر تفاصيله الكاملة وخيارات التدخل الفوري هنا تلقائياً.
+            </p>
+          </div>
+        `;
+        return;
+      }
       const inc = utopiaIncidents.find(i => i.id === id) || utopiaIncidents[0];
       if (!inc) return;
 
@@ -725,6 +708,18 @@
       `;
     }
 
+        function clearAllUtopiaIncidents() {
+      if (!confirm("هل أنت متأكد من تفريغ ومسح جميع بلاغات يوتوبيا المسجلة لبدء تجربة نظيفة؟")) return;
+      utopiaIncidents = [];
+      selectedTicketId = null;
+      try {
+        localStorage.removeItem('utopia_reports_list');
+        fetch('https://sut-fleet-default-rtdb.firebaseio.com/utopia_incidents.json', { method: 'DELETE' }).catch(() => {});
+      } catch (e) {}
+      renderIncidentsList();
+      renderIncidentDetails(null);
+    }
+
     function playChime() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -743,3 +738,4 @@
   </script>
 </body>
 </html>
+
